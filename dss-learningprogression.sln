@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.LearningProgression", "NCS.DSS.LearningProgression\NCS.DSS.LearningProgression.csproj", "{1536E2CD-0C2B-4951-AFA0-1BEBB53BF5EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.LearningProgression.UnitTests", "NCS.DSS.LearningProgression.Tests\NCS.DSS.LearningProgression.UnitTests.csproj\NCS.DSS.LearningProgression.UnitTests.csproj", "{9474618E-4105-4CE3-A6A9-E8A3B5805BE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.LearningProgression.Tests", "NCS.DSS.LearningProgression.Tests\NCS.DSS.LearningProgression.UnitTests.csproj\NCS.DSS.LearningProgression.Tests.csproj", "{9474618E-4105-4CE3-A6A9-E8A3B5805BE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
