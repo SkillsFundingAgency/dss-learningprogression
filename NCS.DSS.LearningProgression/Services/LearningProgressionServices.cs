@@ -92,9 +92,6 @@ namespace NCS.DSS.LearningProgression.Services
             {
                 var learningProgressionAsJsonObject = JObject.Parse(learningProgressionAsJson);
 
-                if (string.IsNullOrEmpty(learningProgressionPatch.SubContractorId))
-                    _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["SubContractorId"], learningProgressionPatch.SubContractorId);
-
                 if (learningProgressionPatch.DateProgressionRecorded.HasValue)
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["DateProgressionRecorded"], learningProgressionPatch.DateProgressionRecorded);
 
@@ -139,12 +136,11 @@ namespace NCS.DSS.LearningProgression.Services
             }
         }
 
-        public virtual void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId, string subcontractorId)
+        public virtual void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)
         {
             learningProgression.LearningProgressionId = Guid.NewGuid();
             learningProgression.CustomerId = customerGuid;
             learningProgression.LastModifiedTouchpointID = touchpointId;
-            learningProgression.SubContractorId = subcontractorId;
             learningProgression.CreatedBy = touchpointId;
         }
 

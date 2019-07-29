@@ -14,9 +14,8 @@ namespace NCS.DSS.ActionPlan.APIDefinition
         public const string ApiTitle = "LearningProgressions";
         public const string ApiDefinitionName = "API-Definition";
         public const string ApiDefRoute = ApiTitle + "/" + ApiDefinitionName;
-        public const string ApiDescription = "To support the Data Collections integration with DSS, SessionId and SubcontractorId " +
-                                             "attributes have been added and DateActionPlanCreated, DateAndTimeCharterShown, " +
-                                             "DateActionPlanSentToCustomer, DateActionPlanAcknowledged have new validation rules.";
+        public const string ApiDescription = "To support the Data Collections integration with DSS, " +
+                                             "initial release of Learning Progression";
 
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
         public const string ApiVersion = "2.0.0";

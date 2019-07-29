@@ -85,8 +85,6 @@ namespace NCS.DSS.LearningProgression
                     logger.LogInformation("Unable to locate 'TouchpointId' in request header.");
                     return _httpResponseMessageHelper.BadRequest();
                 }
-
-                var subContractorId = _httpRequestHelper.GetDssSubcontractorId(req);
                 
                 var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
                 if (string.IsNullOrEmpty(ApimURL))
@@ -124,7 +122,7 @@ namespace NCS.DSS.LearningProgression
 
                 logger.LogInformation($"Attempt to get resource from body of the request correlationId {correlationGuid}.");
                 learningProgression = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgression>(req);
-                _learningProgressionServices.SetIds(learningProgression, customerGuid, touchpointId, subContractorId);
+                _learningProgressionServices.SetIds(learningProgression, customerGuid, touchpointId);
 
                 var errors = _validate.ValidateResource(learningProgression);
 

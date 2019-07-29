@@ -66,7 +66,7 @@ namespace NCS.DSS.LearningProgression
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string learningProgressionId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
         {
             Guid correlationGuid = Guid.Empty;
 
@@ -99,13 +99,12 @@ namespace NCS.DSS.LearningProgression
                     return _httpResponseMessageHelper.BadRequest(customerGuid);
                 }
 
-                if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
+                if (!Guid.TryParse(LearningProgessionId, out var learnerProgressionGuid))
                 {
                     logger.LogInformation($"Unable to parse 'learnerProgressionId' to a Guid: {learnerProgressionGuid}");
                     return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
                 }
 
-                // jet the json of the patch request
                 learningProgressionPatch = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgressionPatch>(req);
 
                 if (learningProgressionPatch == null)
@@ -126,15 +125,15 @@ namespace NCS.DSS.LearningProgression
                     return _httpResponseMessageHelper.BadRequest();
                 }
 
-                //if (!_learningProgressionServices.DoesLearningProgressionExistForCustomer(customerGuid))
-                //{
-                //    logger.LogInformation($"Learning progression does not exist for customerId {customerGuid}, correlationId {correlationGuid}.");
-                //    return _httpResponseMessageHelper.NoContent();
-                //}
+                if (!_learningProgressionServices.DoesLearningProgressionExistForCustomer(customerGuid))
+                {
+                    logger.LogInformation($"Learning progression does not exist for customerId {customerGuid}, correlationId {correlationGuid}.");
+                    return _httpResponseMessageHelper.NoContent();
+                }
 
                 var currentLearningProgressionAsJson = await _learningProgressionServices.GetLearningProgressionForCustomerToPatchAsync(customerGuid, learnerProgressionGuid);
 
-                // _learningProgressionServices.SetIds(learningProgressionPatch, customerGuid, touchpointId, subContractorId);
+                // _learningProgressionServices.SetIds(learningProgressionPatch, customerGuid, touchpointId);
 
                 var patchLearningProgression = _learningProgressionServices.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatch);
                 if (patchLearningProgression == null)
@@ -150,8 +149,8 @@ namespace NCS.DSS.LearningProgression
                 //    logger.LogInformation($"validation errors with resource customerId {customerGuid} correlationId {correlationGuid}.");
                 //    return _httpResponseMessageHelper.UnprocessableEntity(errors);
                 //}
+                // await _learningProgressionServices.();
 
-                // todo uncomment the line below
                 // await _learningProgressionServices.SendToServiceBusQueueAsync(learningProgression, ApimURL);
 
                 var learningProgressionAsJson = _jsonHelper.SerializeObjectAndRenameIdProperty(learningProgressionPatch, "id", "LearningProgressionId");

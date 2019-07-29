@@ -24,15 +24,6 @@ namespace NCS.DSS.LearningProgression.Validators
                 return;
             }
 
-            if (!string.IsNullOrEmpty(learningProgressionResource.SubContractorId))
-            {
-                if (learningProgressionResource.SubContractorId.Trim().Length > 50)
-                {
-                    results.Add(new ValidationResult("SubContractor Id is greater than 50 characters.", new[] { "SubContractorId" }));
-                }
-            }
-
-
             if (learningProgressionResource.DateProgressionRecorded > DateTime.UtcNow)
             {
                 results.Add(new ValidationResult("Date And Time must be less the current date/time", new[] { "DateProgressionRecorded" }));

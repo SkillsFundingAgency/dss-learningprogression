@@ -20,9 +20,6 @@ namespace NCS.DSS.LearningProgression.Models
         [Required]
         public Guid CustomerId { get; set; }
 
-        [StringLength(50)]
-        public string SubContractorId { get; set; }
-
         [Required]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime DateProgressionRecorded { get; set; }

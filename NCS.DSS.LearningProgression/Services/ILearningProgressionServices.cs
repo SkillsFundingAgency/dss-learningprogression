@@ -12,7 +12,7 @@ namespace NCS.DSS.LearningProgression.Services
         bool DoesLearningProgressionExistForCustomer(Guid customerId);
         Task<bool> DoesCustomerExist(Guid customerId);
         Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl);
-        void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId, string subcontractorId);
+        void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId);
         string PatchLearningProgressionAsync(string learningProgressionAsJson, Models.LearningProgressionPatch learningProgressionPatch);
         Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId);
     }
