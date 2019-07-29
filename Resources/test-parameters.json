@@ -1,0 +1,45 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "cosmosDbCollectionId": {
+            "value": "learningprogressions"
+        },
+        "cosmosDbDatabaseId": {
+            "value": "learningprogressions"
+        },
+        "cosmosDbEndpoint": {
+            "value": "https://dss-foo-shared-cdb.documents.azure.com:443"
+        },
+        "cosmosDbKey": {
+            "value": "not-a-real-key"
+        },
+        "environmentName": {
+            "value": "FOO"
+        },
+        "functionAppNames": {
+            "value": [ "dss-foo-learn-fa" ]
+        },
+        "serviceBusConnectionString": {
+            "value": "Endpoint=sb://dss-foo-shared-ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=not-a-real-key="
+        },
+        "serviceBusQueueName": {
+            "value": "dss-content"
+        },
+        "sharedAppServicePlanName": {
+            "value": "dss-foo-shared-asp"
+        },
+        "sharedAppServicePlanResourceGroup": {
+            "value": "dss-foo-shared-rg"
+        },
+        "storageAccountName": {
+            "value": "dssfooshdarmstr"
+        },
+        "storageAccountKey": {
+            "value": "not-a-real-key"
+        },
+        "templateBaseUrl": {
+            "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-learningprogression/SDD-60-MoveTestsProject-v3/Resources/"
+        }
+    }
+}
