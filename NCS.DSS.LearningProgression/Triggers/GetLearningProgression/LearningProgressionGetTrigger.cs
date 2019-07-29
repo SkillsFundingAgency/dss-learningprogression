@@ -19,7 +19,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionGetTrigger
     {
-        const string RouteValue = "customers/{customerId}/learningprogessions";
+        const string RouteValue = "customers/{customerId}/LearningProgessions";
         const string FunctionName = "run";
         private string _cosmosDBConnectionString = "CosmosDBConnectionString";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;

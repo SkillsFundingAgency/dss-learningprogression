@@ -11,7 +11,7 @@ namespace NCS.DSS.ActionPlan.APIDefinition
 {
     public class ApiDefinition
     {
-        public const string ApiTitle = "Contact";
+        public const string ApiTitle = "LearningProgressions";
         public const string ApiDefinitionName = "API-Definition";
         public const string ApiDefRoute = ApiTitle + "/" + ApiDefinitionName;
         public const string ApiDescription = "To support the Data Collections integration with DSS, SessionId and SubcontractorId " +

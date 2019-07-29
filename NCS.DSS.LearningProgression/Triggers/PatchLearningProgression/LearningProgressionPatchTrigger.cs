@@ -25,7 +25,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionPatchTrigger
     {
-        const string RouteValue = "customers/{customerId}/learningprogessions/{learningprogressionid}";
+        const string RouteValue = "customers/{customerId}/learningprogessions/{LearningProgessionId}";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionServices _learningProgressionServices;
