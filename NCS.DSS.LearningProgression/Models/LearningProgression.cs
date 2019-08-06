@@ -1,5 +1,5 @@
-﻿using DFC.Swagger.Standard.Annotations;
-using Microsoft.Build.Framework;
+﻿using DFC.JSON.Standard.Attributes;
+using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.LearningProgression.Enumerations;
 using Newtonsoft.Json;
 using System;
@@ -8,24 +8,22 @@ using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribut
 
 namespace NCS.DSS.LearningProgression.Models
 {
-    public class LearningProgression
+    public class LearningProgression : ILearningProgression
     {
         [Display(Description = "Unique identifier for a learning progression record")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
         [JsonProperty(PropertyName = "id")]
-        public Guid LearningProgressionId { get; set; }
+        public Guid? LearningProgressionId { get; set; }
 
         [Display(Description = "Unique identifier of a customer")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         [Required]
-        public Guid CustomerId { get; set; }
-
-        [StringLength(50)]
-        public string SubContractorId { get; set; }
+        public Guid? CustomerId { get; set; }
 
         [Required]
         [Example(Description = "2018-06-21T17:45:00")]
-        public DateTime DateProgressionRecorded { get; set; }
+        [Display(Description = "Date and time progression recorded.")]
+        public DateTime? DateProgressionRecorded { get; set; }
 
         [Required]
         [Display(Description = "Learning progression Learning Status:   " +
@@ -35,16 +33,17 @@ namespace NCS.DSS.LearningProgression.Models
                                 "4 - Prefer not to say,   " +
                                 "99 - Not known")]
         [Example(Description = "3")]
-        public CurrentLearningStatus CurrentLearningStatus { get; set; }
+        public CurrentLearningStatus? CurrentLearningStatus { get; set; }
 
         [Display(Description = "Learning progression Learning Hours:   " +
                         "1 - Less than 16 hours,  " +
                         "2 - 16 hours or more,  ")]
         [Example(Description = "2")]
-        public LearningHours LearningHours { get; set; }
+        public LearningHours? LearningHours { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time learning started.")]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateLearningStarted { get; set; }
 
@@ -61,9 +60,10 @@ namespace NCS.DSS.LearningProgression.Models
                                 "8 - Qualification Level 8,   " +
                                 "99 - Not known")]
         [Example(Description = "3")]
-        public QualificationLevel CurrentQualificationLevel { get; set; }
+        public QualificationLevel? CurrentQualificationLevel { get; set; }
 
         [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time qualification level achieved.")]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateQualificationLevelAchieved { get; set; }
 
@@ -71,6 +71,7 @@ namespace NCS.DSS.LearningProgression.Models
         public string LastLearningProvidersUKPRN { get; set; }
 
         [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time of last modification.")]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? LastModifiedDate { get; set; }
 
@@ -80,6 +81,7 @@ namespace NCS.DSS.LearningProgression.Models
         public string LastModifiedTouchpointID { get; set; }
 
         [StringLength(10)]
+        [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
     }
 }

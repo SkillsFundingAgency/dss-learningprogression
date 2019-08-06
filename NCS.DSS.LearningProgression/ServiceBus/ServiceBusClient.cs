@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
+using NCS.DSS.LearningProgression.Models;
 using Newtonsoft.Json;
 
 namespace NCS.DSS.LearningProgression.ServiceBus
@@ -64,6 +65,11 @@ namespace NCS.DSS.LearningProgression.ServiceBus
 
             //msg.ForcePersistence = true; Required when we save message to cosmos
             await sender.SendAsync(msg);
+        }
+
+        public Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, LearnerProgressConfigurationSettings learnerProgressConfigurationSettings)
+        {
+            throw new NotImplementedException();
         }
     }
 }

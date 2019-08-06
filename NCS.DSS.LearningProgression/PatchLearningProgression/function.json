@@ -5,7 +5,7 @@
       "name": "req",
       "type": "httpTrigger",
       "direction": "in",
-      "methods": [ "get" ]
+      "methods": [ "patch" ]
     },
     {
       "name": "$return",
@@ -16,4 +16,4 @@
   "disabled": false,
   "entryPoint": "NCS.DSS.LearningProgression\\LearningProgressionGetTrigger.Run",
   "scriptFile": "..\\Debug\\netcoreapp2.2\\bin\\NCS.DSS.LearningProgression.dll"
-} 
+}

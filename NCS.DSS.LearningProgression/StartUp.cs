@@ -1,17 +1,20 @@
-﻿using Microsoft.Azure.WebJobs.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using DFC.Swagger.Standard;
 using NCS.DSS.LearningProgression;
 using System;
 using DFC.HTTP.Standard;
 using NCS.DSS.LearningProgression.ServiceBus;
-using NCS.DSS.LearningProgression.Services;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
 using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Validators;
+using DFC.Common.Standard.Logging;
+using NCS.DSS.LearningProgression.PostLearningProgression.Service;
+using NCS.DSS.LearningProgression.GetLearningProgression.Service;
+using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
+using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -29,17 +32,21 @@ namespace NCS.DSS.LearningProgression
             var settings = GetLearnerProgressConfigurationSettings();
 
             services.AddSingleton(settings);
+            services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
+            services.AddSingleton<ILoggerHelper, LoggerHelper>();
             services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
             services.AddTransient<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
             services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
             services.AddTransient<IServiceBusClient, ServiceBusClient>();
-            services.AddTransient<ILearningProgressionServices, LearningProgressionServices>();
             services.AddTransient<IDocumentDBProvider, DocumentDBProvider>();
             services.AddTransient<IJsonHelper, JsonHelper>();
             services.AddTransient<IResourceHelper, ResourceHelper>();
             services.AddTransient<IValidate, Validate>();
+            services.AddTransient<ILearningProgressionsGetTriggerService, LearningProgressionsGetTriggerService>();
+            services.AddTransient<ILearningProgressionGetByIdService, LearningProgressionGetByIdService>();
+            services.AddTransient<ILearningProgressionPatchTriggerService, LearningProgressionPatchTriggerService>();
+            services.AddTransient<ILearningProgressionPostTriggerService, LearningProgressionPostTriggerService>();
 
-            services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
         }
 
         private LearnerProgressConfigurationSettings GetLearnerProgressConfigurationSettings()

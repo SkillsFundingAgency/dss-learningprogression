@@ -5,6 +5,13 @@
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="LearningProgressionGetByIdTriggerBuilder.cs" />
+    <Compile Remove="LearningProgressionGetTriggerBuilder.cs" />
+    <Compile Remove="LearningProgressionPatchTriggerBuilder.cs" />
+    <Compile Remove="LearningProgressionPostTriggerBuilder.cs" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />

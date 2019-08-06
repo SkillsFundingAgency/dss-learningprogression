@@ -5,11 +5,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Cosmos\Client\**" />
+    <Compile Remove="Services\**" />
     <EmbeddedResource Remove="Cosmos\Client\**" />
+    <EmbeddedResource Remove="Services\**" />
     <None Remove="Cosmos\Client\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Triggers\PostLearningProgression\function.json" />
+    <None Remove="Services\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cosmos\Client\CosmosDocumentClient.cs" />
@@ -17,8 +17,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DFC.Common.Standard" Version="0.1.1" />
-    <PackageReference Include="DFC.HTTP.Standard" Version="0.1.8" />
-    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.10" />
+    <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
+    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.11" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.10" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.1.2" />

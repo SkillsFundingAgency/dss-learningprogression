@@ -7,19 +7,18 @@ using System.Net.Http;
 using System.Reflection;
 using NCS.DSS.LearningProgression.Constants;
 
-namespace NCS.DSS.ActionPlan.APIDefinition
+namespace NCS.DSS.LearningProgression.APIDefinition
 {
     public class ApiDefinition
     {
         public const string ApiTitle = "LearningProgressions";
         public const string ApiDefinitionName = "API-Definition";
         public const string ApiDefRoute = ApiTitle + "/" + ApiDefinitionName;
-        public const string ApiDescription = "To support the Data Collections integration with DSS, SessionId and SubcontractorId " +
-                                             "attributes have been added and DateActionPlanCreated, DateAndTimeCharterShown, " +
-                                             "DateActionPlanSentToCustomer, DateActionPlanAcknowledged have new validation rules.";
+        public const string ApiDescription = "To support the Data Collections integration with DSS, " +
+                                             "initial release of Learning Progression";
 
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
-        public const string ApiVersion = "2.0.0";
+        public const string ApiVersion = "3.0.0";
 
         public ApiDefinition(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
@@ -30,7 +29,7 @@ namespace NCS.DSS.ActionPlan.APIDefinition
         public HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = ApiDefRoute)]HttpRequest req)
         {
             var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription, 
-                ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly());
+                ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly(), false);
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {

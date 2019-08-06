@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NCS.DSS.LearningProgression.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,7 +7,7 @@ namespace NCS.DSS.LearningProgression.Validators
 {
     public class Validate : IValidate
     {
-        public List<ValidationResult> ValidateResource(Models.LearningProgression learningProgressionResource)
+        public List<ValidationResult> ValidateResource(ILearningProgression learningProgressionResource)
         {
             var context = new ValidationContext(learningProgressionResource, null, null);
             var results = new List<ValidationResult>();
@@ -17,21 +18,12 @@ namespace NCS.DSS.LearningProgression.Validators
             return results;
         }
 
-        private void ValidateLearningProgressionRules(Models.LearningProgression learningProgressionResource, List<ValidationResult> results)
+        private void ValidateLearningProgressionRules(ILearningProgression learningProgressionResource, List<ValidationResult> results)
         {
             if (learningProgressionResource == null)
             {
                 return;
             }
-
-            if (!string.IsNullOrEmpty(learningProgressionResource.SubContractorId))
-            {
-                if (learningProgressionResource.SubContractorId.Trim().Length > 50)
-                {
-                    results.Add(new ValidationResult("SubContractor Id is greater than 50 characters.", new[] { "SubContractorId" }));
-                }
-            }
-
 
             if (learningProgressionResource.DateProgressionRecorded > DateTime.UtcNow)
             {
@@ -95,14 +87,14 @@ namespace NCS.DSS.LearningProgression.Validators
                 {
                     if (int.TryParse(learningProgressionResource.LastLearningProvidersUKPRN, out int value))
                     {
-                        if (value < 10000000 || value > 99999999)
+                        if (value < 10000000 && value > 99999999)
                         {
-                            results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a value between 1000000 - 99999999.", new[] { "LastLearningProvidersUKPRN" }));
+                            results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a value between 10000000 - 99999999.", new[] { "LastLearningProvidersUKPRN" }));
                         }
                     }
                     else
                     {
-                        results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a number between 1000000 - 99999999 format as shown as shown in this error.", new[] { "LastLearningProvidersUKPRN" }));
+                        results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a Number (and between 10000000 - 99999999).", new[] { "LastLearningProvidersUKPRN" }));
                     }
                 }
             }
