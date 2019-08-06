@@ -1,75 +1,65 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
-using NCS.DSS.LearningProgression.Models;
 using Newtonsoft.Json;
+using NCS.DSS.LearningProgression.Models;
+using Microsoft.Azure.ServiceBus;
 
 namespace NCS.DSS.LearningProgression.ServiceBus
 {
     public class ServiceBusClient : IServiceBusClient
     {
-        private LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
 
-        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, LearnerProgressConfigurationSettings learnerProgressConfigurationSettings, ILogger logger)
+        public ServiceBusClient(LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
         {
-            _learnerProgressConfigurationSettings = learnerProgressConfigurationSettings;
+            _learningProgressionConfigurationSettings = learnerProgressConfigurationSettings;
+        }
 
-            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_learnerProgressConfigurationSettings.KeyName, _learnerProgressConfigurationSettings.AccessKey);
-            var messagingFactory = MessagingFactory.Create(_learnerProgressConfigurationSettings.BaseAddress, tokenProvider);
-            var sender = messagingFactory.CreateMessageSender(_learnerProgressConfigurationSettings.QueueName);
+        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl)
+        {
+            var queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
 
             var messageModel = new MessageModel()
             {
-                //TitleMessage = "New Contact Details record {" + learningProgression.ContactId + "} added at " + DateTime.UtcNow,
-                //CustomerGuid = learningProgression.CustomerId,
-                //LastModifiedDate = learningProgression.LastModifiedDate,
-                //URL = reqUrl + "/" + learningProgression.ContactId,
-                //IsNewCustomer = false,
-                //TouchpointId = learningProgression.LastModifiedTouchpointId
+                TitleMessage = "New Leatrning Progression record {" + learningProgression.LearningProgressionId + "} added at " + DateTime.UtcNow,
+                CustomerGuid = learningProgression.CustomerId,
+                LastModifiedDate = learningProgression.LastModifiedDate,
+                URL = reqUrl + "/" + learningProgression.LearningProgressionId,
+                IsNewCustomer = false,
+                TouchpointId = learningProgression.LastModifiedTouchpointID
             };
 
-            var msg = new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel))))
+            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
             {
                 ContentType = "application/json",
-                MessageId = learningProgression.CustomerId + " " + DateTime.UtcNow
+                MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
             };
 
-            //msg.ForcePersistence = true; Required when we save message to cosmos
-            await sender.SendAsync(msg);
+            await queueClient.SendAsync(msg);
         }
 
         public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
         {
-            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_learnerProgressConfigurationSettings.KeyName, _learnerProgressConfigurationSettings.AccessKey);
-            var messagingFactory = MessagingFactory.Create(_learnerProgressConfigurationSettings.BaseAddress, tokenProvider);
-            var sender = messagingFactory.CreateMessageSender(_learnerProgressConfigurationSettings.QueueName);
+            var queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
+
             var messageModel = new MessageModel
             {
-                TitleMessage = "Contact Details record modification for {" + customerId + "} at " + DateTime.UtcNow,
+                TitleMessage = "Learning Progrerssion record modification for {" + customerId + "} at " + DateTime.UtcNow,
                 CustomerGuid = customerId,
                 LastModifiedDate = learningProgression.LastModifiedDate,
                 URL = reqUrl,
                 IsNewCustomer = false,
-                // TouchpointId = learningProgression.LastModifiedTouchpointId
+                 TouchpointId = learningProgression.LastModifiedTouchpointID
             };
 
-            var msg = new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel))))
+            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
             {
                 ContentType = "application/json",
                 MessageId = customerId + " " + DateTime.UtcNow
             };
 
-            //msg.ForcePersistence = true; Required when we save message to cosmos
-            await sender.SendAsync(msg);
-        }
-
-        public Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, LearnerProgressConfigurationSettings learnerProgressConfigurationSettings)
-        {
-            throw new NotImplementedException();
+            await queueClient.SendAsync(msg);
         }
     }
 }

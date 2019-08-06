@@ -1,5 +1,6 @@
 ﻿using DFC.JSON.Standard;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
+using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,9 +15,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         private readonly IJsonHelper _jsonHelper;
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
-        private readonly LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        private readonly LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
 
-        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, LearnerProgressConfigurationSettings learnerProgressConfigurationSettings)
+        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
         {
             _jsonHelper = jsonHelper;
             _documentDbProvider = documentDbProvider;
@@ -95,7 +96,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
         public async virtual Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
         {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, _learnerProgressConfigurationSettings);
+            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
         }
 
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)

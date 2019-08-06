@@ -1,4 +1,5 @@
 ﻿using NCS.DSS.LearningProgression.Cosmos.Provider;
+using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
 using System;
 using System.Threading.Tasks;
@@ -8,11 +9,11 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Service
     public class LearningProgressionGetByIdService : ILearningProgressionGetByIdService
     {
         private IDocumentDBProvider _documentDbProvider;
-        LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
         IServiceBusClient _serviceBusClient;
 
         public LearningProgressionGetByIdService(IDocumentDBProvider documentDbProvider,
-            LearnerProgressConfigurationSettings learnerProgressConfigurationSettings, IServiceBusClient serviceBusClient)
+            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings, IServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
         }
@@ -24,7 +25,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Service
 
         public async virtual Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
         {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, _learnerProgressConfigurationSettings);
+            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
         }
     }
 }

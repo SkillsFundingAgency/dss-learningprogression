@@ -14,6 +14,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using Newtonsoft.Json;
+using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -24,14 +25,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         const string LearningProgressionId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
         const string InvalidLearningProgressionId = "InvalidLearningProgressionId";
 
-        public LearningProgressionPatchTriggerTests()
-        {
-        }
-
         [Fact]
         async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
 
@@ -67,7 +64,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -104,7 +101,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -138,12 +135,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-
         [Fact]
         async Task Get_LearningProgressionIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -181,7 +177,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_InvalidBody_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -191,7 +187,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LearningProgressionPatchTriggerService = Substitute.For<ILearningProgressionPatchTriggerService>();
             LearningProgressionPatchTriggerService.PatchLearningProgressionAsync(Arg.Any<string>(), Arg.Any<Models.LearningProgressionPatch>()).Returns<string>("AString");
 
-         
+
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
@@ -221,7 +217,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_ReadOnlyCustomer_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -259,12 +255,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             Assert.True(response.StatusCode == HttpStatusCode.Forbidden);
         }
 
-
         [Fact]
         async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -314,7 +309,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_LearningProvideDoesNotExistForCustomer_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -354,7 +349,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_NoLearningProgressionPatchData_ReturnNoContent()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -397,7 +392,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_ValidationFailed_ReturnUnprocessableEntity()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -408,7 +403,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             LearningProgressionPatchTriggerService.PatchLearningProgressionAsync(Arg.Any<string>(), Arg.Any<Models.LearningProgressionPatch>()).Returns<string>(JsonConvert.SerializeObject(new Models.LearningProgressionPatch()));
             LearningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(JsonConvert.SerializeObject(new Models.LearningProgressionPatch()));
             LearningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(Arg.Any<Guid>()).Returns(true);
-  
+
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
@@ -449,7 +444,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_SuccessRequest_ReturnOk()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");

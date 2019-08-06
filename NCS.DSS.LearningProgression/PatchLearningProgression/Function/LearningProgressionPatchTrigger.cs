@@ -33,7 +33,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
-        private readonly LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        private readonly LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
         private ICosmosDocumentClient _cosmosDocumentClient;
         private IDocumentClient _documentClient;
         private LearningProgressionPatch learningProgressionPatch;
@@ -41,7 +41,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private readonly ILoggerHelper _loggerHelper;
 
         public LearningProgressionPatchTrigger(
-            LearnerProgressConfigurationSettings learnerProgressConfigurationSettings,
+            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings,
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPatchTriggerService learningProgressionPatchTriggerService,

@@ -1,4 +1,5 @@
 ﻿using NCS.DSS.LearningProgression.Cosmos.Provider;
+using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
 using System;
 using System.Net;
@@ -9,11 +10,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
     public class LearningProgressionPostTriggerService : ILearningProgressionPostTriggerService
     {
         private IDocumentDBProvider _documentDbProvider;
-        LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
         IServiceBusClient _serviceBusClient;
 
         public LearningProgressionPostTriggerService(IDocumentDBProvider documentDbProvider,
-            LearnerProgressConfigurationSettings learnerProgressConfigurationSettings, IServiceBusClient serviceBusClient)
+            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings, IServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
@@ -41,7 +42,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
         public async virtual Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
         {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, _learnerProgressConfigurationSettings);
+            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
         }
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)
         {

@@ -11,20 +11,17 @@ using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using Microsoft.AspNetCore.Http;
 using System;
+using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
     public class LearningProgressionGetTriggerTests
     {
-        public LearningProgressionGetTriggerTests()
-        {
-        }
-
         [Fact]
         async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             var LearningProgressionsGetTriggerService = Substitute.For<ILearningProgressionsGetTriggerService>();
@@ -34,7 +31,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionsGetTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionsGetTriggerService,
@@ -55,7 +52,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-             var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+             var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -67,7 +64,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionsGetTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionsGetTriggerService,
@@ -88,7 +85,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-              var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+              var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -101,7 +98,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionsGetTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionsGetTriggerService,
@@ -122,7 +119,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -138,7 +135,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionsGetTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionsGetTriggerService,
@@ -159,7 +156,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_RequestContainsNoErrors_ReturnOk()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -176,7 +173,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionsGetTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionsGetTriggerService,

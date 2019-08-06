@@ -20,6 +20,7 @@ using NCS.DSS.LearningProgression.Validators;
 using System.Linq;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
+using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -32,7 +33,7 @@ namespace NCS.DSS.LearningProgression
         private readonly ILearningProgressionPostTriggerService _learningProgressionPostTriggerService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
-        private readonly LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        private readonly LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
         private readonly ILoggerHelper _loggerHelper;
         private ICosmosDocumentClient _cosmosDocumentClient;
         private IDocumentClient _documentClient;
@@ -40,7 +41,7 @@ namespace NCS.DSS.LearningProgression
         private IValidate _validate;
 
         public LearningProgressionPostTrigger(
-            LearnerProgressConfigurationSettings learnerProgressConfigurationSettings,
+            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings,
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPostTriggerService learningProgressionPostTriggerService,

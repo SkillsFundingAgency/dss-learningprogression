@@ -17,6 +17,7 @@ using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
+using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -31,14 +32,14 @@ namespace NCS.DSS.LearningProgression
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILoggerHelper _loggerHelper;
-        private readonly LearnerProgressConfigurationSettings _learnerProgressConfigurationSettings;
+        private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
         private ICosmosDocumentClient _cosmosDocumentClient;
         private IDocumentClient _documentClient;
         private Models.LearningProgression learningProgression;
 
 
         public LearningProgressionGetByIdTrigger(
-            LearnerProgressConfigurationSettings learnerProgressConfigurationSettings,
+            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings,
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionGetByIdService learningProgressionByIdService,
@@ -48,7 +49,7 @@ namespace NCS.DSS.LearningProgression
             ILoggerHelper loggerHelper
             )
         {
-            _learnerProgressConfigurationSettings = learnerProgressConfigurationSettings;
+            _learningProgressionConfigurationSettings = learnerProgressConfigurationSettings;
             _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionByIdService = learningProgressionByIdService;

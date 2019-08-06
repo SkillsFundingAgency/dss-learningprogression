@@ -1,33 +1,25 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Xunit;
 using System.Net;
 using NSubstitute;
 using DFC.HTTP.Standard;
-using NCS.DSS.LearningProgression.GetLearningProgression.Service;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using Microsoft.AspNetCore.Http;
 using System;
-using NCS.DSS.LearningProgression;
-using NCS.DSS.LearningProgression.Tests;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
+using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
     public class LearningProgressionGetByIdTriggerTests
     {
-        public LearningProgressionGetByIdTriggerTests()
-        {
-        }
-
         [Fact]
         async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
-             var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
 
@@ -40,7 +32,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
@@ -51,7 +43,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 );
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "","");
+            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "", "");
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
@@ -61,7 +53,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -76,7 +68,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
@@ -97,7 +89,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -113,7 +105,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
@@ -134,7 +126,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -151,7 +143,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
@@ -172,7 +164,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         async Task Get_RequestContainsNoErrors_ReturnOk()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearnerProgressConfigurationSettings();
+            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -189,7 +181,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearnerProgressConfigurationSettings,
+                LearningProgressionConfigurationSettings,
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,

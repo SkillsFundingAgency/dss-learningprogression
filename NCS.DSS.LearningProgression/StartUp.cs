@@ -15,6 +15,7 @@ using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
+using NCS.DSS.LearningProgression.Models;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -46,18 +47,18 @@ namespace NCS.DSS.LearningProgression
             services.AddTransient<ILearningProgressionGetByIdService, LearningProgressionGetByIdService>();
             services.AddTransient<ILearningProgressionPatchTriggerService, LearningProgressionPatchTriggerService>();
             services.AddTransient<ILearningProgressionPostTriggerService, LearningProgressionPostTriggerService>();
-
         }
 
-        private LearnerProgressConfigurationSettings GetLearnerProgressConfigurationSettings()
+        private LearningProgressionConfigurationSettings GetLearnerProgressConfigurationSettings()
         {
-            var settings = new LearnerProgressConfigurationSettings
+            var settings = new LearningProgressionConfigurationSettings
             {
                 CosmosDBConnectionString = Environment.GetEnvironmentVariable("CosmosDBConnectionString"),
                 KeyName = Environment.GetEnvironmentVariable("KeyName"),
                 AccessKey = Environment.GetEnvironmentVariable("AccessKey"),
                 BaseAddress = Environment.GetEnvironmentVariable("BaseAddress"),
                 QueueName = Environment.GetEnvironmentVariable("QueueName"),
+                ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString"),
             };
 
             return settings;
