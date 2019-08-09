@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace NCS.DSS.LearningProgression.Tests
 {
-    public class TestFactory
+    public static class TestFactory
     {
         public static IEnumerable<object[]> Data()
         {

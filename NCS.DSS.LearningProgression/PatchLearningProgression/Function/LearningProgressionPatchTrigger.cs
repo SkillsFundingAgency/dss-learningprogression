@@ -8,7 +8,6 @@ using NCS.DSS.LearningProgression.Constants;
 using System.Net;
 using DFC.Swagger.Standard.Annotations;
 using System.Net.Http;
-using Microsoft.Azure.Documents;
 using System;
 using DFC.HTTP.Standard;
 using Newtonsoft.Json;
@@ -32,33 +31,27 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
         private readonly IJsonHelper _jsonHelper;
-        private readonly IResourceHelper _resourceHelper;
-        private readonly LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
-        private ICosmosDocumentClient _cosmosDocumentClient;
-        private IDocumentClient _documentClient;
-        private LearningProgressionPatch learningProgressionPatch;
-        private IValidate _validate;
+        private readonly IResourceHelper _resourceHelper;  
+        private readonly IValidate _validate;
         private readonly ILoggerHelper _loggerHelper;
 
         public LearningProgressionPatchTrigger(
-            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings,
+            
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPatchTriggerService learningProgressionPatchTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
-            ICosmosDocumentClient cosmosDocumentClient,
             IValidate validate,
             ILoggerHelper loggerHelper
             )
         {
-            _learnerProgressConfigurationSettings = learnerProgressConfigurationSettings;
+            
             _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionPatchTriggerService = learningProgressionPatchTriggerService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
-            _cosmosDocumentClient = cosmosDocumentClient;
             _validate = validate;
             _loggerHelper = loggerHelper;
         }
@@ -73,13 +66,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
         {
-            Guid correlationGuid = Guid.Empty;
-
             _loggerHelper.LogMethodEnter(logger);
 
-            _documentClient = _cosmosDocumentClient.GetDocumentClient();
-
-            correlationGuid = GetCorrelationId(req);
+            var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
+            var guidHelper = new GuidHelper();
+            var correlationGuid = guidHelper.ValidateGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -108,14 +99,16 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
             }
 
-            learningProgressionPatch = await _httpRequestHelper.GetResourceFromRequest<LearningProgressionPatch>(req);
+            LearningProgressionPatch learningProgressionPatchRequest;
+            learningProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<LearningProgressionPatch>(req);
 
-            if (learningProgressionPatch == null)
+            if (learningProgressionPatchRequest == null)
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"A patch body was not provided. CorrelationId: {correlationGuid}.");
                 return _httpResponseMessageHelper.NoContent();
             }
 
+            _learningProgressionPatchTriggerService.SetIds(learningProgressionPatchRequest, customerGuid, touchpointId);
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Customer is readonly with customerId {customerGuid}.");
@@ -142,7 +135,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 return _httpResponseMessageHelper.NoContent(learnerProgressionGuid);
             }
 
-            var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatch);
+            var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
             if (patchedLearningProgressionAsJson == null)
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
@@ -179,35 +172,14 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"attempting to send to service bus {learnerProgressionGuid}.");
 
-                // todo remove comment below
-                // await _learningProgressionServices.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, ApimURL);
+                await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, ApimURL);
             }
 
             _loggerHelper.LogMethodExit(logger);
 
-            return learningProgressionPatch == null ?
+            return learningProgressionPatchRequest == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgressionPatch, "id", "learningProgressionId"));
-        }
-
-        private Guid GetCorrelationId(HttpRequest req)
-        {
-            var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
-            if (string.IsNullOrEmpty(correlationId))
-            {
-                return Guid.NewGuid();
-            }
-
-            var guidHelper = new GuidHelper();
-            var correlationGuid = guidHelper.ValidateGuid(correlationId);
-
-            if (correlationGuid == Guid.Empty)
-            {
-                return Guid.NewGuid();
-            }
-
-            return correlationGuid;
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgressionPatchRequest, "id", "LearningProgressionId"));
         }
     }
 }

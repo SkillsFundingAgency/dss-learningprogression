@@ -9,19 +9,18 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 {
     public class LearningProgressionPostTriggerService : ILearningProgressionPostTriggerService
     {
-        private IDocumentDBProvider _documentDbProvider;
-        LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
-        IServiceBusClient _serviceBusClient;
+        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly IServiceBusClient _serviceBusClient;
 
         public LearningProgressionPostTriggerService(IDocumentDBProvider documentDbProvider,
-            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings, IServiceBusClient serviceBusClient)
+             IServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
-            _learnerProgressConfigurationSettings = learnerProgressConfigurationSettings;
+            
         }
 
-        public async virtual Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
+        public async Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
             if (learningProgression == null)
             {
@@ -40,16 +39,17 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
         }
 
-        public async virtual Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl)
         {
             await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
         }
+
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)
         {
             return _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
-        public virtual void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)
+        public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)
         {
             learningProgression.LearningProgressionId = Guid.NewGuid();
             learningProgression.CustomerId = customerGuid;

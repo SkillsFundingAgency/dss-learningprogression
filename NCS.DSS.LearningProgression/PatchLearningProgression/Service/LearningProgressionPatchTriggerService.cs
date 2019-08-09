@@ -15,24 +15,22 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         private readonly IJsonHelper _jsonHelper;
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
-        private readonly LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
-
-        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
+        
+        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
         {
             _jsonHelper = jsonHelper;
             _documentDbProvider = documentDbProvider;
-            _serviceBusClient = serviceBusClient;
-            _learnerProgressConfigurationSettings = learnerProgressConfigurationSettings;
+            _serviceBusClient = serviceBusClient;           
         }
 
-        public async virtual Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
+        public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
             var learningProgressionAsString = await _documentDbProvider.GetLearningProgressionForCustomerToPatchAsync(customerId, learningProgressionId);
 
             return learningProgressionAsString;
         }
 
-        public virtual string PatchLearningProgressionAsync(string learningProgressionAsJson, Models.LearningProgressionPatch learningProgressionPatch)
+        public string PatchLearningProgressionAsync(string learningProgressionAsJson, Models.LearningProgressionPatch learningProgressionPatch)
         {
             try
             {
@@ -75,13 +73,13 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
                 return learningProgressionAsJsonObject.ToString();
             }
-            catch (JsonReaderException ex)
+            catch (JsonReaderException)
             {
                 return null;
             }
         }
 
-        public virtual async Task<Models.LearningProgression> UpdateCosmosAsync(string learningProgressionAsJson, Guid learningProgressionId)
+        public async Task<Models.LearningProgression> UpdateCosmosAsync(string learningProgressionAsJson, Guid learningProgressionId)
         {
             if (string.IsNullOrEmpty(learningProgressionAsJson))
             {
@@ -94,7 +92,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             return responseStatusCode == HttpStatusCode.OK ? (dynamic)response.Resource : null;
         }
 
-        public async virtual Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl)
         {
             await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
         }
@@ -104,9 +102,15 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             return _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
-        public async virtual Task<bool> DoesCustomerExist(Guid customerId)
+        public async Task<bool> DoesCustomerExist(Guid customerId)
         {
             return await _documentDbProvider.DoesCustomerResourceExist(customerId);
+        }
+
+        public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
+        {
+            learningProgressionPatchRequest.LastModifiedTouchpointID = touchpointId;
+            learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
         }
     }
 }

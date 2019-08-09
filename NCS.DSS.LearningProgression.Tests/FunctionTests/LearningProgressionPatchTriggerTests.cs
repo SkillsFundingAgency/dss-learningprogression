@@ -26,9 +26,9 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         const string InvalidLearningProgressionId = "InvalidLearningProgressionId";
 
         [Fact]
-        async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
 
@@ -38,17 +38,16 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
-            var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+            var httpPostFunction = new LearningProgressionPatchTrigger(            
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -61,10 +60,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
+        public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -75,17 +74,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -98,10 +97,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
+        public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -113,17 +112,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -136,10 +135,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_LearningProgressionIdIsNotValidGuid_ReturnBadRequest()
+        public async Task Get_LearningProgressionIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -151,17 +150,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -174,10 +173,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_InvalidBody_ReturnBadRequest()
+        public async Task Get_InvalidBody_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -191,17 +190,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -214,10 +213,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_ReadOnlyCustomer_ReturnBadRequest()
+        public async Task Get_ReadOnlyCustomer_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -233,17 +232,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns<bool>(true);
 
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -256,10 +255,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -283,17 +282,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             ErrorResults.Add(validationResult);
             Valdiator.ValidateResource(Arg.Any<Models.LearningProgression>()).Returns(ErrorResults);
 
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -306,10 +305,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_LearningProvideDoesNotExistForCustomer_ReturnBadRequest()
+        public async Task Get_LearningProvideDoesNotExistForCustomer_ReturnBadRequest()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -323,17 +322,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -346,10 +345,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_NoLearningProgressionPatchData_ReturnNoContent()
+        public async Task Get_NoLearningProgressionPatchData_ReturnNoContent()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -366,17 +365,15 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
 
             var Valdiator = Substitute.For<IValidate>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
-            var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+            var httpPostFunction = new LearningProgressionPatchTrigger(      
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
-                ResourceHelper,
-                CosmosDBClient,
+                ResourceHelper,                
                 Valdiator,
                 LoggerHelper
                 );
@@ -389,10 +386,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_ValidationFailed_ReturnUnprocessableEntity()
+        public async Task Get_ValidationFailed_ReturnUnprocessableEntity()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -418,17 +415,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             ErrorResults.Add(validationResult);
             Valdiator.ValidateResource(Arg.Any<Models.LearningProgression>()).Returns(ErrorResults);
 
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );
@@ -441,10 +438,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_SuccessRequest_ReturnOk()
+        public async Task Get_SuccessRequest_ReturnOk()
         {
             // arrange
-            var LearnerProgressConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -467,17 +464,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             List<ValidationResult> ErrorResults = new List<ValidationResult>();
             Valdiator.ValidateResource(Arg.Any<Models.LearningProgression>()).Returns(ErrorResults);
 
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionPatchTrigger(
-                LearnerProgressConfigurationSettings,
+                
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionPatchTriggerService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 Valdiator,
                 LoggerHelper
                 );

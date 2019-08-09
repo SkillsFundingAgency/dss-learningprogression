@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.Extensions.Logging;
 
 namespace NCS.DSS.LearningProgression.CosmosDocumentClient
 {
@@ -9,7 +8,8 @@ namespace NCS.DSS.LearningProgression.CosmosDocumentClient
     {
         const string AccountEndpointId = "AccountEndpoint=";
         const string AccountKeyId = "AccountKey=";
-        private IDocumentClient _documentClient;
+
+        private readonly IDocumentClient _documentClient;
 
         public CosmosDocumentClient(string connectionString)
         {
@@ -20,9 +20,8 @@ namespace NCS.DSS.LearningProgression.CosmosDocumentClient
 
                 _documentClient = new DocumentClient(new Uri(endpoint), accountKey);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // logger.LogCritical(ex, "Error parsing CosmosDBConnectionString from Environment variable.");
                 throw;
             }
         }

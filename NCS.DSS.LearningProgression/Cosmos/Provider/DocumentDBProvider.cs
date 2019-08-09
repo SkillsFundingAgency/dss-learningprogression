@@ -142,7 +142,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             if (client == null)
             {
-                // todo Log fact client is null when it should have a value
                 return null;
             }
 

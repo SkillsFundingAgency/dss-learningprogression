@@ -17,9 +17,9 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
     public class LearningProgressionGetByIdTriggerTests
     {
         [Fact]
-        async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
-            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
 
@@ -28,17 +28,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearningProgressionConfigurationSettings,
+
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 LoggerHelper
                 );
 
@@ -50,10 +50,9 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
+        public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -63,18 +62,18 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearningProgressionConfigurationSettings,
+
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 LoggerHelper
                 );
 
@@ -86,10 +85,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
+        public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -100,18 +99,18 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             var JsonHelper = new JsonHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearningProgressionConfigurationSettings,
+
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 LoggerHelper
                 );
 
@@ -123,10 +122,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -139,17 +138,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var ResourceHelper = Substitute.For<IResourceHelper>();
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns<bool>(false);
 
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearningProgressionConfigurationSettings,
+
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 LoggerHelper
                 );
 
@@ -161,10 +160,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Fact]
-        async Task Get_RequestContainsNoErrors_ReturnOk()
+        public async Task Get_RequestContainsNoErrors_ReturnOk()
         {
             // arrange
-            var LearningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings();
+            
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
@@ -177,17 +176,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var ResourceHelper = Substitute.For<IResourceHelper>();
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns<bool>(true);
 
-            var CosmosDBClient = Substitute.For<ICosmosDocumentClient>();
+            
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
             var httpPostFunction = new LearningProgressionGetByIdTrigger(
-                LearningProgressionConfigurationSettings,
+
                 ResponseMessageHelper,
                 RequestHelper,
                 LearningProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                CosmosDBClient,
+                
                 LoggerHelper
                 );
 

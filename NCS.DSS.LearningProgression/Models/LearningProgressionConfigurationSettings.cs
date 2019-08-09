@@ -1,6 +1,4 @@
-﻿using Microsoft.Azure.ServiceBus;
-
-namespace NCS.DSS.LearningProgression.Models
+﻿namespace NCS.DSS.LearningProgression.Models
 {
     public class LearningProgressionConfigurationSettings
     {

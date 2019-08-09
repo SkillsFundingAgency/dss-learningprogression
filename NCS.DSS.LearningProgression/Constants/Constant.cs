@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NCS.DSS.LearningProgression.Constants
+﻿namespace NCS.DSS.LearningProgression.Constants
 {
     public static class Constant
     {

@@ -8,19 +8,15 @@ using NCS.DSS.LearningProgression.Constants;
 using System.Net;
 using DFC.Swagger.Standard.Annotations;
 using System.Net.Http;
-using Microsoft.Azure.Documents;
 using System;
 using DFC.HTTP.Standard;
-using Newtonsoft.Json;
 using DFC.Common.Standard.GuidHelper;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using NCS.DSS.LearningProgression.Validators;
 using System.Linq;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
-using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -32,33 +28,28 @@ namespace NCS.DSS.LearningProgression
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPostTriggerService _learningProgressionPostTriggerService;
         private readonly IJsonHelper _jsonHelper;
-        private readonly IResourceHelper _resourceHelper;
-        private readonly LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
-        private readonly ILoggerHelper _loggerHelper;
-        private ICosmosDocumentClient _cosmosDocumentClient;
-        private IDocumentClient _documentClient;
+        private readonly IResourceHelper _resourceHelper;      
+        private readonly ILoggerHelper _loggerHelper;        
         private Models.LearningProgression learningProgression;
-        private IValidate _validate;
+        private readonly IValidate _validate;
 
         public LearningProgressionPostTrigger(
-            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings,
+            
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPostTriggerService learningProgressionPostTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
-            ICosmosDocumentClient cosmosDocumentClient,
             IValidate validate,
             ILoggerHelper loggerHelper
             )
         {
-            _learnerProgressConfigurationSettings = learnerProgressConfigurationSettings;
+            
             _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionPostTriggerService = learningProgressionPostTriggerService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
-            _cosmosDocumentClient = cosmosDocumentClient;
             _validate = validate;
             _loggerHelper = loggerHelper;
         }
@@ -73,15 +64,11 @@ namespace NCS.DSS.LearningProgression
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPost, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId)
         {
-            Guid correlationGuid = Guid.Empty;
             _loggerHelper.LogMethodEnter(logger);
 
-            _documentClient = _cosmosDocumentClient.GetDocumentClient();
-
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
             var guidHelper = new GuidHelper();
-            correlationGuid = guidHelper.ValidateGuid(correlationId);
+            var correlationGuid = guidHelper.ValidateGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -143,14 +130,14 @@ namespace NCS.DSS.LearningProgression
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
-            _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Sending newly creaeted learning Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
-            // await _learningProgressionServices.SendToServiceBusQueueAsync(learningProgression, ApimURL);
+            _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Sending newly created learning Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
+            await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, ApimURL);
 
             _loggerHelper.LogMethodExit(logger);
 
             return learningProgression == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "learningProgressionId"));
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
         }
     }
 }

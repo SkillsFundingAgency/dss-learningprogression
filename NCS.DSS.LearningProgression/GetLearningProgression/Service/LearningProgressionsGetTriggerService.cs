@@ -1,5 +1,4 @@
 ﻿using NCS.DSS.LearningProgression.Cosmos.Provider;
-using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
 using System;
 using System.Collections.Generic;
@@ -9,14 +8,13 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Service
 {
     public class LearningProgressionsGetTriggerService : ILearningProgressionsGetTriggerService
     {
-        private IDocumentDBProvider _documentDbProvider;
-        LearningProgressionConfigurationSettings _learnerProgressConfigurationSettings;
-        IServiceBusClient _serviceBusClient;
+        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly IServiceBusClient _serviceBusClient;
 
-        public LearningProgressionsGetTriggerService(IDocumentDBProvider documentDbProvider,
-            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings, IServiceBusClient serviceBusClient)
+        public LearningProgressionsGetTriggerService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
+            _serviceBusClient = serviceBusClient;
         }
 
         public async virtual Task<List<Models.LearningProgression>> GetLearningProgressionsForCustomerAsync(Guid customerId)

@@ -10,19 +10,19 @@ namespace NCS.DSS.LearningProgression.ServiceBus
     public class ServiceBusClient : IServiceBusClient
     {
         private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
+        private readonly QueueClient _queueClient;
 
         public ServiceBusClient(LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
         {
             _learningProgressionConfigurationSettings = learnerProgressConfigurationSettings;
+            _queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
         }
 
         public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl)
         {
-            var queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
-
             var messageModel = new MessageModel()
             {
-                TitleMessage = "New Leatrning Progression record {" + learningProgression.LearningProgressionId + "} added at " + DateTime.UtcNow,
+                TitleMessage = "New Learning Progression record {" + learningProgression.LearningProgressionId + "} added at " + DateTime.UtcNow,
                 CustomerGuid = learningProgression.CustomerId,
                 LastModifiedDate = learningProgression.LastModifiedDate,
                 URL = reqUrl + "/" + learningProgression.LearningProgressionId,
@@ -36,16 +36,15 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
             };
 
-            await queueClient.SendAsync(msg);
+            await _queueClient.SendAsync(msg);
         }
 
         public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
         {
-            var queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
 
             var messageModel = new MessageModel
             {
-                TitleMessage = "Learning Progrerssion record modification for {" + customerId + "} at " + DateTime.UtcNow,
+                TitleMessage = "Learning Progression record modification for {" + customerId + "} at " + DateTime.UtcNow,
                 CustomerGuid = customerId,
                 LastModifiedDate = learningProgression.LastModifiedDate,
                 URL = reqUrl,
@@ -59,7 +58,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 MessageId = customerId + " " + DateTime.UtcNow
             };
 
-            await queueClient.SendAsync(msg);
+            await _queueClient.SendAsync(msg);
         }
     }
 }

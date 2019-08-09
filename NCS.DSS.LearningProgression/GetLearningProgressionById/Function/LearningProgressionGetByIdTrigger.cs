@@ -7,17 +7,14 @@ using NCS.DSS.LearningProgression.Constants;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
-using Microsoft.Azure.Documents;
 using DFC.Common.Standard.GuidHelper;
 using System.Net.Http;
 using System;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using System.Net;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
-using NCS.DSS.LearningProgression.Models;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -25,38 +22,30 @@ namespace NCS.DSS.LearningProgression
     {
         const string RouteValue = "customers/{customerId}/learningprogessions/{LearningProgessionId}";
         const string FunctionName = "getById";
-        private string _cosmosDBConnectionString = "CosmosDBConnectionString";
+
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionGetByIdService _learningProgressionByIdService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILoggerHelper _loggerHelper;
-        private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
-        private ICosmosDocumentClient _cosmosDocumentClient;
-        private IDocumentClient _documentClient;
-        private Models.LearningProgression learningProgression;
-
-
+                
         public LearningProgressionGetByIdTrigger(
-            LearningProgressionConfigurationSettings learnerProgressConfigurationSettings,
+            
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionGetByIdService learningProgressionByIdService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
-            ICosmosDocumentClient cosmosDocumentClient,
             ILoggerHelper loggerHelper
             )
-        {
-            _learningProgressionConfigurationSettings = learnerProgressConfigurationSettings;
+        {           
             _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionByIdService = learningProgressionByIdService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _loggerHelper = loggerHelper;
-            _cosmosDocumentClient = cosmosDocumentClient;
         }
 
         [FunctionName(FunctionName)]
@@ -70,8 +59,7 @@ namespace NCS.DSS.LearningProgression
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
         {
-            _loggerHelper.LogMethodEnter(logger);
-            _documentClient = _cosmosDocumentClient.GetDocumentClient();
+            _loggerHelper.LogMethodEnter(logger);            
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
@@ -116,7 +104,7 @@ namespace NCS.DSS.LearningProgression
 
             return learningProgression == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "learningProgressionId"));
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
         }
     }
 }
