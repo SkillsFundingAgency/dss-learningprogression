@@ -15,13 +15,14 @@ using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionGetByIdTrigger
     {
         const string RouteValue = "customers/{customerId}/learningprogessions/{LearningProgessionId}";
-        const string FunctionName = "getById";
+        const string FunctionName = "GetById";
 
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
@@ -49,13 +50,14 @@ namespace NCS.DSS.LearningProgression
         }
 
         [FunctionName(FunctionName)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression created.", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression found.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
+        [Display(Name = "Get", Description = "Ability to retrieve an individual learning progression for the given customer.")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
         {

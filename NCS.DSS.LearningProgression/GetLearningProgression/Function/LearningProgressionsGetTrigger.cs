@@ -10,19 +10,19 @@ using NCS.DSS.Contact.Cosmos.Helper;
 using DFC.Common.Standard.GuidHelper;
 using System.Net.Http;
 using System;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using System.Net;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionsGetTrigger
     {
         const string RouteValue = "customers/{customerId}/LearningProgessions";
-        const string FunctionName = "get";
+        const string FunctionName = "Get";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionsGetTriggerService _learningProgressionsGetTriggerService;
@@ -49,13 +49,14 @@ namespace NCS.DSS.LearningProgression
         }
 
         [FunctionName(FunctionName)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression created.", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression found.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
+        [Display(Name = "Get", Description = "Ability to return all learning progressions for the given customer.")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId)
         {

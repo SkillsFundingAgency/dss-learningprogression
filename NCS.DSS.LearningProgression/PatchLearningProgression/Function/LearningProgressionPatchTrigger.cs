@@ -20,13 +20,14 @@ using NCS.DSS.LearningProgression.Models;
 using System.Linq;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
     public class LearningProgressionPatchTrigger
     {
         const string RouteValue = "customers/{customerId}/learningprogessions/{LearningProgessionId}";
-        const string FunctionName = "patch";
+        const string FunctionName = "Patch";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
@@ -59,11 +60,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         [FunctionName(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression created.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer Resource does not exist", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
+        [Display(Name = "Patch", Description = "Ability to modify/update learning progression for a customer. <br>" +
+                                              "<br> <b>Validation Rules:</b> <br>" +
+                                              "<br><b>LearningHours:</b> A valid LearningHours contained in the enum. If CurrentLearningStatus = 'in learning' then this must be a valid LearningHours reference data item<br>" +
+                                              "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
+                                              "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
+                                                )]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
         {
             _loggerHelper.LogMethodEnter(logger);
