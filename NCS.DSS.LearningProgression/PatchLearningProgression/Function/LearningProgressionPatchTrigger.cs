@@ -26,7 +26,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
     public class LearningProgressionPatchTrigger
     {
-        const string RouteValue = "customers/{customerId}/learningprogessions/{LearningProgessionId}";
+        const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
         const string FunctionName = "Patch";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
@@ -71,7 +71,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                 )]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string LearningProgressionId)
         {
             _loggerHelper.LogMethodEnter(logger);
 
@@ -100,7 +100,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
-            if (!Guid.TryParse(LearningProgessionId, out var learnerProgressionGuid))
+            if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressionId' to a Guid: {learnerProgressionGuid}");
                 return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);

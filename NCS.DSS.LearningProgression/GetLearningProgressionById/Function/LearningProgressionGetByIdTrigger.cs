@@ -21,7 +21,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionGetByIdTrigger
     {
-        const string RouteValue = "customers/{customerId}/learningprogessions/{LearningProgessionId}";
+        const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
         const string FunctionName = "GetById";
 
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
@@ -59,7 +59,7 @@ namespace NCS.DSS.LearningProgression
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual learning progression for the given customer.")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
-            HttpRequest req, ILogger logger, string customerId, string LearningProgessionId)
+            HttpRequest req, ILogger logger, string customerId, string LearningProgressionId)
         {
             _loggerHelper.LogMethodEnter(logger);            
 
@@ -94,9 +94,9 @@ namespace NCS.DSS.LearningProgression
                 return _httpResponseMessageHelper.BadRequest();
             }
 
-            if (!Guid.TryParse(LearningProgessionId, out var learnerProgressionGuid))
+            if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressioniD' to a Guid: {LearningProgessionId}");
+                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressioniD' to a Guid: {LearningProgressionId}");
                 return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
             }
 

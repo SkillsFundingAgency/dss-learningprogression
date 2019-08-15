@@ -21,7 +21,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionsGetTrigger
     {
-        const string RouteValue = "customers/{customerId}/LearningProgessions";
+        const string RouteValue = "customers/{customerId}/LearningProgressions";
         const string FunctionName = "Get";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;

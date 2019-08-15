@@ -23,7 +23,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class LearningProgressionPostTrigger
     {
-        const string RouteValue = "customers/{customerId}/LearningProgessions";
+        const string RouteValue = "customers/{customerId}/LearningProgressions";
         const string FunctionName = "Post";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
