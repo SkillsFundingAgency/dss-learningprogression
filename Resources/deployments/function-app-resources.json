@@ -88,6 +88,14 @@
                             "value": "[parameters('cosmosDbDatabaseId')]"
                         },
                         {
+                            "name": "CustomerCollectionId",
+                            "value": "customers"
+                        },
+                        {
+                            "name": "CustomerDatabaseId",
+                            "value": "customers"
+                        },
+                        {
                             "name": "LeaseCollectionName",
                             "value": "learningprogression-lease"
                         },
