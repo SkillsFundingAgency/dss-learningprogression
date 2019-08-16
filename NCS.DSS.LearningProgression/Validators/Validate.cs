@@ -25,54 +25,89 @@ namespace NCS.DSS.LearningProgression.Validators
                 return;
             }
 
-            if (learningProgressionResource.DateProgressionRecorded > DateTime.UtcNow)
+            if (!learningProgressionResource.CustomerId.HasValue)
             {
-                results.Add(new ValidationResult("Date And Time must be less the current date/time", new[] { "DateProgressionRecorded" }));
+                results.Add(new ValidationResult("CustomerId is mandatory.", new[] { "DateProgressionRecorded" }));
             }
 
-
-            if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
+            if (!learningProgressionResource.DateProgressionRecorded.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus))
-                {
-                    results.Add(new ValidationResult("Please supply a valid value for Learning Hours when Current Learning Status is InLearning.", new[] { "CurrentLearningStatus" }));
-                }
+                results.Add(new ValidationResult("Date Progression Recorded is mandatory.", new[] { "DateProgressionRecorded" }));
             }
-
-            if (!Enum.IsDefined(typeof(Enumerations.QualificationLevel), learningProgressionResource.CurrentQualificationLevel))
+            else
             {
-                results.Add(new ValidationResult("Please supply a valid value for CurrentQualificationLevel", new[] { "CurrentQualificationLevel" }));
-            }
-
-
-            if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
-            {
-                if (!learningProgressionResource.DateLearningStarted.HasValue)
+                if (learningProgressionResource.DateProgressionRecorded.Value > DateTime.UtcNow)
                 {
-                    results.Add(new ValidationResult("Date Learning Started must have a value when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
-                }
-                else
-                {
-                    if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                    if (learningProgressionResource.DateProgressionRecorded.Value > DateTime.UtcNow)
                     {
+                        results.Add(new ValidationResult("Date And Time must be less the current date/time", new[] { "DateProgressionRecorded" }));
+                    }
+                }
+            }
+
+            if (!learningProgressionResource.CurrentLearningStatus.HasValue)
+            {
+                results.Add(new ValidationResult("Current Learning Status is mandatory.", new[] { "CurrentLearningStatus" }));
+            }
+            else
+            {
+                if (learningProgressionResource.CurrentLearningStatus.Value == Enumerations.CurrentLearningStatus.InLearning)
+                {
+                    if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                    {
+                        results.Add(new ValidationResult("Current learning status must be a valid CurrentLearningStatus.", new[] { "CurrentLearningStatus" }));
+                    }
+                }
+            }
+
+            if (!learningProgressionResource.CurrentQualificationLevel.HasValue)
+            {
+                results.Add(new ValidationResult("Current Qualification Level is a mandatory field.", new[] { "CurrentQualificationLevel" }));
+            }
+            else
+            {
+                if (!Enum.IsDefined(typeof(Enumerations.QualificationLevel), learningProgressionResource.CurrentQualificationLevel.Value))
+                {
+                    results.Add(new ValidationResult("Please supply a valid value for CurrentQualificationLevel", new[] { "CurrentQualificationLevel" }));
+                }
+            }
+            // ==== end of mandatory fields
+
+
+            if (learningProgressionResource.CurrentLearningStatus.HasValue)
+            {
+                if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
+                {
+                    if (!learningProgressionResource.DateLearningStarted.HasValue)
+                    {
+                        results.Add(new ValidationResult("Date Learning Started must have a value when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
+                    }
+                    else
+                    {
+                        if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
                         {
-                            results.Add(new ValidationResult("Date Learning Started must have a value when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
+                            {
+                                results.Add(new ValidationResult("Date Learning Started must have a value when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
+                            }
                         }
                     }
                 }
             }
 
-            if (learningProgressionResource.CurrentQualificationLevel == Enumerations.QualificationLevel.NoQualifications)
+            if (learningProgressionResource.CurrentQualificationLevel.HasValue)
             {
-                if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)
+                if (learningProgressionResource.CurrentQualificationLevel.Value < Enumerations.QualificationLevel.NoQualifications)
                 {
-                    results.Add(new ValidationResult("When QualificationLevel is NoQualification a valid value is required for DateQualificationLevelAchieved.", new[] { "DateQualificationLevelAchieved" }));
-                }
-                else
-                {
-                    if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                    if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)
                     {
-                        results.Add(new ValidationResult("When QualificationLevel is NoQualification DateQualificationLevelAchieved must be before today.", new[] { "DateQualificationLevelAchieved" }));
+                        results.Add(new ValidationResult("When QualificationLevel < NoQualification (99) a valid value is required for DateQualificationLevelAchieved.", new[] { "DateQualificationLevelAchieved" }));
+                    }
+                    else
+                    {
+                        if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                        {
+                            results.Add(new ValidationResult("When QualificationLevel is NoQualification DateQualificationLevelAchieved must be before today.", new[] { "DateQualificationLevelAchieved" }));
+                        }
                     }
                 }
             }
