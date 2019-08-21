@@ -186,7 +186,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             _loggerHelper.LogMethodExit(logger);
 
-            return learningProgressionPatchRequest == null ?
+            return updatedLearningProgression == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
             _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression, "id", "LearningProgressionId"));
         }

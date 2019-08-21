@@ -32,7 +32,8 @@ namespace NCS.DSS.LearningProgression.Tests
         {
             var request = new DefaultHttpRequest(new DefaultHttpContext())
             {
-                Query = new QueryCollection(CreateDictionary(queryStringKey, queryStringValue))
+                Query = new QueryCollection(CreateDictionary(queryStringKey, queryStringValue)),
+                ContentType = "application/json; charset=utf-8"               
             };
             return request;
         }
