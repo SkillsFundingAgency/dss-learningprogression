@@ -413,7 +413,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             var validationResult = new ValidationResult("Error MEssage");
             ErrorResults.Add(validationResult);
-            Valdiator.ValidateResource(Arg.Any<Models.LearningProgression>()).Returns(ErrorResults);
+            Valdiator.ValidateResource(Arg.Any<Models.LearningProgressionPatch>()).Returns(ErrorResults);
 
             
             var LoggerHelper = Substitute.For<ILoggerHelper>();

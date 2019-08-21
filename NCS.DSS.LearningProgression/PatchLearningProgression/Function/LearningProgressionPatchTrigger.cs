@@ -21,6 +21,7 @@ using System.Linq;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -149,16 +150,15 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 return _httpResponseMessageHelper.NoContent(learnerProgressionGuid);
             }
 
-            Models.LearningProgression learningProgressionValidationObject;
+            Models.LearningProgressionPatch learningProgressionValidationObject;
             try
             {
-                learningProgressionValidationObject = JsonConvert.DeserializeObject<Models.LearningProgression>(patchedLearningProgressionAsJson);
+                learningProgressionValidationObject = JsonConvert.DeserializeObject<Models.LearningProgressionPatch>(patchedLearningProgressionAsJson);
             }
             catch (JsonException ex)
             {
-                _loggerHelper.LogError(logger, correlationGuid, "Unable to retrieve body from req", ex);
-                _loggerHelper.LogError(logger, correlationGuid, ex);
-                throw;
+                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
+                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
             }
 
             if (learningProgressionValidationObject == null)
@@ -166,6 +166,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, "Learning Progression Validation Object is null.");
                 return _httpResponseMessageHelper.UnprocessableEntity(req);
             }
+
+            learningProgressionValidationObject.LastModifiedTouchpointID = touchpointId;
 
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             if (errors != null && errors.Any())
@@ -186,7 +188,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             return learningProgressionPatchRequest == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgressionPatchRequest, "id", "LearningProgressionId"));
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression, "id", "LearningProgressionId"));
         }
     }
 }

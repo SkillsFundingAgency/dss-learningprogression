@@ -55,6 +55,12 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             learningProgression.CustomerId = customerGuid;
             learningProgression.LastModifiedTouchpointID = touchpointId;
             learningProgression.CreatedBy = touchpointId;
+
+            if (!learningProgression.DateProgressionRecorded.HasValue)
+            {
+                learningProgression.DateProgressionRecorded = DateTime.UtcNow;
+            }
+
         }
     }
 }

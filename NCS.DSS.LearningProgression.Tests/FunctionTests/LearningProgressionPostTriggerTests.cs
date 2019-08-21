@@ -409,7 +409,6 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var Valdiator = Substitute.For<IValidate>();
             List<ValidationResult> ErrorResults = new List<ValidationResult>();
             Valdiator.ValidateResource(Arg.Any<Models.LearningProgression>()).Returns(ErrorResults);
-
             
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
@@ -429,7 +428,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "844a6215-8413-41ba-96b0-b4cc7041ca33");
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            Assert.True(response.StatusCode == HttpStatusCode.Created);
         }
     }
 }

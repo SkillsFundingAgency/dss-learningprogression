@@ -18,6 +18,7 @@ using System.Linq;
 using DFC.Common.Standard.Logging;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -119,7 +120,17 @@ namespace NCS.DSS.LearningProgression
             }
 
             _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Attempt to get resource from body of the request correlationId {correlationGuid}.");
-            learningProgression = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgression>(req);
+
+            try
+            {
+                learningProgression = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgression>(req);
+            }
+            catch (Exception ex)
+            {
+                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
+                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
+            }
+
             _learningProgressionPostTriggerService.SetIds(learningProgression, customerGuid, touchpointId);
 
             var errors = _validate.ValidateResource(learningProgression);
@@ -144,7 +155,7 @@ namespace NCS.DSS.LearningProgression
 
             return learningProgression == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            _httpResponseMessageHelper.Created(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
         }
     }
 }

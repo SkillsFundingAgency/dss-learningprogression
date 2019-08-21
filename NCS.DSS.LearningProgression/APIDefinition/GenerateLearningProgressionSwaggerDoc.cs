@@ -9,7 +9,7 @@ using NCS.DSS.LearningProgression.Constants;
 
 namespace NCS.DSS.LearningProgression.APIDefinition
 {
-    public class ApiDefinition
+    public class GenerateLearningProgressionSwaggerDoc
     {
         public const string ApiTitle = "LearningProgressions";
         public const string ApiDefinitionName = "API-Definition";
@@ -17,9 +17,9 @@ namespace NCS.DSS.LearningProgression.APIDefinition
         public const string ApiDescription = "Initial release of Learning Progression.";
 
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
-        public const string ApiVersion = "3.0.0";
+        public const string ApiVersion = "2.0.0";
 
-        public ApiDefinition(ISwaggerDocumentGenerator swaggerDocumentGenerator)
+        public GenerateLearningProgressionSwaggerDoc(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
             _swaggerDocumentGenerator = swaggerDocumentGenerator;
         }
@@ -29,6 +29,9 @@ namespace NCS.DSS.LearningProgression.APIDefinition
         {
             var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription, 
                 ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly(), false);
+
+            if (string.IsNullOrEmpty(swaggerDoc))
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {

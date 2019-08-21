@@ -34,7 +34,6 @@ namespace NCS.DSS.LearningProgression.Models
         [Example(Description = "2")]
         public LearningHours? LearningHours { get; set; }
 
-        [Required]
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time learning started.")]
         [Example(Description = "2018-06-21T17:45:00")]
