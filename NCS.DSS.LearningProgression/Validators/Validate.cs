@@ -27,14 +27,14 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (!learningProgressionResource.CustomerId.HasValue)
             {
-                results.Add(new ValidationResult("CustomerId is mandatory.", new[] { "DateProgressionRecorded" }));
+                results.Add(new ValidationResult("CustomerId is mandatory.", new[] { "CustomerId" }));
             }
 
             if (learningProgressionResource.DateProgressionRecorded.HasValue)
             {
                 if (learningProgressionResource.DateProgressionRecorded.Value > DateTime.UtcNow)
                 {
-                    results.Add(new ValidationResult("Date And Time must be less than or equal to now.", new[] { "DateProgressionRecorded" }));
+                    results.Add(new ValidationResult("DateProgressionRecorded must be less than or equal to now.", new[] { "DateProgressionRecorded" }));
                 }
             }
 
@@ -44,7 +44,7 @@ namespace NCS.DSS.LearningProgression.Validators
                 {
                     if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
                     {
-                        results.Add(new ValidationResult("Current learning status must be a valid CurrentLearningStatus.", new[] { "CurrentLearningStatus" }));
+                        results.Add(new ValidationResult("CurrentLearningStatus must be a valid learning status.", new[] { "CurrentLearningStatus" }));
                     }
                 }
             }
@@ -62,7 +62,7 @@ namespace NCS.DSS.LearningProgression.Validators
             {
                 if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
                 {
-                    results.Add(new ValidationResult("A valid learning status is must be supplied.", new[] { "CurrentLearningStatus" }));
+                    results.Add(new ValidationResult("CurrentLearningStatus must be a valid learning status.", new[] { "CurrentLearningStatus" }));
                 }
                 else
                 {
@@ -70,14 +70,41 @@ namespace NCS.DSS.LearningProgression.Validators
                     {
                         if (!learningProgressionResource.DateLearningStarted.HasValue)
                         {
-                            results.Add(new ValidationResult("Date Learning Started must have a value when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
+                            results.Add(new ValidationResult("DateLearningStarted must have a value.", new[] { "DateLearningStarted" }));
                         }
                         else
                         {
                             if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
                             {
                                 {
-                                    results.Add(new ValidationResult("Date Learning Started must have a date less than or equal to now when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
+                                    results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (learningProgressionResource.CurrentLearningStatus.HasValue)
+            {
+                if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                {
+                    results.Add(new ValidationResult("CurrentLearningStatus must have a valid learning status.", new[] { "CurrentLearningStatus" }));
+                }
+                else
+                {
+                    if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
+                    {
+                        if (!learningProgressionResource.LearningHours.HasValue)
+                        {
+                            results.Add(new ValidationResult("LearningHours must have a value.", new[] { "LearningHours" }));
+                        }
+                        else
+                        {
+                            if (!Enum.IsDefined(typeof(Enumerations.LearningHours), learningProgressionResource.LearningHours.Value))
+                            {
+                                {
+                                    results.Add(new ValidationResult("LearningHours must have a valid learning hours value.", new[] { "LearningHours" }));
                                 }
                             }
                         }
@@ -89,7 +116,7 @@ namespace NCS.DSS.LearningProgression.Validators
             {
                 if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)
                 {
-                    results.Add(new ValidationResult("When QualificationLevel < NoQualification (99) a valid value is required for DateQualificationLevelAchieved.", new[] { "DateQualificationLevelAchieved" }));
+                    results.Add(new ValidationResult("DateQualificationLevelAchieved is required.", new[] { "DateQualificationLevelAchieved" }));
                 }
                 else
                 {
@@ -97,7 +124,7 @@ namespace NCS.DSS.LearningProgression.Validators
                     {
                         if (learningProgressionResource.DateQualificationLevelAchieved.Value > DateTime.UtcNow)
                         {
-                            results.Add(new ValidationResult("When QualificationLevel is NoQualification DateQualificationLevelAchieved less than or equal to now.", new[] { "DateQualificationLevelAchieved" }));
+                            results.Add(new ValidationResult("DateQualificationLevelAchieved must be less than or equal to now.", new[] { "DateQualificationLevelAchieved" }));
                         }
                     }
                 }
