@@ -120,6 +120,16 @@ namespace NCS.DSS.LearningProgression.Validators
                 }
             }
 
+            if (learningProgressionResource.LearningHours.HasValue)
+            {
+                if (!Enum.IsDefined(typeof(Enumerations.LearningHours), learningProgressionResource.LearningHours.Value))
+                {
+                    {
+                        results.Add(new ValidationResult("LearningHours must have a valid learning hours value.", new[] { "LearningHours" }));
+                    }
+                }
+            }
+
             if (learningProgressionResource.CurrentQualificationLevel.HasValue && learningProgressionResource.CurrentQualificationLevel.Value < Enumerations.QualificationLevel.NoQualifications)
             {
                 if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)

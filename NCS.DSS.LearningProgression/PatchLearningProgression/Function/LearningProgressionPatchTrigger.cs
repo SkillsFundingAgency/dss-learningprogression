@@ -167,7 +167,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 return _httpResponseMessageHelper.UnprocessableEntity(req);
             }
 
-            learningProgressionValidationObject.LastModifiedTouchpointID = touchpointId;
+            learningProgressionValidationObject.LastModifiedTouchpointId = touchpointId;
 
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             if (errors != null && errors.Any())

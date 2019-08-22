@@ -60,8 +60,8 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
                 if (learningProgressionPatch.LastModifiedDate.HasValue)
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedDate"], learningProgressionPatch.LastModifiedDate);
 
-                if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointID))
-                    _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointID"], learningProgressionPatch.LastModifiedTouchpointID);
+                if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
+                    _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
 
                 if (!string.IsNullOrEmpty(learningProgressionPatch.CreatedBy))
                 {
@@ -109,7 +109,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
         public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
         {
-            learningProgressionPatchRequest.LastModifiedTouchpointID = touchpointId;
+            learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
             learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
         }
     }

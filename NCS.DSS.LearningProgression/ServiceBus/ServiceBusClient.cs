@@ -27,7 +27,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 LastModifiedDate = learningProgression.LastModifiedDate,
                 URL = reqUrl + "/" + learningProgression.LearningProgressionId,
                 IsNewCustomer = false,
-                TouchpointId = learningProgression.LastModifiedTouchpointID
+                TouchpointId = learningProgression.LastModifiedTouchpointId
             };
 
             var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
@@ -49,7 +49,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 LastModifiedDate = learningProgression.LastModifiedDate,
                 URL = reqUrl,
                 IsNewCustomer = false,
-                 TouchpointId = learningProgression.LastModifiedTouchpointID
+                 TouchpointId = learningProgression.LastModifiedTouchpointId
             };
 
             var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))

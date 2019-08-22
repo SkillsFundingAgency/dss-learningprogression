@@ -507,7 +507,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 DateProgressionRecorded = new DateTime(2018, 01, 01),
                 CurrentLearningStatus = CurrentLearningStatus.PreferNotToSay,
                 DateQualificationLevelAchieved = new DateTime(2019, 07, 30),
-                LastModifiedTouchpointID = "0000000001",
+                LastModifiedTouchpointId = "0000000001",
                 LastModifiedDate = new DateTime(),
                 LastLearningProvidersUKPRN = "LastLearningProviders-UKPRN",
                 CreatedBy = "Created-By"
