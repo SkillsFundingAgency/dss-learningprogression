@@ -111,6 +111,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         {
             learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
             learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
+
+            if (!learningProgressionPatchRequest.LastModifiedDate.HasValue)
+            {
+                learningProgressionPatchRequest.LastModifiedDate = DateTime.UtcNow;
+            }
         }
     }
 }
