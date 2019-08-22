@@ -85,6 +85,14 @@ namespace NCS.DSS.LearningProgression.Validators
                 }
             }
 
+            if (learningProgressionResource.DateLearningStarted.HasValue)
+            {
+                if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                {
+                    results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
+                }
+            }
+
             if (learningProgressionResource.CurrentLearningStatus.HasValue)
             {
                 if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
