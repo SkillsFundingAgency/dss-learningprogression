@@ -1,5 +1,5 @@
 ﻿using System;
-using NCS.DSS.LearningProgression.Enumerations;
+using NCS.DSS.LearningProgression.ReferenceData;
 
 namespace NCS.DSS.LearningProgression.Models
 {

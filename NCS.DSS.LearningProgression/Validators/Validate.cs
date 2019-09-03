@@ -40,9 +40,9 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (learningProgressionResource.CurrentLearningStatus.HasValue)
             {
-                if (learningProgressionResource.CurrentLearningStatus.Value == Enumerations.CurrentLearningStatus.InLearning)
+                if (learningProgressionResource.CurrentLearningStatus.Value == ReferenceData.CurrentLearningStatus.InLearning)
                 {
-                    if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                    if (!Enum.IsDefined(typeof(ReferenceData.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
                     {
                         results.Add(new ValidationResult("CurrentLearningStatus must be a valid current Learning Status.", new[] { "CurrentLearningStatus" }));
                     }
@@ -51,7 +51,7 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (learningProgressionResource.CurrentQualificationLevel.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.QualificationLevel), learningProgressionResource.CurrentQualificationLevel.Value))
+                if (!Enum.IsDefined(typeof(ReferenceData.QualificationLevel), learningProgressionResource.CurrentQualificationLevel.Value))
                 {
                     results.Add(new ValidationResult("CurrentQualificationLevel must be a valid current Qualification Level.", new[] { "CurrentQualificationLevel" }));
                 }
@@ -60,13 +60,13 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (learningProgressionResource.CurrentLearningStatus.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                if (!Enum.IsDefined(typeof(ReferenceData.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
                 {
                     results.Add(new ValidationResult("CurrentLearningStatus must be a valid current Learning Status.", new[] { "CurrentLearningStatus" }));
                 }
                 else
                 {
-                    if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
+                    if (learningProgressionResource.CurrentLearningStatus == ReferenceData.CurrentLearningStatus.InLearning)
                     {
                         if (!learningProgressionResource.DateLearningStarted.HasValue)
                         {
@@ -95,13 +95,13 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (learningProgressionResource.CurrentLearningStatus.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                if (!Enum.IsDefined(typeof(ReferenceData.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
                 {
                     results.Add(new ValidationResult("CurrentLearningStatus must have a valid Learning Status.", new[] { "CurrentLearningStatus" }));
                 }
                 else
                 {
-                    if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
+                    if (learningProgressionResource.CurrentLearningStatus == ReferenceData.CurrentLearningStatus.InLearning)
                     {
                         if (!learningProgressionResource.LearningHours.HasValue)
                         {
@@ -109,7 +109,7 @@ namespace NCS.DSS.LearningProgression.Validators
                         }
                         else
                         {
-                            if (!Enum.IsDefined(typeof(Enumerations.LearningHours), learningProgressionResource.LearningHours.Value))
+                            if (!Enum.IsDefined(typeof(ReferenceData.LearningHours), learningProgressionResource.LearningHours.Value))
                             {
                                 {
                                     results.Add(new ValidationResult("LearningHours must have a valid Learning Hours value.", new[] { "LearningHours" }));
@@ -122,7 +122,7 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (learningProgressionResource.LearningHours.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.LearningHours), learningProgressionResource.LearningHours.Value))
+                if (!Enum.IsDefined(typeof(ReferenceData.LearningHours), learningProgressionResource.LearningHours.Value))
                 {
                     {
                         results.Add(new ValidationResult("LearningHours must have a valid Learning Hours value.", new[] { "LearningHours" }));
@@ -130,7 +130,7 @@ namespace NCS.DSS.LearningProgression.Validators
                 }
             }
 
-            if (learningProgressionResource.CurrentQualificationLevel.HasValue && learningProgressionResource.CurrentQualificationLevel.Value < Enumerations.QualificationLevel.NoQualifications)
+            if (learningProgressionResource.CurrentQualificationLevel.HasValue && learningProgressionResource.CurrentQualificationLevel.Value < ReferenceData.QualificationLevel.NoQualifications)
             {
                 if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)
                 {

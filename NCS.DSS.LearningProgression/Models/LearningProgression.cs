@@ -1,6 +1,6 @@
 ﻿using DFC.JSON.Standard.Attributes;
 using DFC.Swagger.Standard.Annotations;
-using NCS.DSS.LearningProgression.Enumerations;
+using NCS.DSS.LearningProgression.ReferenceData;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +21,7 @@ namespace NCS.DSS.LearningProgression.Models
         public Guid? CustomerId { get; set; }
 
         [Required]
+        [DataType(DataType.DateTime)]
         [Example(Description = "2018-06-21T17:45:00")]
         [Display(Description = "Date and time progression recorded.")]
         public DateTime? DateProgressionRecorded { get; set; }
