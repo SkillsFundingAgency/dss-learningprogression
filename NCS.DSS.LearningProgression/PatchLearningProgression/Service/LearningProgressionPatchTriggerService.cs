@@ -109,6 +109,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
         public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
         {
+            learningProgressionPatchRequest.CreatedBy = touchpointId;
             learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
             learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
 
