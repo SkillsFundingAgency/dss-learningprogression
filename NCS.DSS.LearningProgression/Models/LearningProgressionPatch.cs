@@ -45,7 +45,7 @@ namespace NCS.DSS.LearningProgression.Models
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateQualificationLevelAchieved { get; set; }
 
-        [StringLength(8)]
+        [StringLength(8, MinimumLength = 8)]
         public string LastLearningProvidersUKPRN { get; set; }
 
         [DataType(DataType.DateTime)]

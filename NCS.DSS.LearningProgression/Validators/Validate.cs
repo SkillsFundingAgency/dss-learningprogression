@@ -47,6 +47,13 @@ namespace NCS.DSS.LearningProgression.Validators
                         results.Add(new ValidationResult("CurrentLearningStatus must be a valid current Learning Status.", new[] { "CurrentLearningStatus" }));
                     }
                 }
+                else
+                {
+                    if (!Enum.IsDefined(typeof(ReferenceData.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                    {
+                        results.Add(new ValidationResult("CurrentLearningStatus must be a valid current Learning Status.", new[] { "CurrentLearningStatus" }));
+                    }
+                }
             }
 
             if (learningProgressionResource.CurrentQualificationLevel.HasValue)
@@ -87,12 +94,14 @@ namespace NCS.DSS.LearningProgression.Validators
                     }
                 }
             }
-
-            if (learningProgressionResource.DateLearningStarted.HasValue)
+            else
             {
-                if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                if (learningProgressionResource.DateLearningStarted.HasValue)
                 {
-                    results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
+                    if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                    {
+                        results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
+                    }
                 }
             }
 
@@ -111,7 +120,7 @@ namespace NCS.DSS.LearningProgression.Validators
             {
                 if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)
                 {
-                    results.Add(new ValidationResult("DateQualificationLevelAchieved is required when QualificationLevel < NoQualification (99) a valid value is required for DateQualificationLevelAchieved.", new[] { "DateQualificationLevelAchieved" }));
+                    results.Add(new ValidationResult("DateQualificationLevelAchieved is required when QualificationLevel < NoQualification (99).", new[] { "DateQualificationLevelAchieved" }));
                 }
                 else
                 {
@@ -136,7 +145,7 @@ namespace NCS.DSS.LearningProgression.Validators
                 }
                 else
                 {
-                    results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a Number (and between 10000000 - 99999999).", new[] { "LastLearningProvidersUKPRN" }));
+                    results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a Number.", new[] { "LastLearningProvidersUKPRN" }));
                 }
             }
         }
