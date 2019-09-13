@@ -1,6 +1,6 @@
 ﻿using DFC.JSON.Standard.Attributes;
 using DFC.Swagger.Standard.Annotations;
-using NCS.DSS.LearningProgression.Enumerations;
+using NCS.DSS.LearningProgression.ReferenceData;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -18,6 +18,7 @@ namespace NCS.DSS.LearningProgression.Models
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         public Guid? CustomerId { get; set; }
 
+        [DataType(DataType.DateTime)]
         [Example(Description = "2018-06-21T17:45:00")]
         [Display(Description = "Date and time date progression recorded.")]
         public DateTime? DateProgressionRecorded { get; set; }
@@ -44,7 +45,7 @@ namespace NCS.DSS.LearningProgression.Models
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateQualificationLevelAchieved { get; set; }
 
-        [StringLength(8)]
+        [StringLength(8, MinimumLength = 8)]
         public string LastLearningProvidersUKPRN { get; set; }
 
         [DataType(DataType.DateTime)]
@@ -55,9 +56,9 @@ namespace NCS.DSS.LearningProgression.Models
         [StringLength(10, MinimumLength = 10)]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "0000000001")]
-        public string LastModifiedTouchpointID { get; set; }
+        public string LastModifiedTouchpointId { get; set; }
 
-        [StringLength(10)]
+        [StringLength(10, MinimumLength = 10)]
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
     }

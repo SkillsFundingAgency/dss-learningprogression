@@ -40,91 +40,97 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (learningProgressionResource.CurrentLearningStatus.HasValue)
             {
-                if (learningProgressionResource.CurrentLearningStatus.Value == Enumerations.CurrentLearningStatus.InLearning)
+                if (learningProgressionResource.CurrentLearningStatus.Value == ReferenceData.CurrentLearningStatus.InLearning)
                 {
-                    if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                    if (!Enum.IsDefined(typeof(ReferenceData.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
                     {
-                        results.Add(new ValidationResult("CurrentLearningStatus must be a valid learning status.", new[] { "CurrentLearningStatus" }));
+                        results.Add(new ValidationResult("CurrentLearningStatus must be a valid current Learning Status.", new[] { "CurrentLearningStatus" }));
+                    }
+                }
+                else
+                {
+                    if (!Enum.IsDefined(typeof(ReferenceData.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                    {
+                        results.Add(new ValidationResult("CurrentLearningStatus must be a valid current Learning Status.", new[] { "CurrentLearningStatus" }));
                     }
                 }
             }
 
             if (learningProgressionResource.CurrentQualificationLevel.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.QualificationLevel), learningProgressionResource.CurrentQualificationLevel.Value))
+                if (!Enum.IsDefined(typeof(ReferenceData.QualificationLevel), learningProgressionResource.CurrentQualificationLevel.Value))
                 {
-                    results.Add(new ValidationResult("Please supply a valid value for CurrentQualificationLevel.", new[] { "CurrentQualificationLevel" }));
+                    results.Add(new ValidationResult("CurrentQualificationLevel must be a valid current Qualification Level.", new[] { "CurrentQualificationLevel" }));
                 }
             }
             // ==== end of mandatory fields
 
-            if (learningProgressionResource.CurrentLearningStatus.HasValue)
+            if (learningProgressionResource.LearningHours.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                if (!Enum.IsDefined(typeof(ReferenceData.LearningHours), learningProgressionResource.LearningHours.Value))
                 {
-                    results.Add(new ValidationResult("CurrentLearningStatus must be a valid learning status.", new[] { "CurrentLearningStatus" }));
-                }
-                else
-                {
-                    if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
                     {
-                        if (!learningProgressionResource.DateLearningStarted.HasValue)
-                        {
-                            results.Add(new ValidationResult("DateLearningStarted must have a value.", new[] { "DateLearningStarted" }));
-                        }
-                        else
-                        {
-                            if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
-                            {
-                                {
-                                    results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
-                                }
-                            }
-                        }
+                        results.Add(new ValidationResult("LearningHours must have a valid Learning Hours value.", new[] { "LearningHours" }));
                     }
-                }
-            }
-
-            if (learningProgressionResource.DateLearningStarted.HasValue)
-            {
-                if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
-                {
-                    results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
                 }
             }
 
             if (learningProgressionResource.CurrentLearningStatus.HasValue)
             {
-                if (!Enum.IsDefined(typeof(Enumerations.CurrentLearningStatus), learningProgressionResource.CurrentLearningStatus.Value))
+                if (learningProgressionResource.CurrentLearningStatus == ReferenceData.CurrentLearningStatus.InLearning)
                 {
-                    results.Add(new ValidationResult("CurrentLearningStatus must have a valid learning status.", new[] { "CurrentLearningStatus" }));
-                }
-                else
-                {
-                    if (learningProgressionResource.CurrentLearningStatus == Enumerations.CurrentLearningStatus.InLearning)
+                    if (!learningProgressionResource.DateLearningStarted.HasValue)
                     {
-                        if (!learningProgressionResource.LearningHours.HasValue)
+                        results.Add(new ValidationResult("DateLearningStarted must have a value when Current Learning Status is InLearning.", new[] { "DateLearningStarted" }));
+                    }
+                    else
+                    {
+                        if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
                         {
-                            results.Add(new ValidationResult("LearningHours must have a value.", new[] { "LearningHours" }));
-                        }
-                        else
-                        {
-                            if (!Enum.IsDefined(typeof(Enumerations.LearningHours), learningProgressionResource.LearningHours.Value))
                             {
-                                {
-                                    results.Add(new ValidationResult("LearningHours must have a valid learning hours value.", new[] { "LearningHours" }));
-                                }
+                                results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
                             }
                         }
                     }
                 }
+                else
+                {
+                    if (learningProgressionResource.DateLearningStarted.HasValue)
+                    {
+                        if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                        {
+                            results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (learningProgressionResource.DateLearningStarted.HasValue)
+                {
+                    if (learningProgressionResource.DateLearningStarted.Value > DateTime.UtcNow)
+                    {
+                        results.Add(new ValidationResult("DateLearningStarted must be less than or equal to now.", new[] { "DateLearningStarted" }));
+                    }
+                }
             }
 
-            if (learningProgressionResource.CurrentQualificationLevel.HasValue && learningProgressionResource.CurrentQualificationLevel.Value < Enumerations.QualificationLevel.NoQualifications)
+            if (learningProgressionResource.CurrentLearningStatus.HasValue)
+            {
+                if (learningProgressionResource.CurrentLearningStatus == ReferenceData.CurrentLearningStatus.InLearning)
+                {
+                    if (!learningProgressionResource.LearningHours.HasValue)
+                    {
+                        results.Add(new ValidationResult("LearningHours must have a value when Current Learning Status is InLearning.", new[] { "LearningHours" }));
+                    }
+                }
+            }
+
+            if (learningProgressionResource.CurrentQualificationLevel.HasValue && learningProgressionResource.CurrentQualificationLevel.Value < ReferenceData.QualificationLevel.NoQualifications)
             {
                 if (!learningProgressionResource.DateQualificationLevelAchieved.HasValue)
                 {
-                    results.Add(new ValidationResult("DateQualificationLevelAchieved is required.", new[] { "DateQualificationLevelAchieved" }));
+                    results.Add(new ValidationResult("DateQualificationLevelAchieved is required when QualificationLevel < NoQualification (99).", new[] { "DateQualificationLevelAchieved" }));
                 }
                 else
                 {
@@ -140,23 +146,16 @@ namespace NCS.DSS.LearningProgression.Validators
 
             if (!string.IsNullOrEmpty(learningProgressionResource.LastLearningProvidersUKPRN))
             {
-                if (learningProgressionResource.LastLearningProvidersUKPRN.Trim().Length != 8)
+                if (int.TryParse(learningProgressionResource.LastLearningProvidersUKPRN, out int value))
                 {
-                    results.Add(new ValidationResult("LastLearningProvidersUKPRN must be exactly 8 numeric digits in length.", new[] { "LastLearningProvidersUKPRN" }));
+                    if (value < 10000000 && value > 99999999)
+                    {
+                        results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a value between 10000000 - 99999999.", new[] { "LastLearningProvidersUKPRN" }));
+                    }
                 }
                 else
                 {
-                    if (int.TryParse(learningProgressionResource.LastLearningProvidersUKPRN, out int value))
-                    {
-                        if (value < 10000000 && value > 99999999)
-                        {
-                            results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a value between 10000000 - 99999999.", new[] { "LastLearningProvidersUKPRN" }));
-                        }
-                    }
-                    else
-                    {
-                        results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a Number (and between 10000000 - 99999999).", new[] { "LastLearningProvidersUKPRN" }));
-                    }
+                    results.Add(new ValidationResult("LastLearningProvidersUKPRN must be a Number.", new[] { "LastLearningProvidersUKPRN" }));
                 }
             }
         }

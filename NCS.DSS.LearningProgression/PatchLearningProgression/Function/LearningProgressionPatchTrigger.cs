@@ -108,7 +108,15 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             }
 
             LearningProgressionPatch learningProgressionPatchRequest;
-            learningProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<LearningProgressionPatch>(req);
+            try
+            {
+                learningProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<LearningProgressionPatch>(req);
+            }
+            catch (Exception ex)
+            {
+                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
+                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
+            }            
 
             if (learningProgressionPatchRequest == null)
             {
@@ -167,7 +175,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 return _httpResponseMessageHelper.UnprocessableEntity(req);
             }
 
-            learningProgressionValidationObject.LastModifiedTouchpointID = touchpointId;
+            learningProgressionValidationObject.LastModifiedTouchpointId = touchpointId;
 
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             if (errors != null && errors.Any())

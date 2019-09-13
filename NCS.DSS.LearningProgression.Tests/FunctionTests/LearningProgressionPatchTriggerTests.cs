@@ -6,7 +6,6 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
 using DFC.Common.Standard.Logging;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using Microsoft.AspNetCore.Http;
 using NCS.DSS.LearningProgression.Validators;
 using System;
@@ -15,8 +14,7 @@ using System.Collections.Generic;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using Newtonsoft.Json;
 using NCS.DSS.LearningProgression.Models;
-using NCS.DSS.LearningProgression.Enumerations;
-using Newtonsoft.Json.Linq;
+using NCS.DSS.LearningProgression.ReferenceData;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -507,7 +505,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 DateProgressionRecorded = new DateTime(2018, 01, 01),
                 CurrentLearningStatus = CurrentLearningStatus.PreferNotToSay,
                 DateQualificationLevelAchieved = new DateTime(2019, 07, 30),
-                LastModifiedTouchpointID = "0000000001",
+                LastModifiedTouchpointId = "0000000001",
                 LastModifiedDate = new DateTime(),
                 LastLearningProvidersUKPRN = "LastLearningProviders-UKPRN",
                 CreatedBy = "Created-By"

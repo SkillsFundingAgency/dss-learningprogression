@@ -60,17 +60,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
                 if (learningProgressionPatch.LastModifiedDate.HasValue)
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedDate"], learningProgressionPatch.LastModifiedDate);
 
-                if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointID))
-                    _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointID"], learningProgressionPatch.LastModifiedTouchpointID);
-
-                if (!string.IsNullOrEmpty(learningProgressionPatch.CreatedBy))
-                {
-                    if (learningProgressionAsJsonObject["CreatedBy"] == null)
-                        _jsonHelper.CreatePropertyOnJObject(learningProgressionAsJsonObject, "CreatedBy", learningProgressionPatch.CreatedBy);
-                    else
-                        _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["CreatedBy"], learningProgressionPatch.CreatedBy);
-                }
-
+                if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
+                    _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
+                
                 return learningProgressionAsJsonObject.ToString();
             }
             catch (JsonReaderException)
@@ -109,8 +101,13 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
         public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
         {
-            learningProgressionPatchRequest.LastModifiedTouchpointID = touchpointId;
+            learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
             learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
+
+            if (!learningProgressionPatchRequest.LastModifiedDate.HasValue)
+            {
+                learningProgressionPatchRequest.LastModifiedDate = DateTime.UtcNow;
+            }
         }
     }
 }

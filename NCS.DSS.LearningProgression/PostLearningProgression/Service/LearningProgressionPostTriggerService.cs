@@ -53,7 +53,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
         {
             learningProgression.LearningProgressionId = Guid.NewGuid();
             learningProgression.CustomerId = customerGuid;
-            learningProgression.LastModifiedTouchpointID = touchpointId;
+            learningProgression.LastModifiedTouchpointId = touchpointId;
             learningProgression.CreatedBy = touchpointId;
 
             if (!learningProgression.DateProgressionRecorded.HasValue)

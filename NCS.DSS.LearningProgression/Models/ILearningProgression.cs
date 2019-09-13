@@ -1,5 +1,5 @@
 ﻿using System;
-using NCS.DSS.LearningProgression.Enumerations;
+using NCS.DSS.LearningProgression.ReferenceData;
 
 namespace NCS.DSS.LearningProgression.Models
 {
@@ -14,7 +14,7 @@ namespace NCS.DSS.LearningProgression.Models
         DateTime? DateQualificationLevelAchieved { get; set; }
         string LastLearningProvidersUKPRN { get; set; }
         DateTime? LastModifiedDate { get; set; }
-        string LastModifiedTouchpointID { get; set; }
+        string LastModifiedTouchpointId { get; set; }
         LearningHours? LearningHours { get; set; }
         Guid? LearningProgressionId { get; set; }
     }
