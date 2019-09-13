@@ -45,7 +45,7 @@ namespace NCS.DSS.LearningProgression.Models
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateQualificationLevelAchieved { get; set; }
 
-        [StringLength(8)]
+        [StringLength(8, MinimumLength = 8)]
         public string LastLearningProvidersUKPRN { get; set; }
 
         [DataType(DataType.DateTime)]
@@ -58,7 +58,7 @@ namespace NCS.DSS.LearningProgression.Models
         [Example(Description = "0000000001")]
         public string LastModifiedTouchpointId { get; set; }
 
-        [StringLength(10)]
+        [StringLength(10, MinimumLength = 10)]
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
     }

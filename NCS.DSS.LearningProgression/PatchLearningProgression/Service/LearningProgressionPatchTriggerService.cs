@@ -62,15 +62,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
                 if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
-
-                if (!string.IsNullOrEmpty(learningProgressionPatch.CreatedBy))
-                {
-                    if (learningProgressionAsJsonObject["CreatedBy"] == null)
-                        _jsonHelper.CreatePropertyOnJObject(learningProgressionAsJsonObject, "CreatedBy", learningProgressionPatch.CreatedBy);
-                    else
-                        _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["CreatedBy"], learningProgressionPatch.CreatedBy);
-                }
-
+                
                 return learningProgressionAsJsonObject.ToString();
             }
             catch (JsonReaderException)
