@@ -1,16 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AzureFunctionsVersion>v2</AzureFunctionsVersion>
+    <AzureFunctionsVersion>v2</AzureFunctionsVersion>    
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DFC.Common.Standard" Version="0.1.0" />
-    <PackageReference Include="DFC.HTTP.Standard" Version="0.1.8" />
-    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.10" />
+    <Compile Remove="Cosmos\Client\**" />
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Cosmos\Client\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Cosmos\Client\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cosmos\Client\CosmosDocumentClient.cs" />
+    <Compile Include="Cosmos\Client\ICosmosDocumentClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DFC.Common.Standard" Version="0.1.1" />
+    <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
+    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.11" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.9" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.10" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="3.0.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.1.2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
+    <PackageReference Include="WindowsAzure.ServiceBus" Version="5.2.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -18,7 +32,6 @@
     </None>
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
 </Project>
