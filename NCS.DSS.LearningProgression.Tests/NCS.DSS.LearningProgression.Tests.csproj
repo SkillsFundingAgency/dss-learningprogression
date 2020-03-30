@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NCS.DSS.LearningProgression.UnitTests.csproj\**" />
+    <EmbeddedResource Remove="NCS.DSS.LearningProgression.UnitTests.csproj\**" />
+    <None Remove="NCS.DSS.LearningProgression.UnitTests.csproj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="LearningProgressionGetByIdTriggerBuilder.cs" />
     <Compile Remove="LearningProgressionGetTriggerBuilder.cs" />
     <Compile Remove="LearningProgressionPatchTriggerBuilder.cs" />
