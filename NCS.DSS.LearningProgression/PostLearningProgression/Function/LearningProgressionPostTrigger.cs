@@ -149,7 +149,7 @@ namespace NCS.DSS.LearningProgression
             }
 
             _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Sending newly created learning Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
-            await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, ApimURL);
+            await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, ApimURL, correlationGuid, logger);
 
             _loggerHelper.LogMethodExit(logger);
 
