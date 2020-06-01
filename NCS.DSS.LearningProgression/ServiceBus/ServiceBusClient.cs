@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NCS.DSS.LearningProgression.Models;
 using Microsoft.Azure.ServiceBus;
+using DFC.Common.Standard.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace NCS.DSS.LearningProgression.ServiceBus
 {
@@ -11,6 +13,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
     {
         private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
         private readonly QueueClient _queueClient;
+        private readonly ILoggerHelper _loggerHelper = new LoggerHelper();
 
         public ServiceBusClient(LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
         {
@@ -18,7 +21,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
             _queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
         }
 
-        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl)
+        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId, ILogger log)
         {
             var messageModel = new MessageModel()
             {
@@ -36,10 +39,11 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
             };
 
+            _loggerHelper.LogInformationObject(log, correlationId, string.Format("New Employment Progression record {0}", learningProgression.LearningProgressionId), messageModel);
             await _queueClient.SendAsync(msg);
         }
 
-        public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
+        public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
         {
 
             var messageModel = new MessageModel
@@ -57,6 +61,8 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 ContentType = "application/json",
                 MessageId = customerId + " " + DateTime.UtcNow
             };
+
+            _loggerHelper.LogInformationObject(log, correlationId, "Learning Progression record modification for {" + customerId + "} at " + DateTime.UtcNow, messageModel);
 
             await _queueClient.SendAsync(msg);
         }

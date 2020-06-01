@@ -1,4 +1,5 @@
-﻿using NCS.DSS.LearningProgression.Cosmos.Provider;
+﻿using Microsoft.Extensions.Logging;
+using NCS.DSS.LearningProgression.Cosmos.Provider;
 using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
 using System;
@@ -39,9 +40,9 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId, ILogger log)
         {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
+            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, correlationId, log);
         }
 
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)

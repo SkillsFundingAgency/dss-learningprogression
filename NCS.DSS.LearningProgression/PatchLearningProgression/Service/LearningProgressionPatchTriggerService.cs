@@ -1,4 +1,5 @@
 ﻿using DFC.JSON.Standard;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
 using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
@@ -84,9 +85,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             return responseStatusCode == HttpStatusCode.OK ? (dynamic)response.Resource : null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
         {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
+            await _serviceBusClient.SendPatchMessageAsync(learningProgression, customerId, reqUrl, correlationId, log);
         }
 
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)

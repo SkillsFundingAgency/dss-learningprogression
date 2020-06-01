@@ -189,7 +189,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"attempting to send to service bus {learnerProgressionGuid}.");
 
-                await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, ApimURL);
+                await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, ApimURL, correlationGuid, logger);
             }
 
             _loggerHelper.LogMethodExit(logger);

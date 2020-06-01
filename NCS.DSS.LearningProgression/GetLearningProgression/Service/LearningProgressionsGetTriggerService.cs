@@ -21,10 +21,5 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Service
         {
             return await _documentDbProvider.GetLearningProgressionsForCustomerAsync(customerId);
         }
-
-        public async virtual Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl)
-        {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl);
-        }
     }
 }
