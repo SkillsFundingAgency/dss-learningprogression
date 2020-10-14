@@ -1,21 +1,21 @@
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using NCS.DSS.LearningProgression.Constants;
+using DFC.Common.Standard.GuidHelper;
+using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
-using NCS.DSS.Contact.Cosmos.Helper;
-using DFC.Common.Standard.GuidHelper;
-using System.Net.Http;
-using System;
-using System.Net;
 using DFC.Swagger.Standard.Annotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using DFC.Common.Standard.Logging;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -66,7 +66,7 @@ namespace NCS.DSS.LearningProgression
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
             var guidHelper = new GuidHelper();
-            var correlationGuid = guidHelper.ValidateGuid(correlationId);
+            var correlationGuid = guidHelper.ValidateAndGetGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))

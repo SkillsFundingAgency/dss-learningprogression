@@ -1,37 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AzureFunctionsVersion>v2</AzureFunctionsVersion>    
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <RuntimeFrameworkVersion>3.1</RuntimeFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Cosmos\Client\**" />
     <Compile Remove="Services\**" />
-    <EmbeddedResource Remove="Cosmos\Client\**" />
     <EmbeddedResource Remove="Services\**" />
-    <None Remove="Cosmos\Client\**" />
     <None Remove="Services\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cosmos\Client\CosmosDocumentClient.cs" />
-    <Compile Include="Cosmos\Client\ICosmosDocumentClient.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="DFC.Common.Standard" Version="0.1.1" />
+    <PackageReference Include="DFC.Common.Standard" Version="0.1.4" />
     <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
-    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.11" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.10" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.1.2" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
-    <PackageReference Include="WindowsAzure.ServiceBus" Version="5.2.0" />
+    <PackageReference Include="DFC.JSON.Standard" Version="0.1.4" />
+    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.20" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.11.6" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.9" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.4" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="local.settings.json">
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </None>
+    <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
 </Project>
