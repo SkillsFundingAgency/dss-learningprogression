@@ -1,200 +1,130 @@
-﻿using System.Threading.Tasks;
-using Xunit;
-using System.Net;
-using NSubstitute;
+﻿using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
-using NCS.DSS.Contact.Cosmos.Helper;
-using DFC.Common.Standard.Logging;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
 using Microsoft.AspNetCore.Http;
-using System;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
-using NCS.DSS.LearningProgression.Models;
+using NUnit.Framework;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
+    [TestFixture]
     public class LearningProgressionGetByIdTriggerTests
     {
-        [Fact]
-        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        private Mock<ILogger> _log;
+        private DefaultHttpRequest _request;
+        private Mock<IResourceHelper> _resourceHelper;
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
+        private Mock<ILearningProgressionGetByIdService> _learningProgressionGetByIdService;
+        private IHttpResponseMessageHelper _httpResponseMessageHelper;
+        private IJsonHelper _jsonHelper;
+        private Mock<ILoggerHelper> _loggerHelper;
+        private LearningProgressionGetByIdTrigger _function;
+        private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
+        private const string ValidLearningProgressionId = "1e1a555c-9633-4e12-ab28-09ed60d51cb3";
+        private const string InvalidCustomerId = "2323232";
+
+        [SetUp]
+        public void Setup()
         {
-            
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-
-            var LearningProgressionGetByIdService = Substitute.For<ILearningProgressionGetByIdService>();
-            LearningProgressionGetByIdService.GetLearningProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new LearningProgression.Models.LearningProgression());
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new LearningProgressionGetByIdTrigger(
-
-                ResponseMessageHelper,
-                RequestHelper,
-                LearningProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                
-                LoggerHelper
-                );
-
-            // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "", "");
-
-            //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            _log = new Mock<ILogger>();
+            _resourceHelper = new Mock<IResourceHelper>();
+            _loggerHelper = new Mock<ILoggerHelper>();
+            _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
+            _httpResponseMessageHelper = new HttpResponseMessageHelper();
+            _learningProgressionGetByIdService = new Mock<ILearningProgressionGetByIdService>();
+            _jsonHelper = new JsonHelper();
+            _function = new LearningProgressionGetByIdTrigger(
+                _httpResponseMessageHelper, 
+                _httpRequestMessageHelper.Object, 
+                _learningProgressionGetByIdService.Object, 
+                _jsonHelper, 
+                _resourceHelper.Object, 
+                _loggerHelper.Object);
         }
 
-        [Fact]
+        [Test]
+        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        {
+            //
+
+            // Act
+            var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
+
+            //Assert
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Test]
         public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
-
-            var LearningProgressionGetByIdService = Substitute.For<ILearningProgressionGetByIdService>();
-            LearningProgressionGetByIdService.GetLearningProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new LearningProgression.Models.LearningProgression());
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-
-            var httpPostFunction = new LearningProgressionGetByIdTrigger(
-
-                ResponseMessageHelper,
-                RequestHelper,
-                LearningProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                
-                LoggerHelper
-                );
+            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "", "");
+            var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
+        [Test]
         public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns<string>("http://aurlvalue.com");
-
-            var LearningProgressionGetByIdService = Substitute.For<ILearningProgressionGetByIdService>();
-            LearningProgressionGetByIdService.GetLearningProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new LearningProgression.Models.LearningProgression());
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-
-            var httpPostFunction = new LearningProgressionGetByIdTrigger(
-
-                ResponseMessageHelper,
-                RequestHelper,
-                LearningProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                
-                LoggerHelper
-                );
+            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _learningProgressionGetByIdService.Setup(x=>x.GetLearningProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new LearningProgression.Models.LearningProgression()));
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "InvalidCustomerId", "");
+            var response = await RunFunction(InvalidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
+        [Test]
         public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns<string>("http://aurlvalue.com");
-
-            var LearningProgressionGetByIdService = Substitute.For<ILearningProgressionGetByIdService>();
-            LearningProgressionGetByIdService.GetLearningProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new LearningProgression.Models.LearningProgression());
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns<bool>(false);
-
-            
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new LearningProgressionGetByIdTrigger(
-
-                ResponseMessageHelper,
-                RequestHelper,
-                LearningProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                
-                LoggerHelper
-                );
+            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _learningProgressionGetByIdService.Setup(x=>x.GetLearningProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new LearningProgression.Models.LearningProgression()));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "844a6215-8413-41ba-96b0-b4cc7041ca33", "");
+            var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
+        [Test]
         public async Task Get_RequestContainsNoErrors_ReturnOk()
         {
             // arrange
-            
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns<string>("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns<string>("http://aurlvalue.com");
-
-            var LearningProgressionGetByIdService = Substitute.For<ILearningProgressionGetByIdService>();
-            LearningProgressionGetByIdService.GetLearningProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new LearningProgression.Models.LearningProgression());
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns<bool>(true);
-
-            
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new LearningProgressionGetByIdTrigger(
-
-                ResponseMessageHelper,
-                RequestHelper,
-                LearningProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                
-                LoggerHelper
-                );
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new LearningProgression.Models.LearningProgression()));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "844a6215-8413-41ba-96b0-b4cc7041ca33", "844a6215-8413-41ba-96b0-b4cc7041ca33");
+            var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        private async Task<HttpResponseMessage> RunFunction(string customerId, string learningProgressionId)
+        {
+            return await _function.Run(_request, _log.Object, customerId, learningProgressionId).ConfigureAwait(false);
         }
     }
 }
