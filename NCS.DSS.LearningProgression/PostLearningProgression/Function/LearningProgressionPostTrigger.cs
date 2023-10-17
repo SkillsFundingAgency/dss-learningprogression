@@ -74,6 +74,9 @@ namespace NCS.DSS.LearningProgression
         {
             _loggerHelper.LogMethodEnter(logger);
 
+            logger.LogInformation($"Started Updating Learning Progressions for Customer ID [{customerId}]");
+
+
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             var guidHelper = new GuidHelper();
             var correlationGuid = guidHelper.ValidateAndGetGuid(correlationId);
@@ -81,26 +84,26 @@ namespace NCS.DSS.LearningProgression
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Bad request");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
@@ -108,14 +111,14 @@ namespace NCS.DSS.LearningProgression
 
             if (isCustomerReadOnly)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Customer is readonly with customerId {customerGuid}, correlationId {correlationGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Customer is readonly with customerId {customerGuid}.");
                 return _httpResponseMessageHelper.Forbidden(customerGuid);
             }
 
             var doesLearningProgressionExist = _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);
             if (doesLearningProgressionExist)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Learning progression details already exists for customerId {customerGuid}, correlationId {correlationGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression details already exists for customerId {customerGuid}.");
                 return _httpResponseMessageHelper.Conflict();
             }
 
@@ -137,14 +140,15 @@ namespace NCS.DSS.LearningProgression
 
             if (errors.Any())
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"validation errors with resource correlationId {correlationGuid}");
+                logger.LogError($"validation errors with resource correlationId {correlationGuid}. List of Errors found [{string.Join(';',errors)}]");
+                
                 return _httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
             var learningProgressionResult = await _learningProgressionPostTriggerService.CreateLearningProgressionAsync(learningProgression);
             if (learningProgressionResult == null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to create learning progression for customerId {customerGuid}, correlationId {correlationGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to create learning progression for customerId {customerGuid}.");
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
@@ -153,9 +157,15 @@ namespace NCS.DSS.LearningProgression
 
             _loggerHelper.LogMethodExit(logger);
 
-            return learningProgression == null ?
-            _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Created(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            if (learningProgression == null)
+            {
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Response Code [No Content]");
+                return _httpResponseMessageHelper.NoContent(customerGuid);
+            }
+
+            _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Response Code [Created]");
+
+            return _httpResponseMessageHelper.Created(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
         }
     }
 }
