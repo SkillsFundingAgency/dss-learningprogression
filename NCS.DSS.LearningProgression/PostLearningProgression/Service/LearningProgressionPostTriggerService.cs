@@ -12,21 +12,26 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
     {
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
+        private ILogger<LearningProgressionPostTriggerService> _log;
 
         public LearningProgressionPostTriggerService(IDocumentDBProvider documentDbProvider,
-             IServiceBusClient serviceBusClient)
+             IServiceBusClient serviceBusClient, ILogger<LearningProgressionPostTriggerService> log)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
-            
+            _log = log;            
         }
 
         public async Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
+           
             if (learningProgression == null)
             {
+                _log.LogWarning($"Unable to Create Learning Progression. Invalid or NULL Object.");
                 return null;
             }
+
+            _log.LogInformation($"Started Creating Learning Progression for [{learningProgression.CustomerId}]");
 
             learningProgression.LearningProgressionId = Guid.NewGuid();
 
@@ -37,7 +42,14 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             var response = await _documentDbProvider.CreateLearningProgressionAsync(learningProgression);
 
-            return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                _log.LogInformation($"Successfully Created Learning Progression in Cosmos DB. Response Code [{response.StatusCode}]");
+                return (dynamic)response.Resource;
+            }
+
+            _log.LogWarning($"Unable to Create Learning Progression in Cosmos DB. Response Code [{response.StatusCode}]");
+            return null;
         }
 
         public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId, ILogger log)

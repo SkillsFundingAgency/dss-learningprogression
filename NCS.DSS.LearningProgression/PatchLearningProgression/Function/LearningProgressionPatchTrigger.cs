@@ -75,6 +75,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         {
             _loggerHelper.LogMethodEnter(logger);
 
+            logger.LogInformation($"Patching Learning Progression record with ID [{LearningProgressionId}] for Customer ID [{customerId}] ");
+
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             var guidHelper = new GuidHelper();
             var correlationGuid = guidHelper.ValidateAndGetGuid(correlationId);
@@ -82,7 +84,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
 
                 return _httpResponseMessageHelper.BadRequest();
             }
@@ -90,19 +92,19 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
             if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressionId' to a Guid: {learnerProgressionGuid}");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressionId' to a Guid: {learnerProgressionGuid}");
                 return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
             }
 
@@ -119,26 +121,26 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             if (learningProgressionPatchRequest == null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"A patch body was not provided. CorrelationId: {correlationGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"A patch body was not provided. CorrelationId: {correlationGuid}.");
                 return _httpResponseMessageHelper.NoContent();
             }
 
             _learningProgressionPatchTriggerService.SetIds(learningProgressionPatchRequest, customerGuid, touchpointId);
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Customer is readonly with customerId {customerGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Customer is readonly with customerId {customerGuid}.");
                 return _httpResponseMessageHelper.Forbidden(customerGuid);
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Bad request");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             if (!_learningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Learning progression does not exist for customerId {customerGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression does not exist for customerId {customerGuid}.");
                 return _httpResponseMessageHelper.NoContent();
             }
 
@@ -146,14 +148,14 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             if (currentLearningProgressionAsJson == null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
                 return _httpResponseMessageHelper.NoContent(learnerProgressionGuid);
             }
 
             var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
             if (patchedLearningProgressionAsJson == null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
                 return _httpResponseMessageHelper.NoContent(learnerProgressionGuid);
             }
 
@@ -170,7 +172,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             if (learningProgressionValidationObject == null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Learning Progression Validation Object is null.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Learning Progression Validation Object is null.");
                 return _httpResponseMessageHelper.UnprocessableEntity(req);
             }
 
@@ -179,7 +181,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             if (errors != null && errors.Any())
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"validation errors with resource customerId {customerGuid}.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"validation errors with resource customerId {customerGuid}. List of Errors [{string.Join(';',errors)}]");
                 return _httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
@@ -189,13 +191,20 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"attempting to send to service bus {learnerProgressionGuid}.");
 
                 await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, ApimURL, correlationGuid, logger);
+
+                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Ok");
+
+                _loggerHelper.LogMethodExit(logger);
+
+                return _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression, "id", "LearningProgressionId"));
             }
+
+            _loggerHelper.LogWarningMessage(logger, correlationGuid, "No Content");
 
             _loggerHelper.LogMethodExit(logger);
 
-            return updatedLearningProgression == null ?
-            _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression, "id", "LearningProgressionId"));
+            return _httpResponseMessageHelper.NoContent(customerGuid);
+           
         }
     }
 }

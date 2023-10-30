@@ -16,12 +16,14 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         private readonly IJsonHelper _jsonHelper;
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
+        private ILogger<LearningProgressionPatchTriggerService> _log;
         
-        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
         {
             _jsonHelper = jsonHelper;
             _documentDbProvider = documentDbProvider;
-            _serviceBusClient = serviceBusClient;           
+            _serviceBusClient = serviceBusClient;
+            _log = log;
         }
 
         public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
@@ -63,11 +65,14 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
                 if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
-                
+
+                _log.LogInformation($"Successfully Fetched PATCH Json Object.");
+
                 return learningProgressionAsJsonObject.ToString();
             }
-            catch (JsonReaderException)
+            catch (JsonReaderException ex)
             {
+                _log.LogWarning($"Failed to PATCH Json Object. Error: [{ex.Message}] and Stack Trace [{ex.StackTrace}]");
                 return null;
             }
         }
@@ -76,13 +81,22 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         {
             if (string.IsNullOrEmpty(learningProgressionAsJson))
             {
+                _log.LogWarning($"Failed to Update in Cosmos DB. Json Object Can not be Null or Empty.");
                 return null;
             }
 
             var response = await _documentDbProvider.UpdateLearningProgressionAsync(learningProgressionAsJson, learningProgressionId);
             var responseStatusCode = response?.StatusCode;
 
-            return responseStatusCode == HttpStatusCode.OK ? (dynamic)response.Resource : null;
+
+            if( responseStatusCode == HttpStatusCode.OK )
+            {
+                _log.LogInformation($"Successfully Updated in Cosmos DB. Response Code [{responseStatusCode}]");
+                return (dynamic)response.Resource;
+            }
+
+            _log.LogWarning($"Failed to Update in Cosmos DB. Response Code [{responseStatusCode}]");
+            return null;
         }
 
         public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
