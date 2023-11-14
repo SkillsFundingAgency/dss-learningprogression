@@ -61,8 +61,8 @@ namespace NCS.DSS.LearningProgression
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId, string LearningProgressionId)
         {
-            _loggerHelper.LogMethodEnter(logger);            
-
+            _loggerHelper.LogMethodEnter(logger);
+            logger.LogInformation($"Getting Learning Progression of ID [{LearningProgressionId}] for Customer ID [{customerId}]");
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
             var guidHelper = new GuidHelper();
@@ -71,42 +71,47 @@ namespace NCS.DSS.LearningProgression
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Bad request");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressioniD' to a Guid: {LearningProgressionId}");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressioniD' to a Guid: {LearningProgressionId}");
                 return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
             }
 
             var learningProgression = await _learningProgressionByIdService.GetLearningProgressionForCustomerAsync(customerGuid, learnerProgressionGuid);
+            if(learningProgression == null)
+            {
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "No Content");
+                _loggerHelper.LogMethodExit(logger);
 
+                return _httpResponseMessageHelper.NoContent(customerGuid);
+            }
+            _loggerHelper.LogInformationMessage(logger, correlationGuid, "Ok");
             _loggerHelper.LogMethodExit(logger);
 
-            return learningProgression == null ?
-            _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            return _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
         }
     }
 }

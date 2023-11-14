@@ -61,7 +61,7 @@ namespace NCS.DSS.LearningProgression
             HttpRequest req, ILogger logger, string customerId)
         {
             _loggerHelper.LogMethodEnter(logger);
-            
+            logger.LogInformation($"Getting Learning Progression for Customer ID [{customerId}]");
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
@@ -71,36 +71,44 @@ namespace NCS.DSS.LearningProgression
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Bad request");
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
             var learningProgression = await _learningProgressionsGetTriggerService.GetLearningProgressionsForCustomerAsync(customerGuid);
 
+            if ( learningProgression == null)
+            {
+                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
+                _loggerHelper.LogMethodExit(logger);
+                return _httpResponseMessageHelper.NoContent(customerGuid);
+            }
+
+            _loggerHelper.LogInformationMessage(logger, correlationGuid, "Ok");
             _loggerHelper.LogMethodExit(logger);
 
-            return learningProgression == null ?
-            _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectsAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            return _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectsAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            
+            
         }
     }
 }
