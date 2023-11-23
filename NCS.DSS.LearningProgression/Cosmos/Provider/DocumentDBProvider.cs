@@ -49,7 +49,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             }
             else
             {
-                _logger.LogWarning($"Resourse Does Exists for CustomerID [{customerId}]");
+                _logger.LogWarning($"Resource Does Not Exist for CustomerID [{customerId}]");
             }
             
             return isExists;
