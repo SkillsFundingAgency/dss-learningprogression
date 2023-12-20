@@ -40,6 +40,12 @@
         },
         "templateBaseUrl": {
             "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-learningprogression/SDD-60-MoveTestsProject-v3/Resources/"
+        },
+        "workspaceName": {
+            "value": "aTestLogAnalyticsAccount"
+        },
+        "workspaceResourceGroup": {
+            "value": "aResourceGroup"
         }
     }
 }
