@@ -1,12 +1,15 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
@@ -15,49 +18,39 @@ using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
-namespace NCS.DSS.LearningProgression.Tests.FunctionTests
+namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 {
     public class LearningProgressionPatchTrigger
     {
-        const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
-        const string FunctionName = "Patch";
-        private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
+        private const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
+        private const string FunctionName = "Patch";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;  
         private readonly IValidate _validate;
-        private readonly ILoggerHelper _loggerHelper;
+        private readonly ILogger<LearningProgressionPatchTrigger> _logger;
 
         public LearningProgressionPatchTrigger(
             
-            IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPatchTriggerService learningProgressionPatchTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             IValidate validate,
-            ILoggerHelper loggerHelper
-            )
+            ILogger<LearningProgressionPatchTrigger> logger)
         {
             
-            _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionPatchTriggerService = learningProgressionPatchTriggerService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _validate = validate;
-            _loggerHelper = loggerHelper;
+            _logger = logger;
         }
 
-        [FunctionName(FunctionName)]
+        [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression created.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer Resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
@@ -71,11 +64,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                 )]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string LearningProgressionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, string customerId, string learningProgressionId)
         {
-            _loggerHelper.LogMethodEnter(logger);
+            _logger.LogInformation("Patching Learning Progression of ID [{0}] for Customer ID [{1}]", learningProgressionId, customerId);
 
-            logger.LogInformation($"Patching Learning Progression record with ID [{LearningProgressionId}] for Customer ID [{customerId}] ");
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             var guidHelper = new GuidHelper();
@@ -84,28 +76,27 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
-
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogWarning("CorrelationId: {0} Unable to locate 'TouchpointId' in request header.", correlationGuid);
+                return new BadRequestResult();
             }
 
-            var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
-            if (string.IsNullOrEmpty(ApimURL))
+            var apimURL = _httpRequestHelper.GetDssApimUrl(req);
+            if (string.IsNullOrEmpty(apimURL))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogWarning("CorrelationId: {0} Unable to locate 'apimurl' in request header", correlationGuid);
+                return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                _logger.LogWarning("CorrelationId: {0} Unable to parse 'customerId' to a Guid: {1}", correlationGuid, customerId);
+                return new BadRequestObjectResult(customerGuid);
             }
 
-            if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
+            if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressionId' to a Guid: {learnerProgressionGuid}");
-                return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Unable to parse 'learnerProgressionId' to a Guid: {1}", correlationGuid, learnerProgressionGuid);
+                return new BadRequestObjectResult(learnerProgressionGuid);
             }
 
             LearningProgressionPatch learningProgressionPatchRequest;
@@ -115,48 +106,48 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             }
             catch (Exception ex)
             {
-                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
-                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
+                _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {1}", correlationGuid, ex);
+                return new UnprocessableEntityObjectResult(JObject.FromObject(new { Error = ex.Message }).ToString());
             }            
 
             if (learningProgressionPatchRequest == null)
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"A patch body was not provided. CorrelationId: {correlationGuid}.");
-                return _httpResponseMessageHelper.NoContent();
+                _logger.LogWarning("CorrelationId: {0} A patch body was not provided", correlationGuid);
+                return new NoContentResult();
             }
 
             _learningProgressionPatchTriggerService.SetIds(learningProgressionPatchRequest, customerGuid, touchpointId);
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Customer is readonly with customerId {customerGuid}.");
-                return _httpResponseMessageHelper.Forbidden(customerGuid);
+                _logger.LogWarning("CorrelationId: {0} Customer is readonly with customerId {1}", correlationGuid, customerId);
+                return new ForbidResult(customerGuid.ToString());
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogWarning("CorrelationId: {0} Bad request", correlationGuid);
+                return new BadRequestResult();
             }
 
             if (!_learningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(customerGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression does not exist for customerId {customerGuid}.");
-                return _httpResponseMessageHelper.NoContent();
+                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for customerId {1}", correlationGuid, customerId);
+                return new NoContentResult();
             }
 
             var currentLearningProgressionAsJson = await _learningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(customerGuid, learnerProgressionGuid);
 
             if (currentLearningProgressionAsJson == null)
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
-                return _httpResponseMessageHelper.NoContent(learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for {1}", correlationGuid, learnerProgressionGuid);
+                return new NoContentResult();
             }
 
             var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
             if (patchedLearningProgressionAsJson == null)
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Learning progression does not exist for {learnerProgressionGuid}.");
-                return _httpResponseMessageHelper.NoContent(learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for {1}", correlationGuid, learnerProgressionGuid);
+                return new NoContentResult();
             }
 
             Models.LearningProgressionPatch learningProgressionValidationObject;
@@ -166,14 +157,14 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             }
             catch (JsonException ex)
             {
-                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
-                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
+                _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {exception}", correlationGuid, ex);
+                return new UnprocessableEntityObjectResult(JObject.FromObject(new { Error = ex.Message }).ToString());
             }
 
             if (learningProgressionValidationObject == null)
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Learning Progression Validation Object is null.");
-                return _httpResponseMessageHelper.UnprocessableEntity(req);
+                _logger.LogWarning("CorrelationId: {0} Learning Progression Validation Object is null.", correlationGuid);
+                return new UnprocessableEntityObjectResult(req);
             }
 
             learningProgressionValidationObject.LastModifiedTouchpointId = touchpointId;
@@ -181,30 +172,25 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             if (errors != null && errors.Any())
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"validation errors with resource customerId {customerGuid}. List of Errors [{string.Join(';',errors)}]");
-                return _httpResponseMessageHelper.UnprocessableEntity(errors);
+                _logger.LogWarning("CorrelationId: {0} Validation errors with resource customerId {1}. List of Errors [{2}]", correlationGuid, customerGuid, string.Join(';',errors));
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var updatedLearningProgression = await _learningProgressionPatchTriggerService.UpdateCosmosAsync(patchedLearningProgressionAsJson, learnerProgressionGuid);
             if (updatedLearningProgression != null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"attempting to send to service bus {learnerProgressionGuid}.");
+                _logger.LogInformation("CorrelationId: {0} Attempting to send to service bus {1}", correlationGuid, learnerProgressionGuid);
 
-                await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, ApimURL, correlationGuid, logger);
+                await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, apimURL, correlationGuid, _logger);
 
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Ok");
+                _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
-                _loggerHelper.LogMethodExit(logger);
-
-                return _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression, "id", "LearningProgressionId"));
+                return new OkObjectResult(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression,
+                    "id", "LearningProgressionId"));
             }
 
-            _loggerHelper.LogWarningMessage(logger, correlationGuid, "No Content");
-
-            _loggerHelper.LogMethodExit(logger);
-
-            return _httpResponseMessageHelper.NoContent(customerGuid);
-           
+            _logger.LogWarning("CorrelationId: {0} No Content", correlationGuid);
+            return new NoContentResult();
         }
     }
 }

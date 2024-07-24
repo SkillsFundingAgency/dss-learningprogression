@@ -1,55 +1,48 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Threading.Tasks;
 using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
-namespace NCS.DSS.LearningProgression
+namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 {
     public class LearningProgressionGetByIdTrigger
     {
-        const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
-        const string FunctionName = "GetById";
+        private const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
+        private const string FunctionName = "GetById";
 
-        private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionGetByIdService _learningProgressionByIdService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
-        private readonly ILoggerHelper _loggerHelper;
+        private readonly ILogger<LearningProgressionGetByIdTrigger> _logger;
                 
         public LearningProgressionGetByIdTrigger(
             
-            IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionGetByIdService learningProgressionByIdService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
-            ILoggerHelper loggerHelper
-            )
+            ILogger<LearningProgressionGetByIdTrigger> logger)
         {           
-            _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionByIdService = learningProgressionByIdService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
-            _loggerHelper = loggerHelper;
+            _logger = logger;
         }
 
-        [FunctionName(FunctionName)]
+        [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression found.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
@@ -58,11 +51,10 @@ namespace NCS.DSS.LearningProgression
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual learning progression for the given customer.")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
-            HttpRequest req, ILogger logger, string customerId, string LearningProgressionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
+            HttpRequest req, string customerId, string learningProgressionId)
         {
-            _loggerHelper.LogMethodEnter(logger);
-            logger.LogInformation($"Getting Learning Progression of ID [{LearningProgressionId}] for Customer ID [{customerId}]");
+            _logger.LogInformation("Getting Learning Progression of ID [{0}] for Customer ID [{1}]", learningProgressionId, customerId);
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
             var guidHelper = new GuidHelper();
@@ -71,47 +63,45 @@ namespace NCS.DSS.LearningProgression
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogWarning("CorrelationId: {0} Unable to locate 'TouchpointId' in request header.", correlationGuid);
+                return new BadRequestResult();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogWarning("CorrelationId: {0} Unable to locate 'apimurl' in request header", correlationGuid);
+                return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                _logger.LogWarning("CorrelationId: {0} Unable to parse 'customerId' to a Guid: {1}", correlationGuid, customerId);
+                return new BadRequestObjectResult(customerGuid);
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "Bad request");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogWarning("CorrelationId: {0} Bad request", correlationGuid);
+                return new BadRequestResult();
             }
 
-            if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
+            if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, $"Unable to parse 'learnerProgressioniD' to a Guid: {LearningProgressionId}");
-                return _httpResponseMessageHelper.BadRequest(learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Unable to parse 'learnerProgressionID' to a Guid: {1}", correlationGuid, learnerProgressionGuid);
+                return new BadRequestObjectResult(learnerProgressionGuid);
             }
 
             var learningProgression = await _learningProgressionByIdService.GetLearningProgressionForCustomerAsync(customerGuid, learnerProgressionGuid);
             if(learningProgression == null)
             {
-                _loggerHelper.LogWarningMessage(logger, correlationGuid, "No Content");
-                _loggerHelper.LogMethodExit(logger);
-
-                return _httpResponseMessageHelper.NoContent(customerGuid);
+                _logger.LogWarning("CorrelationId: {0} No Content", correlationGuid);
+                return new NoContentResult();
             }
-            _loggerHelper.LogInformationMessage(logger, correlationGuid, "Ok");
-            _loggerHelper.LogMethodExit(logger);
+            _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
-            return _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            return new OkObjectResult(
+                _jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Documents;
 
-namespace NCS.DSS.LearningProgression.CosmosDocumentClient
+namespace NCS.DSS.LearningProgression.Cosmos.Client
 {
     public interface ICosmosDocumentClient
     {
