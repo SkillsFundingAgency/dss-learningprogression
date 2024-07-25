@@ -30,7 +30,6 @@ var learningProgressionConfigurationSettings = new LearningProgressionConfigurat
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
-
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();

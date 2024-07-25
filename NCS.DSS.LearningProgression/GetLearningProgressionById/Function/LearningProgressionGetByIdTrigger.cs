@@ -52,9 +52,9 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual learning progression for the given customer.")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
-            HttpRequest req, string customerId, string learningProgressionId)
+            HttpRequest req, string customerId, string LearningProgressionId)
         {
-            _logger.LogInformation("Getting Learning Progression of ID [{0}] for Customer ID [{1}]", learningProgressionId, customerId);
+            _logger.LogInformation("Getting Learning Progression of ID [{0}] for Customer ID [{1}]", LearningProgressionId, customerId);
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
             var guidHelper = new GuidHelper();
@@ -86,7 +86,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
                 return new BadRequestResult();
             }
 
-            if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
+            if (!Guid.TryParse(LearningProgressionId, out var learnerProgressionGuid))
             {
                 _logger.LogWarning("CorrelationId: {0} Unable to parse 'learnerProgressionID' to a Guid: {1}", correlationGuid, learnerProgressionGuid);
                 return new BadRequestObjectResult(learnerProgressionGuid);

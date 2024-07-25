@@ -64,9 +64,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                 )]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, string customerId, string learningProgressionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, string customerId, string LearningProgressionId)
         {
-            _logger.LogInformation("Patching Learning Progression of ID [{0}] for Customer ID [{1}]", learningProgressionId, customerId);
+            _logger.LogInformation("Patching Learning Progression of ID [{0}] for Customer ID [{1}]", LearningProgressionId, customerId);
 
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
@@ -93,10 +93,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 return new BadRequestObjectResult(customerGuid);
             }
 
-            if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
+            if (!Guid.TryParse(LearningProgressionId, out var LearnerProgressionGuid))
             {
-                _logger.LogWarning("CorrelationId: {0} Unable to parse 'learnerProgressionId' to a Guid: {1}", correlationGuid, learnerProgressionGuid);
-                return new BadRequestObjectResult(learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Unable to parse 'learnerProgressionId' to a Guid: {1}", correlationGuid, LearnerProgressionGuid);
+                return new BadRequestObjectResult(LearnerProgressionGuid);
             }
 
             LearningProgressionPatch learningProgressionPatchRequest;
@@ -135,18 +135,18 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 return new NoContentResult();
             }
 
-            var currentLearningProgressionAsJson = await _learningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(customerGuid, learnerProgressionGuid);
+            var currentLearningProgressionAsJson = await _learningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(customerGuid, LearnerProgressionGuid);
 
             if (currentLearningProgressionAsJson == null)
             {
-                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for {1}", correlationGuid, learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for {1}", correlationGuid, LearnerProgressionGuid);
                 return new NoContentResult();
             }
 
             var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
             if (patchedLearningProgressionAsJson == null)
             {
-                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for {1}", correlationGuid, learnerProgressionGuid);
+                _logger.LogWarning("CorrelationId: {0} Learning progression does not exist for {1}", correlationGuid, LearnerProgressionGuid);
                 return new NoContentResult();
             }
 
@@ -176,10 +176,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 return new UnprocessableEntityObjectResult(errors);
             }
 
-            var updatedLearningProgression = await _learningProgressionPatchTriggerService.UpdateCosmosAsync(patchedLearningProgressionAsJson, learnerProgressionGuid);
+            var updatedLearningProgression = await _learningProgressionPatchTriggerService.UpdateCosmosAsync(patchedLearningProgressionAsJson, LearnerProgressionGuid);
             if (updatedLearningProgression != null)
             {
-                _logger.LogInformation("CorrelationId: {0} Attempting to send to service bus {1}", correlationGuid, learnerProgressionGuid);
+                _logger.LogInformation("CorrelationId: {0} Attempting to send to service bus {1}", correlationGuid, LearnerProgressionGuid);
 
                 await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, apimURL, correlationGuid, _logger);
 
