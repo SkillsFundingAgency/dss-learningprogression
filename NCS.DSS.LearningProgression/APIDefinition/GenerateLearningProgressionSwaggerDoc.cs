@@ -1,7 +1,6 @@
 ﻿using DFC.Swagger.Standard;
 using Microsoft.AspNetCore.Http;
 using NCS.DSS.LearningProgression.Constants;
-using System.Net.Http;
 using System.Reflection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +31,7 @@ namespace NCS.DSS.LearningProgression.APIDefinition
             if (string.IsNullOrEmpty(swaggerDoc))
                 return new NoContentResult();
 
-            return new OkObjectResult(new StringContent(swaggerDoc));
+            return new OkObjectResult(swaggerDoc);
         }
     }
 }
