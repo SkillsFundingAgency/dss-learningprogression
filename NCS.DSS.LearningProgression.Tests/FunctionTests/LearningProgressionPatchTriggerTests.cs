@@ -1,19 +1,17 @@
-﻿using DFC.Common.Standard.Logging;
-using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
+﻿using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Models;
+using NCS.DSS.LearningProgression.PatchLearningProgression.Function;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using Microsoft.AspNetCore.Mvc;
-using NCS.DSS.LearningProgression.PatchLearningProgression.Function;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -30,7 +28,6 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionPatchTriggerService> _learningProgressionPatchTriggerService;
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
-        private IJsonHelper _jsonHelper;
         private LearningProgressionPatchTrigger _function;
         private IValidate _validate;
 
@@ -41,13 +38,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _learningProgressionPatchTriggerService = new Mock<ILearningProgressionPatchTriggerService>();
             _resourceHelper = new Mock<IResourceHelper>();
-            _jsonHelper = new JsonHelper();
             _validate = new Validate();
             _logger = new Mock<ILogger<LearningProgressionPatchTrigger>>();
             _function = new LearningProgressionPatchTrigger(
                 _httpRequestMessageHelper.Object, 
                 _learningProgressionPatchTriggerService.Object,
-                _jsonHelper, 
                 _resourceHelper.Object, 
                 _validate, 
                 _logger.Object);
@@ -200,7 +195,6 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _function = new LearningProgressionPatchTrigger(
                 _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
-                _jsonHelper,
                 _resourceHelper.Object,
                 validate.Object,
                 _logger.Object);
@@ -248,9 +242,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
+            var responseResult = response as JsonResult;
 
             //Assert
-            Assert.That(response, Is.InstanceOf<OkObjectResult>());
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         private async Task<IActionResult> RunFunction(string customerId, string learningProgressionId)

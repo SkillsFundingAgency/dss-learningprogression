@@ -1,11 +1,5 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +12,13 @@ using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
+using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 {
@@ -27,7 +28,6 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
         private const string FunctionName = "Patch";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
-        private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;  
         private readonly IValidate _validate;
         private readonly ILogger<LearningProgressionPatchTrigger> _logger;
@@ -36,7 +36,6 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPatchTriggerService learningProgressionPatchTriggerService,
-            IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             IValidate validate,
             ILogger<LearningProgressionPatchTrigger> logger)
@@ -44,7 +43,6 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionPatchTriggerService = learningProgressionPatchTriggerService;
-            _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _validate = validate;
             _logger = logger;
@@ -185,8 +183,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 
                 _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
-                return new OkObjectResult(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression,
-                    "id", "LearningProgressionId"));
+                return new JsonResult(updatedLearningProgression, new JsonSerializerOptions())
+                {
+                    StatusCode = (int)HttpStatusCode.OK
+                };
             }
 
             _logger.LogWarning("CorrelationId: {0} No Content", correlationGuid);

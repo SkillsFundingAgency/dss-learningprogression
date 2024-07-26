@@ -1,11 +1,5 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +10,12 @@ using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json.Linq;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 {
@@ -25,7 +25,6 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         private const string FunctionName = "Post";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPostTriggerService _learningProgressionPostTriggerService;
-        private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;      
         private readonly ILogger<LearningProgressionPostTrigger> _logger;
         private Models.LearningProgression _learningProgression;
@@ -35,7 +34,6 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPostTriggerService learningProgressionPostTriggerService,
-            IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             IValidate validate,
             ILogger<LearningProgressionPostTrigger> logger
@@ -43,7 +41,6 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         {
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionPostTriggerService = learningProgressionPostTriggerService;
-            _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _validate = validate;
             _logger = logger;
@@ -152,8 +149,10 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             _logger.LogInformation("CorrelationId: {0} Response Code [Created]", correlationGuid);
 
-            var response = _jsonHelper.SerializeObjectAndRenameIdProperty(_learningProgression, "id", "LearningProgressionId");
-            return new ObjectResult(response) { StatusCode = (int)HttpStatusCode.Created };
+            return new JsonResult(_learningProgression, new JsonSerializerOptions())
+            {
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

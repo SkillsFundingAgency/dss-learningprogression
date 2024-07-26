@@ -40,9 +40,9 @@ var host = new HostBuilder()
             new CosmosDocumentClient(learningProgressionConfigurationSettings.CosmosDBConnectionString ?? throw new ArgumentNullException()));
         services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
         services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
+        services.AddTransient<IJsonHelper, JsonHelper>();
         services.AddTransient<IServiceBusClient, ServiceBusClient>();
         services.AddTransient<IDocumentDBProvider, DocumentDBProvider>();
-        services.AddTransient<IJsonHelper, JsonHelper>();
         services.AddTransient<IResourceHelper, ResourceHelper>();
         services.AddTransient<IValidate, Validate>();
         services.AddTransient<ILearningProgressionsGetTriggerService, LearningProgressionsGetTriggerService>();

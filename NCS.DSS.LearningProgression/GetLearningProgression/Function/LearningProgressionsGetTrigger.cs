@@ -1,10 +1,5 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Threading.Tasks;
 using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +8,11 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 {
@@ -22,7 +22,6 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
         private const string FunctionName = "Get";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionsGetTriggerService _learningProgressionsGetTriggerService;
-        private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILogger<LearningProgressionsGetTrigger> _logger;        
 
@@ -30,14 +29,12 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionsGetTriggerService learningProgressionsGetTriggerService,
-            IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             ILogger<LearningProgressionsGetTrigger> logger
             )
         {
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionsGetTriggerService = learningProgressionsGetTriggerService;
-            _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _logger = logger;
         }
@@ -89,7 +86,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 
             var learningProgression = await _learningProgressionsGetTriggerService.GetLearningProgressionsForCustomerAsync(customerGuid);
 
-            if ( learningProgression == null)
+            if (learningProgression == null)
             {
                 _logger.LogWarning("CorrelationId: {0} Bad request", correlationGuid);
                 return new NoContentResult();
@@ -97,9 +94,18 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 
             _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
-            return new OkObjectResult(
-                _jsonHelper.SerializeObjectsAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            if (learningProgression.Count == 1)
+            {
+                return new JsonResult(learningProgression[0], new JsonSerializerOptions())
+                {
+                    StatusCode = (int)HttpStatusCode.OK
+                };
+            }
 
+            return new JsonResult(learningProgression, new JsonSerializerOptions())
+            {
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

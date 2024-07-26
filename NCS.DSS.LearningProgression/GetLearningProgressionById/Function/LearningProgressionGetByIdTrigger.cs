@@ -1,10 +1,5 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Threading.Tasks;
 using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +8,11 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 {
@@ -23,7 +23,6 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionGetByIdService _learningProgressionByIdService;
-        private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILogger<LearningProgressionGetByIdTrigger> _logger;
                 
@@ -31,13 +30,11 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionGetByIdService learningProgressionByIdService,
-            IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             ILogger<LearningProgressionGetByIdTrigger> logger)
         {           
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionByIdService = learningProgressionByIdService;
-            _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _logger = logger;
         }
@@ -100,8 +97,10 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             }
             _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
-            return new OkObjectResult(
-                _jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+            return new JsonResult(learningProgression, new JsonSerializerOptions())
+            {
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

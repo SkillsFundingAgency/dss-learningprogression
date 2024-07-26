@@ -1,15 +1,15 @@
 ﻿using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.LearningProgression.PostLearningProgression.Function;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using NUnit.Framework;
-using Microsoft.AspNetCore.Mvc;
-using NCS.DSS.LearningProgression.PostLearningProgression.Function;
+using System.Net;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -23,7 +23,6 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private Mock<IResourceHelper> _resourceHelper;
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionPostTriggerService> _learningProgressionPatchTriggerService;
-        private IJsonHelper _jsonHelper;
         private LearningProgressionPostTrigger _function;
         private Mock<ILoggerHelper> _loggerHelper;
         private IValidate _validate;
@@ -34,14 +33,12 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         {
             _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _learningProgressionPatchTriggerService = new Mock<ILearningProgressionPostTriggerService>();
-            _jsonHelper = new JsonHelper();
             _resourceHelper = new Mock<IResourceHelper>();
             _validate = new Validate();
             _logger = new Mock<ILogger<LearningProgressionPostTrigger>>();
             _function = new LearningProgressionPostTrigger(
                 _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
-                _jsonHelper,
                 _resourceHelper.Object,
                 _validate,
                 _logger.Object);
@@ -190,9 +187,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(CustomerId);
+            var responseResult = response as JsonResult;
 
             //Assert
-            Assert.That(response, Is.InstanceOf<ObjectResult>());
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         private async Task<IActionResult> RunFunction(string customerId)

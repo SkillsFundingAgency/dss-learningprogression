@@ -1,13 +1,13 @@
 ﻿using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
-using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
-using Microsoft.AspNetCore.Mvc;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Function;
+using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
 using NUnit.Framework;
+using System.Net;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -19,7 +19,6 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private Mock<IResourceHelper> _resourceHelper;
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionGetByIdService> _learningProgressionGetByIdService;
-        private IJsonHelper _jsonHelper;
         private LearningProgressionGetByIdTrigger _function;
         private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
         private const string ValidLearningProgressionId = "1e1a555c-9633-4e12-ab28-09ed60d51cb3";
@@ -30,13 +29,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         {
             _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _learningProgressionGetByIdService = new Mock<ILearningProgressionGetByIdService>();
-            _jsonHelper = new JsonHelper();
             _resourceHelper = new Mock<IResourceHelper>();
             _logger = new Mock<ILogger<LearningProgressionGetByIdTrigger>>();
             _function = new LearningProgressionGetByIdTrigger(
                 _httpRequestMessageHelper.Object,
                 _learningProgressionGetByIdService.Object,
-                _jsonHelper,
                 _resourceHelper.Object,
                 _logger.Object);
 
@@ -108,9 +105,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
+            var responseResult = response as JsonResult;
 
             //Assert
-            Assert.That(response, Is.InstanceOf<OkObjectResult>());
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         private async Task<IActionResult> RunFunction(string customerId, string learningProgressionId)
