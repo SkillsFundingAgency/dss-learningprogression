@@ -50,7 +50,6 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
-        [Produces("application/json")]
         [Display(Name = "Get", Description = "Ability to retrieve an individual learning progression for the given customer.")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, string customerId, string LearningProgressionId)

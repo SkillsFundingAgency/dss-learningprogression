@@ -57,7 +57,6 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
-        [Produces("application/json")]
         [Display(Name = "Post", Description = "Ability to create a new learning progression for a customer. <br>" +
                                               "<br> <b>Validation Rules:</b> <br>" +
                                               "<br><b>LearningHours:</b> A valid LearningHours contained in the enum. If CurrentLearningStatus = 'in learning' then this must be a valid LearningHours reference data item<br>" +
