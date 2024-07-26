@@ -9,8 +9,10 @@ using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.Models;
@@ -25,6 +27,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
     {
         private const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
         private const string FunctionName = "Patch";
+
+        private readonly MediaTypeCollection _contentTypes = new()
+        {
+            new MediaTypeHeaderValue("application/json")
+        };
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
         private readonly IJsonHelper _jsonHelper;
@@ -186,7 +193,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
                 return new OkObjectResult(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedLearningProgression,
-                    "id", "LearningProgressionId"));
+                    "id", "LearningProgressionId"))
+                {
+                    ContentTypes = _contentTypes
+                };
             }
 
             _logger.LogWarning("CorrelationId: {0} No Content", correlationGuid);

@@ -9,8 +9,10 @@ using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
@@ -23,6 +25,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
     {
         private const string RouteValue = "customers/{customerId}/LearningProgressions";
         private const string FunctionName = "Post";
+
+        private readonly MediaTypeCollection _contentTypes = new()
+        {
+            new MediaTypeHeaderValue("application/json")
+        };
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPostTriggerService _learningProgressionPostTriggerService;
         private readonly IJsonHelper _jsonHelper;
@@ -153,7 +160,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             _logger.LogInformation("CorrelationId: {0} Response Code [Created]", correlationGuid);
 
             var response = _jsonHelper.SerializeObjectAndRenameIdProperty(_learningProgression, "id", "LearningProgressionId");
-            return new ObjectResult(response) { StatusCode = (int)HttpStatusCode.Created };
+            return new ObjectResult(response)
+            {
+                StatusCode = (int)HttpStatusCode.Created, 
+                ContentTypes = _contentTypes
+            };
         }
     }
 }

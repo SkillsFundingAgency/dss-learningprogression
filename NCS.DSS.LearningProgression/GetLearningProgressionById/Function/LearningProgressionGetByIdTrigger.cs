@@ -8,8 +8,10 @@ using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
@@ -20,6 +22,11 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
     {
         private const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
         private const string FunctionName = "GetById";
+
+        private readonly MediaTypeCollection _contentTypes = new()
+        {
+            new MediaTypeHeaderValue("application/json")
+        };
 
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionGetByIdService _learningProgressionByIdService;
@@ -101,7 +108,10 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             _logger.LogInformation("CorrelationId: {0} Ok", correlationGuid);
 
             return new OkObjectResult(
-                _jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"));
+                _jsonHelper.SerializeObjectAndRenameIdProperty(learningProgression, "id", "LearningProgressionId"))
+            {
+                ContentTypes = _contentTypes
+            };
         }
     }
 }
