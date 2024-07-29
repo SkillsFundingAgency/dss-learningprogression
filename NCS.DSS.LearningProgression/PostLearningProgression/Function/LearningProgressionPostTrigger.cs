@@ -151,7 +151,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             return new JsonResult(_learningProgression, new JsonSerializerOptions())
             {
-                StatusCode = (int)HttpStatusCode.OK
+                StatusCode = (int)HttpStatusCode.Created
             };
         }
     }

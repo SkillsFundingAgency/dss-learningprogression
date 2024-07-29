@@ -173,7 +173,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Get_SuccessRequest_ReturnOk()
+        public async Task Get_SuccessRequest_ReturnCreated()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -191,7 +191,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             //Assert
             Assert.That(response, Is.InstanceOf<JsonResult>());
-            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.Created));
         }
 
         private async Task<IActionResult> RunFunction(string customerId)
