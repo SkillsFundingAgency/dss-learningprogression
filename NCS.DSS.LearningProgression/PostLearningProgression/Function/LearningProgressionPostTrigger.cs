@@ -16,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 
 namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 {
@@ -29,6 +30,8 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         private readonly ILogger<LearningProgressionPostTrigger> _logger;
         private Models.LearningProgression _learningProgression;
         private readonly IValidate _validate;
+        private readonly IDynamicHelper _dynamicHelper;
+        private static readonly string[] PropertyToExclude = {"TargetSite"};
 
         public LearningProgressionPostTrigger(
             
@@ -36,7 +39,8 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             ILearningProgressionPostTriggerService learningProgressionPostTriggerService,
             IResourceHelper resourceHelper,
             IValidate validate,
-            ILogger<LearningProgressionPostTrigger> logger
+            ILogger<LearningProgressionPostTrigger> logger,
+            IDynamicHelper dynamicHelper
             )
         {
             _httpRequestHelper = httpRequestHelper;
@@ -44,6 +48,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             _resourceHelper = resourceHelper;
             _validate = validate;
             _logger = logger;
+            _dynamicHelper = dynamicHelper;
         }
 
         [Function(FunctionName)]
@@ -118,7 +123,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             catch (Exception ex)
             {
                 _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {1}", correlationGuid, ex);
-                return new UnprocessableEntityObjectResult(JObject.FromObject(new { Error = ex.Message }).ToString());
+                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
 
             _learningProgressionPostTriggerService.SetIds(_learningProgression, customerGuid, touchpointId);

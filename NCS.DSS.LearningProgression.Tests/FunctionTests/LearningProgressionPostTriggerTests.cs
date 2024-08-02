@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.PostLearningProgression.Function;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
@@ -24,8 +25,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionPostTriggerService> _learningProgressionPatchTriggerService;
         private LearningProgressionPostTrigger _function;
-        private Mock<ILoggerHelper> _loggerHelper;
         private IValidate _validate;
+        private Mock<IDynamicHelper> _dynamicHelper;
 
 
         [SetUp]
@@ -36,12 +37,14 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _resourceHelper = new Mock<IResourceHelper>();
             _validate = new Validate();
             _logger = new Mock<ILogger<LearningProgressionPostTrigger>>();
+            _dynamicHelper = new Mock<IDynamicHelper>();
             _function = new LearningProgressionPostTrigger(
                 _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
                 _resourceHelper.Object,
                 _validate,
-                _logger.Object);
+                _logger.Object,
+                _dynamicHelper.Object);
 
             _request = new DefaultHttpContext().Request;
         }

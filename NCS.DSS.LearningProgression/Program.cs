@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Cosmos.Client;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
@@ -45,6 +46,7 @@ var host = new HostBuilder()
         services.AddTransient<IDocumentDBProvider, DocumentDBProvider>();
         services.AddTransient<IResourceHelper, ResourceHelper>();
         services.AddTransient<IValidate, Validate>();
+        services.AddSingleton<IDynamicHelper, DynamicHelper>();
         services.AddTransient<ILearningProgressionsGetTriggerService, LearningProgressionsGetTriggerService>();
         services.AddTransient<ILearningProgressionGetByIdService, LearningProgressionGetByIdService>();
         services.AddTransient<ILearningProgressionPatchTriggerService, LearningProgressionPatchTriggerService>();

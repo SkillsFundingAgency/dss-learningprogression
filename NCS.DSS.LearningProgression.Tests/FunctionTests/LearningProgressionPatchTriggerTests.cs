@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Function;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
@@ -27,9 +28,9 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private Mock<IResourceHelper> _resourceHelper;
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionPatchTriggerService> _learningProgressionPatchTriggerService;
-        private IHttpResponseMessageHelper _httpResponseMessageHelper;
         private LearningProgressionPatchTrigger _function;
         private IValidate _validate;
+        private Mock<IDynamicHelper> _dynamicHelper;
 
 
         [SetUp]
@@ -40,12 +41,14 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _resourceHelper = new Mock<IResourceHelper>();
             _validate = new Validate();
             _logger = new Mock<ILogger<LearningProgressionPatchTrigger>>();
+            _dynamicHelper = new Mock<IDynamicHelper>();
             _function = new LearningProgressionPatchTrigger(
                 _httpRequestMessageHelper.Object, 
                 _learningProgressionPatchTriggerService.Object,
                 _resourceHelper.Object, 
                 _validate, 
-                _logger.Object);
+                _logger.Object,
+                _dynamicHelper.Object);
 
             _request = new DefaultHttpContext().Request;
         }
@@ -197,7 +200,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
                 _learningProgressionPatchTriggerService.Object,
                 _resourceHelper.Object,
                 validate.Object,
-                _logger.Object);
+                _logger.Object,
+                _dynamicHelper.Object);
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);

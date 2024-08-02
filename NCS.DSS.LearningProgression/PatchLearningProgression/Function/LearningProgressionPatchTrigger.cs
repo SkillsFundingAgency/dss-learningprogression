@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
@@ -31,14 +32,17 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
         private readonly IResourceHelper _resourceHelper;  
         private readonly IValidate _validate;
         private readonly ILogger<LearningProgressionPatchTrigger> _logger;
+        private readonly IDynamicHelper _dynamicHelper;
+        private static readonly string[] PropertyToExclude = {"TargetSite"};
 
         public LearningProgressionPatchTrigger(
-            
+
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPatchTriggerService learningProgressionPatchTriggerService,
             IResourceHelper resourceHelper,
             IValidate validate,
-            ILogger<LearningProgressionPatchTrigger> logger)
+            ILogger<LearningProgressionPatchTrigger> logger,
+            IDynamicHelper dynamicHelper)
         {
             
             _httpRequestHelper = httpRequestHelper;
@@ -46,6 +50,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             _resourceHelper = resourceHelper;
             _validate = validate;
             _logger = logger;
+            _dynamicHelper = dynamicHelper;
         }
 
         [Function(FunctionName)]
@@ -105,7 +110,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             catch (Exception ex)
             {
                 _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {1}", correlationGuid, ex);
-                return new UnprocessableEntityObjectResult(JObject.FromObject(new { Error = ex.Message }).ToString());
+                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }            
 
             if (learningProgressionPatchRequest == null)
@@ -148,7 +153,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 return new NoContentResult();
             }
 
-            Models.LearningProgressionPatch learningProgressionValidationObject;
+            LearningProgressionPatch learningProgressionValidationObject;
             try
             {
                 learningProgressionValidationObject = JsonConvert.DeserializeObject<Models.LearningProgressionPatch>(patchedLearningProgressionAsJson);
@@ -156,7 +161,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             catch (JsonException ex)
             {
                 _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {exception}", correlationGuid, ex);
-                return new UnprocessableEntityObjectResult(JObject.FromObject(new { Error = ex.Message }).ToString());
+                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
 
             if (learningProgressionValidationObject == null)
