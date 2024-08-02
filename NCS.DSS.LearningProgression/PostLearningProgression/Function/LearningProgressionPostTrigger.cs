@@ -7,16 +7,15 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
-using Newtonsoft.Json.Linq;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NCS.DSS.LearningProgression.Cosmos.Helper;
 
 namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 {
@@ -104,7 +103,10 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (isCustomerReadOnly)
             {
                 _logger.LogWarning("CorrelationId: {0} Customer is readonly with customerId: {1}", correlationGuid, customerId);
-                return new ForbidResult(customerGuid.ToString());
+                return new ObjectResult(customerGuid.ToString())
+                {
+                    StatusCode = (int)HttpStatusCode.Forbidden
+                };
             }
 
             var doesLearningProgressionExist = _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);

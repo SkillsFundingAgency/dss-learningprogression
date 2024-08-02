@@ -7,18 +7,17 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NCS.DSS.LearningProgression.Cosmos.Helper;
 using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
@@ -123,7 +122,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
                 _logger.LogWarning("CorrelationId: {0} Customer is readonly with customerId {1}", correlationGuid, customerId);
-                return new ForbidResult(customerGuid.ToString());
+                return new ObjectResult(customerGuid.ToString())
+                {
+                    StatusCode = (int)HttpStatusCode.Forbidden
+                };
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))

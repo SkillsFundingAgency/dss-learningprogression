@@ -123,7 +123,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Get_ReadOnlyCustomer_ReturnBadRequest()
+        public async Task Get_ReadOnlyCustomer_ReturnForbidden()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -135,9 +135,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
+            var responseResult = response as ObjectResult;
 
             // Assert
-            Assert.That(response, Is.InstanceOf<ForbidResult>());
+            Assert.That(response, Is.InstanceOf<ObjectResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.Forbidden));
         }
 
         [Test]
