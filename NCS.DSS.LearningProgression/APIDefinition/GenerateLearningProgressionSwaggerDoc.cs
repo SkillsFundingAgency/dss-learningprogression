@@ -1,10 +1,8 @@
 ﻿using DFC.Swagger.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using NCS.DSS.LearningProgression.Constants;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
 
 namespace NCS.DSS.LearningProgression.APIDefinition
@@ -24,19 +22,16 @@ namespace NCS.DSS.LearningProgression.APIDefinition
             _swaggerDocumentGenerator = swaggerDocumentGenerator;
         }
 
-        [FunctionName(ApiDefinitionName)]
-        public HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = ApiDefRoute)]HttpRequest req)
+        [Function(ApiDefinitionName)]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = ApiDefRoute)]HttpRequest req)
         {
             var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription, 
                 ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly(), false);
 
             if (string.IsNullOrEmpty(swaggerDoc))
-                return new HttpResponseMessage(HttpStatusCode.NoContent);
+                return new NoContentResult();
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(swaggerDoc)
-            };
+            return new OkObjectResult(swaggerDoc);
         }
     }
 }
