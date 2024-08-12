@@ -15,7 +15,7 @@ namespace NCS.DSS.LearningProgression.APIDefinition
         public const string ApiDescription = "Initial release of Learning Progression.";
 
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
-        public const string ApiVersion = "2.0.0";
+        public const string ApiVersion = "4.0.0";
 
         public GenerateLearningProgressionSwaggerDoc(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
