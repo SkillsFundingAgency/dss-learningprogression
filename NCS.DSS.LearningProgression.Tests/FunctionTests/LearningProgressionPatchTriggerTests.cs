@@ -1,22 +1,18 @@
-﻿using DFC.Common.Standard.Logging;
-using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
+﻿using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Models;
+using NCS.DSS.LearningProgression.PatchLearningProgression.Function;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 {
@@ -27,37 +23,34 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         const string InvalidCustomerId = "InvalidCustomerId";
         const string LearningProgressionId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
         const string InvalidLearningProgressionId = "InvalidLearningProgressionId";
-        private Mock<ILogger> _log;
-        private DefaultHttpRequest _request;
+        private Mock<ILogger<LearningProgressionPatchTrigger>> _logger;
+        private HttpRequest _request;
         private Mock<IResourceHelper> _resourceHelper;
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionPatchTriggerService> _learningProgressionPatchTriggerService;
-        private IHttpResponseMessageHelper _httpResponseMessageHelper;
-        private IJsonHelper _jsonHelper;
         private LearningProgressionPatchTrigger _function;
-        private Mock<ILoggerHelper> _loggerHelper;
         private IValidate _validate;
+        private Mock<IDynamicHelper> _dynamicHelper;
 
 
         [SetUp]
         public void Setup()
         {
-            _log = new Mock<ILogger>();
-            _resourceHelper = new Mock<IResourceHelper>();
-            _loggerHelper = new Mock<ILoggerHelper>();
             _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
-            _httpResponseMessageHelper = new HttpResponseMessageHelper();
             _learningProgressionPatchTriggerService = new Mock<ILearningProgressionPatchTriggerService>();
-            _jsonHelper = new JsonHelper();
+            _resourceHelper = new Mock<IResourceHelper>();
             _validate = new Validate();
+            _logger = new Mock<ILogger<LearningProgressionPatchTrigger>>();
+            _dynamicHelper = new Mock<IDynamicHelper>();
             _function = new LearningProgressionPatchTrigger(
-                _httpResponseMessageHelper, 
                 _httpRequestMessageHelper.Object, 
                 _learningProgressionPatchTriggerService.Object,
-                _jsonHelper, 
                 _resourceHelper.Object, 
                 _validate, 
-                _loggerHelper.Object);
+                _logger.Object,
+                _dynamicHelper.Object);
+
+            _request = new DefaultHttpContext().Request;
         }
 
         [Test]
@@ -69,26 +62,26 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
         public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
-            // arrange
+            // Arrange
             _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
         public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
-            // arrange
+            // Arrange
             _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
 
@@ -96,7 +89,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(InvalidCustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+                Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -110,7 +103,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId, InvalidLearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -126,11 +119,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             // Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
-        public async Task Get_ReadOnlyCustomer_ReturnBadRequest()
+        public async Task Get_ReadOnlyCustomer_ReturnForbidden()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -142,9 +135,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
+            var responseResult = response as ObjectResult;
 
             // Assert
-            Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<ObjectResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.Forbidden));
         }
 
         [Test]
@@ -162,7 +157,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
 
@@ -182,7 +177,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -203,19 +198,18 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             ErrorResults.Add(validationResult);
             validate.Setup(x=>x.ValidateResource(It.IsAny<Models.LearningProgressionPatch>())).Returns(ErrorResults);
             _function = new LearningProgressionPatchTrigger(
-                _httpResponseMessageHelper,
                 _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
-                _jsonHelper,
                 _resourceHelper.Object,
                 validate.Object,
-                _loggerHelper.Object);
+                _logger.Object,
+                _dynamicHelper.Object);
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
         [Test]
@@ -235,7 +229,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId, LearningProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -254,14 +248,16 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
+            var responseResult = response as JsonResult;
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
-        private async Task<HttpResponseMessage> RunFunction(string customerId, string learningProgressionId)
+        private async Task<IActionResult> RunFunction(string customerId, string learningProgressionId)
         {
-            return await _function.Run(_request, _log.Object, customerId, learningProgressionId).ConfigureAwait(false);
+            return await _function.Run(_request, customerId, learningProgressionId).ConfigureAwait(false);
         }
     }
 }

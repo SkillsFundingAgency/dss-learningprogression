@@ -12,7 +12,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
     {
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
-        private ILogger<LearningProgressionPostTriggerService> _log;
+        private readonly ILogger<LearningProgressionPostTriggerService> _log;
 
         public LearningProgressionPostTriggerService(IDocumentDBProvider documentDbProvider,
              IServiceBusClient serviceBusClient, ILogger<LearningProgressionPostTriggerService> log)

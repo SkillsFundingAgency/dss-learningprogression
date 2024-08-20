@@ -16,7 +16,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         private readonly IJsonHelper _jsonHelper;
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
-        private ILogger<LearningProgressionPatchTriggerService> _log;
+        private readonly ILogger<LearningProgressionPatchTriggerService> _log;
         
         public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
         {

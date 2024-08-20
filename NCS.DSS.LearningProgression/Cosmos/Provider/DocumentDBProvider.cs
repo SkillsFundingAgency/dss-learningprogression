@@ -7,8 +7,7 @@ using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
-using NCS.DSS.LearningProgression.Models;
+using NCS.DSS.LearningProgression.Cosmos.Client;
 using Newtonsoft.Json.Linq;
 
 namespace NCS.DSS.LearningProgression.Cosmos.Provider
