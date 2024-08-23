@@ -55,7 +55,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
 
             // Act
             var response = await RunFunction(ValidCustomerId);
@@ -68,8 +68,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
-            _httpRequestMessageHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
 
             // Act
             var response = await RunFunction(InvalidCustomerId);
@@ -84,7 +84,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(ValidCustomerId);
@@ -99,7 +99,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _learningProgressionGetByIdService.Setup(x=>x.GetLearningProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<LearningProgression.Models.LearningProgression>()));
+            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<LearningProgression.Models.LearningProgression>()));
 
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 

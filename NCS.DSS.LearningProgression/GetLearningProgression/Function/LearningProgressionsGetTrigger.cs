@@ -8,11 +8,9 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 {
@@ -23,10 +21,10 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionsGetTriggerService _learningProgressionsGetTriggerService;
         private readonly IResourceHelper _resourceHelper;
-        private readonly ILogger<LearningProgressionsGetTrigger> _logger;        
+        private readonly ILogger<LearningProgressionsGetTrigger> _logger;
 
         public LearningProgressionsGetTrigger(
-            
+
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionsGetTriggerService learningProgressionsGetTriggerService,
             IResourceHelper resourceHelper,

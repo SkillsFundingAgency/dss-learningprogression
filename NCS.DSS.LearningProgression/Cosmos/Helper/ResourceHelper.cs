@@ -1,6 +1,4 @@
 ﻿using NCS.DSS.LearningProgression.Cosmos.Provider;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.Contact.Cosmos.Helper
 {

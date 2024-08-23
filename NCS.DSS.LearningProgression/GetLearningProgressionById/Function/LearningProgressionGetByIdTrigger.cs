@@ -8,11 +8,9 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 {
@@ -25,14 +23,14 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
         private readonly ILearningProgressionGetByIdService _learningProgressionByIdService;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILogger<LearningProgressionGetByIdTrigger> _logger;
-                
+
         public LearningProgressionGetByIdTrigger(
-            
+
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionGetByIdService learningProgressionByIdService,
             IResourceHelper resourceHelper,
             ILogger<LearningProgressionGetByIdTrigger> logger)
-        {           
+        {
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionByIdService = learningProgressionByIdService;
             _resourceHelper = resourceHelper;
@@ -90,7 +88,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             }
 
             var learningProgression = await _learningProgressionByIdService.GetLearningProgressionForCustomerAsync(customerGuid, learnerProgressionGuid);
-            if(learningProgression == null)
+            if (learningProgression == null)
             {
                 _logger.LogWarning("CorrelationId: {0} No Content", correlationGuid);
                 return new NoContentResult();

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NCS.DSS.LearningProgression.ServiceBus
+﻿namespace NCS.DSS.LearningProgression.ServiceBus
 {
     public class MessageModel
     {

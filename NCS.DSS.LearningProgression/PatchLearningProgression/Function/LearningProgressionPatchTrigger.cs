@@ -12,12 +12,9 @@ using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
@@ -28,11 +25,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
         private const string FunctionName = "Patch";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;
-        private readonly IResourceHelper _resourceHelper;  
+        private readonly IResourceHelper _resourceHelper;
         private readonly IValidate _validate;
         private readonly ILogger<LearningProgressionPatchTrigger> _logger;
         private readonly IDynamicHelper _dynamicHelper;
-        private static readonly string[] PropertyToExclude = {"TargetSite"};
+        private static readonly string[] PropertyToExclude = { "TargetSite" };
 
         public LearningProgressionPatchTrigger(
 
@@ -43,7 +40,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             ILogger<LearningProgressionPatchTrigger> logger,
             IDynamicHelper dynamicHelper)
         {
-            
+
             _httpRequestHelper = httpRequestHelper;
             _learningProgressionPatchTriggerService = learningProgressionPatchTriggerService;
             _resourceHelper = resourceHelper;
@@ -66,7 +63,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                 )]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)]HttpRequest req, string customerId, string LearningProgressionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)] HttpRequest req, string customerId, string LearningProgressionId)
         {
             _logger.LogInformation("Patching Learning Progression of ID [{0}] for Customer ID [{1}]", LearningProgressionId, customerId);
 
@@ -110,7 +107,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             {
                 _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {1}", correlationGuid, ex);
                 return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
-            }            
+            }
 
             if (learningProgressionPatchRequest == null)
             {
@@ -177,7 +174,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             if (errors != null && errors.Any())
             {
-                _logger.LogWarning("CorrelationId: {0} Validation errors with resource customerId {1}. List of Errors [{2}]", correlationGuid, customerGuid, string.Join(';',errors));
+                _logger.LogWarning("CorrelationId: {0} Validation errors with resource customerId {1}. List of Errors [{2}]", correlationGuid, customerGuid, string.Join(';', errors));
                 return new UnprocessableEntityObjectResult(errors);
             }
 

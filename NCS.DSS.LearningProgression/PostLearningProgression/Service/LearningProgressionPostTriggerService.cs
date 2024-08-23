@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
-using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 {
@@ -19,12 +16,12 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
-            _log = log;            
+            _log = log;
         }
 
         public async Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
-           
+
             if (learningProgression == null)
             {
                 _log.LogWarning($"Unable to Create Learning Progression. Invalid or NULL Object.");
