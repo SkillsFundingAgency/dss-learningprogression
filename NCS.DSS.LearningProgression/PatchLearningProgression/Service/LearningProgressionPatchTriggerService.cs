@@ -5,9 +5,7 @@ using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.ServiceBus;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 {
@@ -17,7 +15,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
         private readonly ILogger<LearningProgressionPatchTriggerService> _log;
-        
+
         public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
         {
             _jsonHelper = jsonHelper;
@@ -89,7 +87,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             var responseStatusCode = response?.StatusCode;
 
 
-            if( responseStatusCode == HttpStatusCode.OK )
+            if (responseStatusCode == HttpStatusCode.OK)
             {
                 _log.LogInformation($"Successfully Updated in Cosmos DB. Response Code [{responseStatusCode}]");
                 return (dynamic)response.Resource;

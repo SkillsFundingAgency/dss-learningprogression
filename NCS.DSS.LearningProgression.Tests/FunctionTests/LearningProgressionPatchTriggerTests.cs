@@ -43,10 +43,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _logger = new Mock<ILogger<LearningProgressionPatchTrigger>>();
             _dynamicHelper = new Mock<IDynamicHelper>();
             _function = new LearningProgressionPatchTrigger(
-                _httpRequestMessageHelper.Object, 
+                _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
-                _resourceHelper.Object, 
-                _validate, 
+                _resourceHelper.Object,
+                _validate,
                 _logger.Object,
                 _dynamicHelper.Object);
 
@@ -69,7 +69,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
@@ -82,22 +82,22 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
 
             // Act
             var response = await RunFunction(InvalidCustomerId, LearningProgressionId);
 
             //Assert
-                Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
         public async Task Get_LearningProgressionIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
-            _httpRequestMessageHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
 
             // Act
             var response = await RunFunction(CustomerId, InvalidLearningProgressionId);
@@ -110,10 +110,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         public async Task Get_InvalidBody_ReturnBadRequest()
         {
             // arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
-            _httpRequestMessageHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.LearningProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult<Models.LearningProgressionPatch>(null));
-            _learningProgressionPatchTriggerService.Setup(x=>x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns("AString");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult<Models.LearningProgressionPatch>(null));
+            _learningProgressionPatchTriggerService.Setup(x => x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns("AString");
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
@@ -126,12 +126,12 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         public async Task Get_ReadOnlyCustomer_ReturnForbidden()
         {
             // arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(new Models.LearningProgressionPatch()));
-            _learningProgressionPatchTriggerService.Setup(x=>x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns("AString");
-            _resourceHelper.Setup(x=>x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _learningProgressionPatchTriggerService.Setup(x => x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns("AString");
+            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
@@ -169,8 +169,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(new Models.LearningProgressionPatch()));
             _learningProgressionPatchTriggerService.Setup(x => x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns("AString");
-            _learningProgressionPatchTriggerService.Setup(x=>x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _learningProgressionPatchTriggerService.Setup(x=>x.GetLearningProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult((string)null));
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _learningProgressionPatchTriggerService.Setup(x => x.GetLearningProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult((string)null));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
@@ -196,7 +196,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var ErrorResults = new List<ValidationResult>();
             var validationResult = new ValidationResult("Error MEssage");
             ErrorResults.Add(validationResult);
-            validate.Setup(x=>x.ValidateResource(It.IsAny<Models.LearningProgressionPatch>())).Returns(ErrorResults);
+            validate.Setup(x => x.ValidateResource(It.IsAny<Models.LearningProgressionPatch>())).Returns(ErrorResults);
             _function = new LearningProgressionPatchTrigger(
                 _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
@@ -220,8 +220,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(new Models.LearningProgressionPatch()));
             var patch = new LearningProgressionPatch();
-            _learningProgressionPatchTriggerService.Setup(x=>x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns(JsonConvert.SerializeObject(patch));
-            _learningProgressionPatchTriggerService.Setup(x=>x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _learningProgressionPatchTriggerService.Setup(x => x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns(JsonConvert.SerializeObject(patch));
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
@@ -239,9 +239,9 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(new Models.LearningProgressionPatch() { CustomerId = new Guid(CustomerId) }));
-            _learningProgressionPatchTriggerService.Setup(x=>x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns(JsonConvert.SerializeObject(new LearningProgression.Models.LearningProgression() { CustomerId = new Guid(CustomerId) }));
-            _learningProgressionPatchTriggerService.Setup(x=>x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _learningProgressionPatchTriggerService.Setup(x=>x.UpdateCosmosAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.LearningProgression()));
+            _learningProgressionPatchTriggerService.Setup(x => x.PatchLearningProgressionAsync(It.IsAny<string>(), It.IsAny<Models.LearningProgressionPatch>())).Returns(JsonConvert.SerializeObject(new LearningProgression.Models.LearningProgression() { CustomerId = new Guid(CustomerId) }));
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _learningProgressionPatchTriggerService.Setup(x => x.UpdateCosmosAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.LearningProgression()));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _learningProgressionPatchTriggerService.Setup(x => x.GetLearningProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult("some string"));

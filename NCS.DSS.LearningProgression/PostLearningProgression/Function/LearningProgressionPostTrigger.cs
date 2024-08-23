@@ -10,12 +10,9 @@ using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 {
@@ -25,15 +22,15 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         private const string FunctionName = "Post";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly ILearningProgressionPostTriggerService _learningProgressionPostTriggerService;
-        private readonly IResourceHelper _resourceHelper;      
+        private readonly IResourceHelper _resourceHelper;
         private readonly ILogger<LearningProgressionPostTrigger> _logger;
         private Models.LearningProgression _learningProgression;
         private readonly IValidate _validate;
         private readonly IDynamicHelper _dynamicHelper;
-        private static readonly string[] PropertyToExclude = {"TargetSite"};
+        private static readonly string[] PropertyToExclude = { "TargetSite" };
 
         public LearningProgressionPostTrigger(
-            
+
             IHttpRequestHelper httpRequestHelper,
             ILearningProgressionPostTriggerService learningProgressionPostTriggerService,
             IResourceHelper resourceHelper,
@@ -64,7 +61,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                   )]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPost, Route = RouteValue)]HttpRequest req, string customerId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPost, Route = RouteValue)] HttpRequest req, string customerId)
         {
             _logger.LogInformation("Started Updating Learning Progressions for Customer ID [{0}]", customerId);
 
@@ -134,7 +131,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             if (errors.Any())
             {
-                _logger.LogWarning("CorrelationId: {0} Validation errors. List of Errors [{2}]", correlationGuid, string.Join(';',errors));
+                _logger.LogWarning("CorrelationId: {0} Validation errors. List of Errors [{2}]", correlationGuid, string.Join(';', errors));
                 return new UnprocessableEntityObjectResult(errors);
             }
 

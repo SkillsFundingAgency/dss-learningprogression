@@ -23,9 +23,9 @@ namespace NCS.DSS.LearningProgression.APIDefinition
         }
 
         [Function(ApiDefinitionName)]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = ApiDefRoute)]HttpRequest req)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = ApiDefRoute)] HttpRequest req)
         {
-            var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription, 
+            var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription,
                 ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly(), false);
 
             if (string.IsNullOrEmpty(swaggerDoc))
