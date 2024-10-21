@@ -1,11 +1,9 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using NCS.DSS.LearningProgression.Models;
+﻿using DFC.Common.Standard.Logging;
 using Microsoft.Azure.ServiceBus;
-using DFC.Common.Standard.Logging;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.LearningProgression.Models;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace NCS.DSS.LearningProgression.ServiceBus
 {
@@ -53,7 +51,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 LastModifiedDate = learningProgression.LastModifiedDate,
                 URL = reqUrl,
                 IsNewCustomer = false,
-                 TouchpointId = learningProgression.LastModifiedTouchpointId
+                TouchpointId = learningProgression.LastModifiedTouchpointId
             };
 
             var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))

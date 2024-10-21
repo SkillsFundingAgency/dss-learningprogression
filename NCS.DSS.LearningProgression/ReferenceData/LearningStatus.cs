@@ -20,4 +20,3 @@ namespace NCS.DSS.LearningProgression.ReferenceData
         NotKnown = 99
     }
 }
-    

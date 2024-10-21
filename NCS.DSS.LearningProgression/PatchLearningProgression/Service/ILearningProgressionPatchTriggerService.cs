@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Models;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 {

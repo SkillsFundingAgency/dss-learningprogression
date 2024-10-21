@@ -1,8 +1,6 @@
-﻿using DFC.JSON.Standard.Attributes;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.LearningProgression.ReferenceData;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
 using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribute;
 
@@ -64,7 +62,7 @@ namespace NCS.DSS.LearningProgression.Models
         public string LastModifiedTouchpointId { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
-        [JsonIgnoreOnSerialize]
+        [System.Text.Json.Serialization.JsonIgnore]
         public string CreatedBy { get; set; }
     }
 }

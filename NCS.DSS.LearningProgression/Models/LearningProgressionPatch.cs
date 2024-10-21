@@ -2,7 +2,6 @@
 using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.LearningProgression.ReferenceData;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.LearningProgression.Models

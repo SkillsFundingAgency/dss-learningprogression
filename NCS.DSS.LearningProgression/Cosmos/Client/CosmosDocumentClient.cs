@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.Azure.Documents;
+﻿using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
-namespace NCS.DSS.LearningProgression.CosmosDocumentClient
+namespace NCS.DSS.LearningProgression.Cosmos.Client
 {
     public class CosmosDocumentClient : ICosmosDocumentClient
     {

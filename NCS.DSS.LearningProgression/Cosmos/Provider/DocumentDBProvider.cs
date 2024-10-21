@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
+﻿using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
-using NCS.DSS.LearningProgression.CosmosDocumentClient;
-using NCS.DSS.LearningProgression.Models;
+using NCS.DSS.LearningProgression.Cosmos.Client;
 using Newtonsoft.Json.Linq;
 
 namespace NCS.DSS.LearningProgression.Cosmos.Provider
@@ -38,7 +33,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             }
             catch (DocumentClientException ex)
-            {    
+            {
                 isExists = false;
                 _logger.LogError($"Document Client Exception Raised for [{customerId}]. Exception Message [{ex.Message}]. Stacktrace [{ex.StackTrace}]");
             }
@@ -51,7 +46,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             {
                 _logger.LogWarning($"Resource Does Not Exist for CustomerID [{customerId}]");
             }
-            
+
             return isExists;
         }
 
@@ -132,7 +127,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             }
 
             var learningProgression = await learningProgressionForCustomerQuery.ExecuteNextAsync<Models.LearningProgression>();
-            if(learningProgression.Count > 0)
+            if (learningProgression.Count > 0)
             {
                 _logger.LogInformation($"Successfully retrieved learning progression of CustomerID [{customerId}] with Learning Progression ID [{learningProgressionId}]");
             }
@@ -177,7 +172,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                 _logger.LogWarning($"No Learning Progressions found for Customer with ID [{customerId}]");
                 return null;
             }
-                
+
         }
 
         public async Task<ResourceResponse<Document>> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
