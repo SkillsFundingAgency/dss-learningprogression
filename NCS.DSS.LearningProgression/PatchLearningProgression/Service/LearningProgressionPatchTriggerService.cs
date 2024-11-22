@@ -97,9 +97,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             return null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId)
         {
-            await _serviceBusClient.SendPatchMessageAsync(learningProgression, customerId, reqUrl, correlationId, log);
+            await _serviceBusClient.SendPatchMessageAsync(learningProgression, customerId, reqUrl, correlationId);
         }
 
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)
