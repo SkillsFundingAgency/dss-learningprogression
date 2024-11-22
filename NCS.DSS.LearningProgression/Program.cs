@@ -17,53 +17,59 @@ using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.ServiceBus;
 using NCS.DSS.LearningProgression.Validators;
 
-var learningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings
+namespace NCS.DSS.LearningProgression
 {
-    CosmosDBConnectionString = Environment.GetEnvironmentVariable("CosmosDBConnectionString"),
-    KeyName = Environment.GetEnvironmentVariable("KeyName"),
-    AccessKey = Environment.GetEnvironmentVariable("AccessKey"),
-    BaseAddress = Environment.GetEnvironmentVariable("BaseAddress"),
-    QueueName = Environment.GetEnvironmentVariable("QueueName"),
-    ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString"),
-};
-
-var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureServices(services =>
+    internal class Program
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
-        services.AddLogging();
-        services.AddSingleton(learningProgressionConfigurationSettings);
-        services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient>(x =>
-            new CosmosDocumentClient(learningProgressionConfigurationSettings.CosmosDBConnectionString ?? throw new ArgumentNullException()));
-        services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
-        services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
-        services.AddTransient<IJsonHelper, JsonHelper>();
-        services.AddTransient<IServiceBusClient, ServiceBusClient>();
-        services.AddTransient<IDocumentDBProvider, DocumentDBProvider>();
-        services.AddTransient<IResourceHelper, ResourceHelper>();
-        services.AddTransient<IValidate, Validate>();
-        services.AddSingleton<IDynamicHelper, DynamicHelper>();
-        services.AddTransient<ILearningProgressionsGetTriggerService, LearningProgressionsGetTriggerService>();
-        services.AddTransient<ILearningProgressionGetByIdService, LearningProgressionGetByIdService>();
-        services.AddTransient<ILearningProgressionPatchTriggerService, LearningProgressionPatchTriggerService>();
-        services.AddTransient<ILearningProgressionPostTriggerService, LearningProgressionPostTriggerService>();
-    })
-    .ConfigureLogging(logging =>
-    {
-        // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
-        // For more information, see https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows#application-insights
-        logging.Services.Configure<LoggerFilterOptions>(options =>
+        private static async Task Main(string[] args)
         {
-            LoggerFilterRule defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
-                == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
-            if (defaultRule is not null)
+            var learningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings
             {
-                options.Rules.Remove(defaultRule);
-            }
-        });
-    })
-    .Build();
+                CosmosDBConnectionString = Environment.GetEnvironmentVariable("CosmosDBConnectionString") ?? throw new ArgumentNullException(),
+                QueueName = Environment.GetEnvironmentVariable("QueueName") ?? throw new ArgumentNullException(),
+                ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString") ?? throw new ArgumentNullException(),
+            };
 
-host.Run();
+            var host = new HostBuilder()
+                .ConfigureFunctionsWebApplication()
+                .ConfigureServices(services =>
+                {
+                    services.AddApplicationInsightsTelemetryWorkerService();
+                    services.ConfigureFunctionsApplicationInsights();
+                    services.AddLogging();
+                    services.AddSingleton(learningProgressionConfigurationSettings);
+                    services.AddSingleton<ICosmosDocumentClient, Cosmos.Client.CosmosDocumentClient>(x =>
+                        new Cosmos.Client.CosmosDocumentClient(learningProgressionConfigurationSettings.CosmosDBConnectionString ?? throw new ArgumentNullException()));
+                    services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+                    services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
+                    services.AddTransient<IJsonHelper, JsonHelper>();
+                    services.AddTransient<IServiceBusClient, ServiceBusClient>();
+                    services.AddTransient<IDocumentDBProvider, DocumentDBProvider>();
+                    services.AddTransient<IResourceHelper, ResourceHelper>();
+                    services.AddTransient<IValidate, Validate>();
+                    services.AddSingleton<IDynamicHelper, DynamicHelper>();
+                    services.AddTransient<ILearningProgressionsGetTriggerService, LearningProgressionsGetTriggerService>();
+                    services.AddTransient<ILearningProgressionGetByIdService, LearningProgressionGetByIdService>();
+                    services.AddTransient<ILearningProgressionPatchTriggerService, LearningProgressionPatchTriggerService>();
+                    services.AddTransient<ILearningProgressionPostTriggerService, LearningProgressionPostTriggerService>();
+                })
+                .ConfigureLogging(logging =>
+                {
+                    // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
+                    // For more information, see https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows#application-insights
+                    logging.Services.Configure<LoggerFilterOptions>(options =>
+                    {
+                        LoggerFilterRule defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                            == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+                        if (defaultRule is not null)
+                        {
+                            options.Rules.Remove(defaultRule);
+                        }
+                    });
+                })
+                .Build();
+            
+            await host.RunAsync();
+        }
+    }
+}
