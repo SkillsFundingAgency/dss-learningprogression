@@ -11,7 +11,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
     public class DocumentDBProvider : IDocumentDBProvider
     {
         private readonly ICosmosDocumentClient _cosmosDocumentClient;
-        private ILogger<DocumentDBProvider> _logger;
+        private readonly ILogger<DocumentDBProvider> _logger;
 
         public DocumentDBProvider(ICosmosDocumentClient cosmosDocumentClient, ILogger<DocumentDBProvider> logger)
         {
@@ -21,95 +21,81 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
         {
-            _logger.LogInformation($"Started checking for Resourse Existance for CustomerID [{customerId}]");
+            _logger.LogInformation("Checking if customer resource exists. Customer ID: {CustomerId}", customerId);
 
             var documentUri = DocumentDBUrlHelper.CreateCustomerDocumentUri(customerId);
-            bool isExists;
+            var client = _cosmosDocumentClient.GetDocumentClient();
+
             try
             {
-                var client = _cosmosDocumentClient.GetDocumentClient();
                 var response = await client.ReadDocumentAsync(documentUri);
-                isExists = response.Resource != null;
-
+                var exists = response.Resource != null;
+                _logger.LogInformation("Customer resource existence check completed. Customer ID: {CustomerId}. Exists: {Exists}", customerId, exists);
+                return exists;
             }
             catch (DocumentClientException ex)
             {
-                isExists = false;
-                _logger.LogError($"Document Client Exception Raised for [{customerId}]. Exception Message [{ex.Message}]. Stacktrace [{ex.StackTrace}]");
+                _logger.LogError(ex, "Error checking customer resource existence. Customer ID: {CustomerId}", customerId);
+                return false;
             }
-
-            if (isExists)
-            {
-                _logger.LogInformation($"Resourse Exists for CustomerID [{customerId}]");
-            }
-            else
-            {
-                _logger.LogWarning($"Resource Does Not Exist for CustomerID [{customerId}]");
-            }
-
-            return isExists;
         }
 
         public async Task<bool> DoesCustomerHaveATerminationDate(Guid customerId)
         {
-            _logger.LogInformation($"Started checking for Termination Date of CustomerID [{customerId}]");
-            var documentUri = DocumentDBUrlHelper.CreateCustomerDocumentUri(customerId);
+            _logger.LogInformation("Checking for termination date. Customer ID: {CustomerId}", customerId);
 
-            bool isActive;
+            var documentUri = DocumentDBUrlHelper.CreateCustomerDocumentUri(customerId);
+            var client = _cosmosDocumentClient.GetDocumentClient();
+
+            if (client == null)
+            {
+                _logger.LogError("Failed to get Document Client while checking termination date. Customer ID: {CustomerId}", customerId);
+                return false;
+            }
+
             try
             {
-                var client = _cosmosDocumentClient.GetDocumentClient();
                 var response = await client.ReadDocumentAsync(documentUri);
                 var dateOfTermination = response.Resource?.GetPropertyValue<DateTime?>("DateOfTermination");
-                isActive = dateOfTermination.HasValue;
+                var hasTerminationDate = dateOfTermination.HasValue;
+
+                _logger.LogInformation("Termination date check completed. CustomerId: {CustomerId}. HasTerminationDate: {HasTerminationDate}", customerId, hasTerminationDate);
+                return hasTerminationDate;
             }
             catch (DocumentClientException ex)
             {
-                isActive = false;
-                _logger.LogError($"Document Client Exception Raised for [{customerId}]. Exception Message [{ex.Message}]. Stacktrace [{ex.StackTrace}]");
+                _logger.LogError(ex, "Error checking termination date. Customer ID: {CustomerId}", customerId);
+                return false;
             }
-
-            if (isActive)
-            {
-                _logger.LogInformation($"Termination Date exists for CustomerID [{customerId}]");
-            }
-            else
-            {
-                _logger.LogWarning($"Termination Date not exists for CustomerID [{customerId}]");
-            }
-
-            return isActive;
         }
 
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)
         {
-            _logger.LogInformation($"Started checking for Learning Progression of CustomerID [{customerId}]");
+            _logger.LogInformation("Checking if LearningProgression exists. Customer ID: {CustomerId}", customerId);
+
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
 
             if (client == null)
             {
-                _logger.LogError($"Failed to get the Document Client while chekcing for Learning Progression of CustomerID [{customerId}]");
+                _logger.LogError("Failed to get Document Client while checking LearningProgression existence. Customer ID: {CustomerId}", customerId);
                 return false;
             }
 
-            var learningProgressionForCustomerQuery = client.CreateDocumentQuery<Models.LearningProgression>(collectionUri, new FeedOptions { MaxItemCount = 1 });
-            var result = learningProgressionForCustomerQuery.Where(x => x.CustomerId == customerId).AsEnumerable().Any();
+            var learningProgressionForCustomerQuery = client.CreateDocumentQuery<Models.LearningProgression>(collectionUri,
+                new FeedOptions { MaxItemCount = 1 });
+            var result = learningProgressionForCustomerQuery
+                .Where(x => x.CustomerId == customerId)
+                .AsEnumerable()
+                .Any();
 
-            if (result)
-            {
-                _logger.LogInformation($"Learning Progression exists for CustomerID [{customerId}]");
-            }
-            else
-            {
-                _logger.LogWarning($"Learning Progression not exists for CustomerID [{customerId}]");
-            }
+            _logger.LogInformation("LearningProgression existence check completed. Customer ID: {CustomerId}. Exists: {Exists}", customerId, result);
             return result;
         }
 
         public async Task<Models.LearningProgression> GetLearningProgressionForCustomerAsync(Guid customerId, Guid learningProgressionId)
         {
-            _logger.LogInformation($"Started retrieving details of Learning Progression of CustomerID [{customerId}] with Learning Progression ID [{learningProgressionId}]");
+            _logger.LogInformation("Retrieving LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
@@ -121,33 +107,33 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             if (learningProgressionForCustomerQuery == null)
             {
-                _logger.LogWarning($"Can't find the Learning Progression of CustomerID [{customerId}] with Learning Progression ID [{learningProgressionId}]");
-
+                _logger.LogWarning("LearningProgression query could not be created. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                 return null;
             }
 
             var learningProgression = await learningProgressionForCustomerQuery.ExecuteNextAsync<Models.LearningProgression>();
             if (learningProgression.Count > 0)
             {
-                _logger.LogInformation($"Successfully retrieved learning progression of CustomerID [{customerId}] with Learning Progression ID [{learningProgressionId}]");
+                _logger.LogInformation("Successfully retrieved LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
             }
             else
-                _logger.LogWarning($"No Learning Progression found with CustomerID [{customerId}] and Learning Progression ID [{learningProgressionId}]");
+            {
+                _logger.LogWarning("No LearningProgression found. Customer ID: {CustomerId}, Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+            }
 
             return learningProgression?.FirstOrDefault();
         }
 
         public async Task<List<Models.LearningProgression>> GetLearningProgressionsForCustomerAsync(Guid customerId)
         {
-            _logger.LogInformation($"Started retrieving list of Learning Progressions of a CustomerID [{customerId}]");
+            _logger.LogInformation("Retrieving LearningProgressions for customer. Customer ID: {CustomerId}", customerId);
 
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
-
             var client = _cosmosDocumentClient.GetDocumentClient();
 
             if (client == null)
             {
-                _logger.LogError($"Failed to get the Document Client while retrieving lisf of Learning Progressions of a CustomerID [{customerId}]");
+                _logger.LogError("Failed to get Document Client while retrieving LearningProgressions. Customer ID: {CustomerId}", customerId);
                 return null;
             }
 
@@ -164,36 +150,34 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             if (learningProgressions.Any())
             {
-                _logger.LogInformation($"Found [{learningProgressions.Count}] Learning Progressions for Customer with ID [{customerId}]");
+                _logger.LogInformation("LearningProgressions retrieved. Customer ID: {CustomerId}, Count: {Count}", customerId, learningProgressions.Count);
                 return learningProgressions;
             }
-            else
-            {
-                _logger.LogWarning($"No Learning Progressions found for Customer with ID [{customerId}]");
-                return null;
-            }
 
+            _logger.LogWarning("No LearningProgressions found for customer. Customer ID: {CustomerId}", customerId);
+            return null;
         }
 
         public async Task<ResourceResponse<Document>> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
-            _logger.LogInformation($"Started Creating Learning Progressions of a CustomerID [{learningProgression.CustomerId}] in Cosmos DB");
-            var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
+            _logger.LogInformation("Creating LearningProgression. Customer ID: {CustomerId}", learningProgression.CustomerId);
 
+            var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
             var response = await client.CreateDocumentAsync(collectionUri, learningProgression);
 
-            _logger.LogInformation($"Successfully Created Learning Progressions of a CustomerID [{learningProgression.CustomerId}] in Cosmos DB");
+            _logger.LogInformation("LearningProgression created successfully. Customer ID: {CustomerId}, Learning Progression ID: {LearningProgressionId}", learningProgression.CustomerId, learningProgression.LearningProgressionId);
 
             return response;
         }
 
         public async Task<ResourceResponse<Document>> UpdateLearningProgressionAsync(string learningProgressionJson, Guid learningProgressionId)
         {
-            _logger.LogInformation($"Started Updating Learning Progressions with ID [{learningProgressionId}] in Cosmos DB");
+            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
+
             if (string.IsNullOrEmpty(learningProgressionJson))
             {
-                _logger.LogWarning($"Invalid Json. Can't Progress on Updating Learning Progressions with ID [{learningProgressionId}] in Cosmos DB");
+                _logger.LogWarning("NULL or empty JSON provided for {FunctionName}. Learning Progression ID: {LearningProgressionId}", nameof(UpdateLearningProgressionAsync), learningProgressionId);
                 return null;
             }
 
@@ -202,21 +186,21 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             if (client == null)
             {
-                _logger.LogError($"Failed to get the Document Client while Updating Learning Progressions with ID [{learningProgressionId}]");
+                _logger.LogError("Failed to get Document Client while updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
                 return null;
             }
 
             var learningProgressionDocumentJObject = JObject.Parse(learningProgressionJson);
             var response = await client.ReplaceDocumentAsync(documentUri, learningProgressionDocumentJObject);
 
-            _logger.LogInformation($"Successfully Updated Learning Progression with ID [{learningProgressionId}] in Cosmos DB");
+            _logger.LogInformation("LearningProgression updated successfully. Customer ID: {LearningProgressionId}", learningProgressionId);
 
             return response;
         }
 
         public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
-            _logger.LogInformation($"Started Getting Learning Progression with ID [{learningProgressionId}] of the customer with ID [{customerId}] in Cosmos DB");
+            _logger.LogInformation("Retrieving LearningProgression for PATCH. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
@@ -228,15 +212,19 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             if (learningProgressionQuery == null)
             {
-                _logger.LogError($"Failed to get the Document Client while retrieving Learning Progressions with ID [{learningProgressionId}] of the customer with ID [{customerId}] ");
+                _logger.LogWarning("No LearningProgression found for PATCH. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                 return null;
             }
 
-            var learningProgressions = await learningProgressionQuery.ExecuteNextAsync();
+            var learningProgression = await learningProgressionQuery.ExecuteNextAsync();
+            if (learningProgression.Count > 0)
+            {
+                _logger.LogInformation("LearningProgression retrieved for PATCH. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                return learningProgression.FirstOrDefault()?.ToString();
+            }
 
-            _logger.LogInformation($"Successfully retrieved Learning Progression with ID [{learningProgressionId}] of the customer with ID [{customerId}] in Cosmos DB");
-
-            return learningProgressions?.FirstOrDefault()?.ToString();
+            _logger.LogWarning("No LearningProgression available for patch. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+            return null;
         }
     }
 }
