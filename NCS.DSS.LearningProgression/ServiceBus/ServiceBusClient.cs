@@ -1,5 +1,4 @@
-﻿using DFC.Common.Standard.Logging;
-using Microsoft.Azure.ServiceBus;
+﻿using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Models;
 using Newtonsoft.Json;
@@ -11,15 +10,16 @@ namespace NCS.DSS.LearningProgression.ServiceBus
     {
         private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
         private readonly QueueClient _queueClient;
-        private readonly ILoggerHelper _loggerHelper = new LoggerHelper();
+        private readonly ILogger<ServiceBusClient> _logger;
 
-        public ServiceBusClient(LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
+        public ServiceBusClient(LearningProgressionConfigurationSettings learnerProgressConfigurationSettings, ILogger<ServiceBusClient> logger)
         {
             _learningProgressionConfigurationSettings = learnerProgressConfigurationSettings;
             _queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
+            _logger = logger;
         }
 
-        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId)
         {
             var messageModel = new MessageModel()
             {
@@ -37,11 +37,15 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
             };
 
-            _loggerHelper.LogInformationObject(log, correlationId, string.Format("New Employment Progression record {0}", learningProgression.LearningProgressionId), messageModel);
+            var messageModelSerialized = JsonConvert.SerializeObject(messageModel, Formatting.Indented);
+            _logger.LogInformation(
+                "New Employment Progression record {MessageModel}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {correlationId}",
+                messageModelSerialized, learningProgression.LearningProgressionId, correlationId);
+
             await _queueClient.SendAsync(msg);
         }
 
-        public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId)
         {
 
             var messageModel = new MessageModel
@@ -60,7 +64,11 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 MessageId = customerId + " " + DateTime.UtcNow
             };
 
-            _loggerHelper.LogInformationObject(log, correlationId, "Learning Progression record modification for {" + customerId + "} at " + DateTime.UtcNow, messageModel);
+            var messageModelSerialized = JsonConvert.SerializeObject(messageModel, Formatting.Indented);
+
+            _logger.LogInformation(
+                "Learning Progression record modification for [{customerId}] at {DateTime}. Model: {messageModelSerialized}. CorrelationId: {CorrelationId}",
+                customerId, DateTime.UtcNow, messageModelSerialized, correlationId);
 
             await _queueClient.SendAsync(msg);
         }
