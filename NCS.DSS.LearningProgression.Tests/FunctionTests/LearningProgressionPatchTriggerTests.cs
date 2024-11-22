@@ -19,36 +19,39 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
     [TestFixture]
     public class LearningProgressionPatchTriggerTests
     {
-        const string CustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
-        const string InvalidCustomerId = "InvalidCustomerId";
-        const string LearningProgressionId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
-        const string InvalidLearningProgressionId = "InvalidLearningProgressionId";
-        private Mock<ILogger<LearningProgressionPatchTrigger>> _logger;
-        private HttpRequest _request;
-        private Mock<IResourceHelper> _resourceHelper;
-        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
+        private const string CustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
+        private const string InvalidCustomerId = "InvalidCustomerId";
+        private const string LearningProgressionId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
+        private const string InvalidLearningProgressionId = "InvalidLearningProgressionId";
+
         private Mock<ILearningProgressionPatchTriggerService> _learningProgressionPatchTriggerService;
-        private LearningProgressionPatchTrigger _function;
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
+        private Mock<IResourceHelper> _resourceHelper;
         private IValidate _validate;
         private Mock<IDynamicHelper> _dynamicHelper;
+        private Mock<ILogger<LearningProgressionPatchTrigger>> _logger;
+
+        private HttpRequest _request;
+        private LearningProgressionPatchTrigger _function;
 
 
         [SetUp]
         public void Setup()
         {
-            _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _learningProgressionPatchTriggerService = new Mock<ILearningProgressionPatchTriggerService>();
+            _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _resourceHelper = new Mock<IResourceHelper>();
             _validate = new Validate();
-            _logger = new Mock<ILogger<LearningProgressionPatchTrigger>>();
             _dynamicHelper = new Mock<IDynamicHelper>();
+            _logger = new Mock<ILogger<LearningProgressionPatchTrigger>>();
+
             _function = new LearningProgressionPatchTrigger(
-                _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
+                _httpRequestMessageHelper.Object,
                 _resourceHelper.Object,
                 _validate,
-                _logger.Object,
-                _dynamicHelper.Object);
+                _dynamicHelper.Object,
+                _logger.Object);
 
             _request = new DefaultHttpContext().Request;
         }
@@ -198,12 +201,12 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             ErrorResults.Add(validationResult);
             validate.Setup(x => x.ValidateResource(It.IsAny<Models.LearningProgressionPatch>())).Returns(ErrorResults);
             _function = new LearningProgressionPatchTrigger(
-                _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
+                _httpRequestMessageHelper.Object,
                 _resourceHelper.Object,
                 validate.Object,
-                _logger.Object,
-                _dynamicHelper.Object);
+                _dynamicHelper.Object,
+                _logger.Object);
 
             // Act
             var response = await RunFunction(CustomerId, LearningProgressionId);
@@ -257,7 +260,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
         private async Task<IActionResult> RunFunction(string customerId, string learningProgressionId)
         {
-            return await _function.Run(_request, customerId, learningProgressionId).ConfigureAwait(false);
+            return await _function.RunAsync(_request, customerId, learningProgressionId).ConfigureAwait(false);
         }
     }
 }

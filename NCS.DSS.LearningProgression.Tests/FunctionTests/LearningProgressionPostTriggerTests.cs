@@ -16,34 +16,37 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
     [TestFixture]
     public class LearningProgressionPostTriggerTests
     {
-        const string CustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
-        const string InvalidCustomerId = "InvalidCustomerId";
-        private Mock<ILogger<LearningProgressionPostTrigger>> _logger;
-        private HttpRequest _request;
-        private Mock<IResourceHelper> _resourceHelper;
-        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
+        private const string CustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
+        private const string InvalidCustomerId = "InvalidCustomerId";
+
         private Mock<ILearningProgressionPostTriggerService> _learningProgressionPatchTriggerService;
-        private LearningProgressionPostTrigger _function;
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
+        private Mock<IResourceHelper> _resourceHelper;
         private IValidate _validate;
         private Mock<IDynamicHelper> _dynamicHelper;
+        private Mock<ILogger<LearningProgressionPostTrigger>> _logger;
+
+        private HttpRequest _request;
+        private LearningProgressionPostTrigger _function;
 
 
         [SetUp]
         public void Setup()
         {
-            _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _learningProgressionPatchTriggerService = new Mock<ILearningProgressionPostTriggerService>();
+            _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _resourceHelper = new Mock<IResourceHelper>();
             _validate = new Validate();
-            _logger = new Mock<ILogger<LearningProgressionPostTrigger>>();
             _dynamicHelper = new Mock<IDynamicHelper>();
+            _logger = new Mock<ILogger<LearningProgressionPostTrigger>>();
+
             _function = new LearningProgressionPostTrigger(
-                _httpRequestMessageHelper.Object,
                 _learningProgressionPatchTriggerService.Object,
+                _httpRequestMessageHelper.Object,
                 _resourceHelper.Object,
                 _validate,
-                _logger.Object,
-                _dynamicHelper.Object);
+                _dynamicHelper.Object,
+                _logger.Object);
 
             _request = new DefaultHttpContext().Request;
         }
@@ -198,7 +201,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
         private async Task<IActionResult> RunFunction(string customerId)
         {
-            return await _function.Run(_request, customerId).ConfigureAwait(false);
+            return await _function.RunAsync(_request, customerId).ConfigureAwait(false);
         }
     }
 }

@@ -14,15 +14,17 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
     [TestFixture]
     public class LearningProgressionGetByIdTriggerTests
     {
+        private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
+        private const string ValidLearningProgressionId = "1e1a555c-9633-4e12-ab28-09ed60d51cb3";
+        private const string InvalidCustomerId = "2323232";
+
         private Mock<ILogger<LearningProgressionGetByIdTrigger>> _logger;
         private HttpRequest _request;
         private Mock<IResourceHelper> _resourceHelper;
         private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<ILearningProgressionGetByIdService> _learningProgressionGetByIdService;
+        
         private LearningProgressionGetByIdTrigger _function;
-        private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
-        private const string ValidLearningProgressionId = "1e1a555c-9633-4e12-ab28-09ed60d51cb3";
-        private const string InvalidCustomerId = "2323232";
 
         [SetUp]
         public void Setup()
@@ -32,8 +34,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _resourceHelper = new Mock<IResourceHelper>();
             _logger = new Mock<ILogger<LearningProgressionGetByIdTrigger>>();
             _function = new LearningProgressionGetByIdTrigger(
-                _httpRequestMessageHelper.Object,
                 _learningProgressionGetByIdService.Object,
+                _httpRequestMessageHelper.Object,
                 _resourceHelper.Object,
                 _logger.Object);
 
@@ -114,7 +116,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
         private async Task<IActionResult> RunFunction(string customerId, string learningProgressionId)
         {
-            return await _function.Run(_request, customerId, learningProgressionId).ConfigureAwait(false);
+            return await _function.RunAsync(_request, customerId, learningProgressionId).ConfigureAwait(false);
         }
     }
 }
