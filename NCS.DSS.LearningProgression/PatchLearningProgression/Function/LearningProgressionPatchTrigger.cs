@@ -20,7 +20,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 {
     public class LearningProgressionPatchTrigger
     {
-        private const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
+        private const string RouteValue = "customers/{customerId}/learningprogressions/{learningProgressionId}";
         private const string FunctionName = "PATCH";
 
         private readonly ILearningProgressionPatchTriggerService _learningProgressionPatchTriggerService;

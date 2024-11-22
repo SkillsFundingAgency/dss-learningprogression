@@ -15,7 +15,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 {
     public class LearningProgressionGetByIdTrigger
     {
-        private const string RouteValue = "customers/{customerId}/learningprogressions/{LearningProgressionId}";
+        private const string RouteValue = "customers/{customerId}/learningprogressions/{learningProgressionId}";
         private const string FunctionName = "GETBYID";
 
         private readonly ILearningProgressionGetByIdService _learningProgressionByIdService;
