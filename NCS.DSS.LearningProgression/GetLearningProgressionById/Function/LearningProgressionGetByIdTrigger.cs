@@ -82,19 +82,21 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
                 return new BadRequestObjectResult(customerGuid);
             }
 
-            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-            if (!await _resourceHelper.DoesCustomerExist(customerGuid))
-            {
-                _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new BadRequestResult();
-            }
-
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
             if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
             {
                 _logger.LogInformation("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult(learnerProgressionGuid);
+            }
+
+            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
+
+            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            if (!await _resourceHelper.DoesCustomerExist(customerGuid))
+            {
+                _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                return new BadRequestResult();
             }
 
             _logger.LogInformation("Attempting to retrieve LearningProgression for Customer. Customer GUID: {CustomerGuid}", customerGuid);

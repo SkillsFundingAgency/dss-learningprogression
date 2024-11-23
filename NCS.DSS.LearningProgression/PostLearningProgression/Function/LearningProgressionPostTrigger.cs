@@ -131,7 +131,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             try
             {
-                _logger.LogInformation("Attempting to get resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogInformation("Attempting to retrieve resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 learningProgression = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgression>(req);
             }
             catch (Exception ex)
@@ -139,6 +139,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
                 _logger.LogError(ex, "Unable to parse LearningProgression from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", correlationGuid, ex.Message);
                 return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
+            _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
             _learningProgressionPostTriggerService.SetIds(learningProgression, customerGuid, touchpointId);
 
@@ -160,7 +161,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
                 return new BadRequestObjectResult(customerGuid);
             }
 
-            _logger.LogInformation("Successfully created LearningProgression object. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogInformation("Successfully created LearningProgression object. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
             
             _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
             await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, apimURL, correlationGuid);

@@ -21,8 +21,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
         {
-            _logger.LogInformation("Checking if customer resource exists. Customer ID: {CustomerId}", customerId);
-
             var documentUri = DocumentDBUrlHelper.CreateCustomerDocumentUri(customerId);
             var client = _cosmosDocumentClient.GetDocumentClient();
 
@@ -30,7 +28,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             {
                 var response = await client.ReadDocumentAsync(documentUri);
                 var exists = response.Resource != null;
-                _logger.LogInformation("Customer resource existence check completed. Customer ID: {CustomerId}. Exists: {Exists}", customerId, exists);
                 return exists;
             }
             catch (DocumentClientException ex)
@@ -71,8 +68,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public bool DoesLearningProgressionExistForCustomer(Guid customerId)
         {
-            _logger.LogInformation("Checking if LearningProgression exists. Customer ID: {CustomerId}", customerId);
-
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
 
@@ -89,7 +84,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                 .AsEnumerable()
                 .Any();
 
-            _logger.LogInformation("LearningProgression existence check completed. Customer ID: {CustomerId}. Exists: {Exists}", customerId, result);
             return result;
         }
 
@@ -126,8 +120,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<List<Models.LearningProgression>> GetLearningProgressionsForCustomerAsync(Guid customerId)
         {
-            _logger.LogInformation("Retrieving LearningProgressions for customer. Customer ID: {CustomerId}", customerId);
-
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
 
@@ -148,14 +140,13 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                 learningProgressions.AddRange(response);
             }
 
-            if (learningProgressions.Any())
+            if (!learningProgressions.Any())
             {
-                _logger.LogInformation("LearningProgressions retrieved. Customer ID: {CustomerId}, Count: {Count}", customerId, learningProgressions.Count);
-                return learningProgressions;
+                return null;
             }
 
-            _logger.LogWarning("No LearningProgressions found for customer. Customer ID: {CustomerId}", customerId);
-            return null;
+            _logger.LogInformation("Found {Count} LearningProgression(s). Customer ID: {CustomerId}", learningProgressions.Count, customerId);
+            return learningProgressions;
         }
 
         public async Task<ResourceResponse<Document>> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
@@ -166,7 +157,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             var client = _cosmosDocumentClient.GetDocumentClient();
             var response = await client.CreateDocumentAsync(collectionUri, learningProgression);
 
-            _logger.LogInformation("LearningProgression created successfully. Customer ID: {CustomerId}, Learning Progression ID: {LearningProgressionId}", learningProgression.CustomerId, learningProgression.LearningProgressionId);
+            _logger.LogInformation("Finished creating LearningProgression. Customer ID: {CustomerId}", learningProgression.CustomerId);
 
             return response;
         }
@@ -200,7 +191,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
-            _logger.LogInformation("Retrieving LearningProgression for PATCH. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+            _logger.LogInformation("Attempting to retrieve LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             var collectionUri = DocumentDBUrlHelper.CreateDocumentCollectionUri();
             var client = _cosmosDocumentClient.GetDocumentClient();
@@ -212,18 +203,18 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
             if (learningProgressionQuery == null)
             {
-                _logger.LogWarning("No LearningProgression found for PATCH. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                _logger.LogWarning("No LearningProgression found for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                 return null;
             }
 
             var learningProgression = await learningProgressionQuery.ExecuteNextAsync();
             if (learningProgression.Count > 0)
             {
-                _logger.LogInformation("LearningProgression retrieved for PATCH. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                _logger.LogInformation("Retrieved LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                 return learningProgression.FirstOrDefault()?.ToString();
             }
 
-            _logger.LogWarning("No LearningProgression available for patch. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+            _logger.LogWarning("No LearningProgression available for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
             return null;
         }
     }

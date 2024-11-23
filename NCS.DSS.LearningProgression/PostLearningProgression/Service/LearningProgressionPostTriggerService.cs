@@ -25,11 +25,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             if (learningProgression == null)
             {
-                _logger.LogWarning($"Unable to Create Learning Progression. Invalid or NULL Object.");
+                _logger.LogWarning("Unable to create LearningProgression. Invalid or NULL Object.");
                 return null;
             }
 
-            _logger.LogInformation($"Started Creating Learning Progression for [{learningProgression.CustomerId}]");
+            _logger.LogInformation($"Started creating LearningProgression for Customer ID: {learningProgression.CustomerId}");
 
             learningProgression.LearningProgressionId = Guid.NewGuid();
 
@@ -42,11 +42,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                _logger.LogInformation($"Successfully Created Learning Progression in Cosmos DB. Response Code [{response.StatusCode}]");
+                _logger.LogInformation($"Successfully created LearningProgression in CosmosDB. Response code [{response.StatusCode}]");
                 return (dynamic)response.Resource;
             }
 
-            _logger.LogWarning($"Unable to Create Learning Progression in Cosmos DB. Response Code [{response.StatusCode}]");
+            _logger.LogWarning($"Unable to create LearningProgression in CosmosDB. Response code [{response.StatusCode}]");
             return null;
         }
 

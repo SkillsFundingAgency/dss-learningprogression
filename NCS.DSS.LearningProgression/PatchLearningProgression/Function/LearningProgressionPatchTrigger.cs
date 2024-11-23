@@ -110,7 +110,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             LearningProgressionPatch learningProgressionPatchRequest;
             try
             {
-                _logger.LogInformation("Attempting to get resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogInformation("Attempting to retrieve resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 learningProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<LearningProgressionPatch>(req);
             }
             catch (Exception ex)
@@ -118,6 +118,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 _logger.LogError(ex, "Unable to parse {LearningProgressionPatch} from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", nameof(learningProgressionPatchRequest), correlationGuid, ex.Message);
                 return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
+            _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
             if (learningProgressionPatchRequest == null)
             {
@@ -155,17 +156,13 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             }
             _logger.LogInformation("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
-
-            _logger.LogInformation("Attempting to retrieve LearningProgression for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
             var currentLearningProgressionAsJson = await _learningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(customerGuid, learningProgressionGuid);
 
             if (currentLearningProgressionAsJson == null)
             {
-                _logger.LogInformation("LearningProgression does not exist for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
                 return new NoContentResult();
             }
-            _logger.LogInformation("Successfully retrieved LearningProgression for customer. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-            
+
             _logger.LogInformation("Attempting to update LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
             var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
             if (patchedLearningProgressionAsJson == null)
@@ -202,12 +199,12 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             
             if (errors != null && errors.Any())
             {
-                _logger.LogError("Validation for {LearningProgressionValidationObject} object has failed", nameof(learningProgressionValidationObject));
+                _logger.LogError("Falied to validate {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
                 return new UnprocessableEntityObjectResult(errors);
             }
-            _logger.LogInformation("Validation for {LearningProgressionValidationObject} object has passed", nameof(learningProgressionValidationObject));
+            _logger.LogInformation("Successfully validated {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
 
-            _logger.LogInformation("Attempting to PATCH a ContactDetails. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogInformation("Attempting to PATCH a LearningProgression. Customer GUID: {CustomerGuid}", customerGuid);
             var updatedLearningProgression = await _learningProgressionPatchTriggerService.UpdateCosmosAsync(patchedLearningProgressionAsJson, learningProgressionGuid);
             
             if (updatedLearningProgression != null)
