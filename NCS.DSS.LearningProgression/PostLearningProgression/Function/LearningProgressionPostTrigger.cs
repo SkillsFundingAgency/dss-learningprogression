@@ -127,6 +127,8 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
                 return new ConflictResult();
             }
 
+            _logger.LogInformation("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            
             Models.LearningProgression learningProgression;
 
             try
@@ -148,10 +150,10 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             if (errors.Any())
             {
-                _logger.LogError("Validation for {LearningProgression} object has failed. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
+                _logger.LogError("Failed to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
                 return new UnprocessableEntityObjectResult(errors);
             }
-            _logger.LogInformation("Validation for {LearningProgression} object has passed. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
+            _logger.LogInformation("Successfully validated {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
 
             _logger.LogInformation("Attempting to create LearningProgression object. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             var learningProgressionResult = await _learningProgressionPostTriggerService.CreateLearningProgressionAsync(learningProgression);

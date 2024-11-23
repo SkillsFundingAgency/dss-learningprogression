@@ -82,8 +82,6 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
                 return new BadRequestObjectResult(customerGuid);
             }
 
-            _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-
             if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
             {
                 _logger.LogInformation("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
@@ -98,6 +96,8 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
                 _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new BadRequestResult();
             }
+
+            _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
             _logger.LogInformation("Attempting to retrieve LearningProgression for Customer. Customer GUID: {CustomerGuid}", customerGuid);
             var learningProgression = await _learningProgressionByIdService.GetLearningProgressionForCustomerAsync(customerGuid, learnerProgressionGuid);
