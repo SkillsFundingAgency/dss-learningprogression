@@ -21,10 +21,10 @@ namespace NCS.DSS.LearningProgression.ServiceBus
         {
             var messageModel = new MessageModel()
             {
-                TitleMessage = "New Learning Progression record {" + learningProgression.LearningProgressionId + "} added at " + DateTime.UtcNow,
+                TitleMessage = "New Learning Progression record {" + learningProgression.Id + "} added at " + DateTime.UtcNow,
                 CustomerGuid = learningProgression.CustomerId,
                 LastModifiedDate = learningProgression.LastModifiedDate,
-                URL = reqUrl + "/" + learningProgression.LearningProgressionId,
+                URL = reqUrl + "/" + learningProgression.Id,
                 IsNewCustomer = false,
                 TouchpointId = learningProgression.LastModifiedTouchpointId
             };
@@ -42,7 +42,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
 
             _logger.LogInformation(
                 "New Employment Progression record {MessageModel}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {correlationId}",
-                messageModelSerialized, learningProgression.LearningProgressionId, correlationId);
+                messageModelSerialized, learningProgression.Id, correlationId);
 
             await _serviceBusSender.SendMessageAsync(msg);
         }

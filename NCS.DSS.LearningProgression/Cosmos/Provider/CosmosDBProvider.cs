@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Cosmos.Containers;
 using NCS.DSS.LearningProgression.Models;
 using System.Text.Json;
-using PartitionKey = Microsoft.Azure.Cosmos.PartitionKey;
 
 namespace NCS.DSS.LearningProgression.Cosmos.Provider
 {
@@ -12,7 +11,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
     {
         private readonly Container _learningProgressionContainer;
         private readonly Container _customerContainer;
-        private readonly PartitionKey _partitionKey;
+        private readonly PartitionKey _partitionKey = PartitionKey.None;
         private readonly ILogger<CosmosDBProvider> _logger;
 
         public CosmosDBProvider(
@@ -23,7 +22,6 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             _learningProgressionContainer = learningProgressionContainer.GetContainer();
             _customerContainer = customerContainer.GetContainer();
             _logger = logger;
-            _partitionKey = new PartitionKey("_partitionKey");
         }
 
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
@@ -103,7 +101,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             try
             {
                 var query = _learningProgressionContainer.GetItemLinqQueryable<Models.LearningProgression>()
-                    .Where(x => x.CustomerId == customerId && x.LearningProgressionId == learningProgressionId)
+                    .Where(x => x.CustomerId == customerId && x.Id == learningProgressionId)
                     .ToFeedIterator();
 
                 var response = await query.ReadNextAsync();
@@ -180,10 +178,10 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                     return null;
                 }
 
-                if (learningProgression.LearningProgressionId != learningProgressionId)
+                if (learningProgression.Id != learningProgressionId)
                 {
                     _logger.LogWarning("Mismatch between provided ID and document ID. Provided ID: {LearningProgressionId}, Document ID: {DocumentId}",
-                        learningProgressionId, learningProgression.LearningProgressionId);
+                        learningProgressionId, learningProgression.Id);
                     return null;
                 }
 
@@ -209,14 +207,14 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<ItemResponse<Models.LearningProgression>> UpdateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
-            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
+            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgression.Id);
 
             var response = await _learningProgressionContainer.ReplaceItemAsync(
                 learningProgression,
-                learningProgression.LearningProgressionId.ToString(),
+                learningProgression.Id.ToString(),
                 _partitionKey);
 
-            _logger.LogInformation("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
+            _logger.LogInformation("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgression.Id);
             return response;
         }
 
@@ -227,7 +225,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             try
             {
                 var query = _learningProgressionContainer.GetItemLinqQueryable<Models.LearningProgression>()
-                    .Where(x => x.CustomerId == customerId && x.LearningProgressionId == learningProgressionId)
+                    .Where(x => x.CustomerId == customerId && x.Id == learningProgressionId)
                     .Take(1)
                     .ToFeedIterator();
 

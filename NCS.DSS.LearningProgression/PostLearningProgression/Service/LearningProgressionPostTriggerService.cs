@@ -31,8 +31,6 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             _logger.LogInformation($"Started creating LearningProgression for Customer ID: {learningProgression.CustomerId}");
 
-            learningProgression.LearningProgressionId = Guid.NewGuid();
-
             if (!learningProgression.LastModifiedDate.HasValue)
             {
                 learningProgression.LastModifiedDate = DateTime.UtcNow;
@@ -62,7 +60,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
         public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)
         {
-            learningProgression.LearningProgressionId = Guid.NewGuid();
+            learningProgression.Id = Guid.NewGuid();
             learningProgression.CustomerId = customerGuid;
             learningProgression.LastModifiedTouchpointId = touchpointId;
             learningProgression.CreatedBy = touchpointId;

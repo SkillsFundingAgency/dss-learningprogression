@@ -11,7 +11,7 @@ namespace NCS.DSS.LearningProgression.Models
         [Display(Description = "Unique identifier for a learning progression record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
         [JsonPropertyName("id")]
-        public Guid? LearningProgressionId { get; set; }
+        public Guid? Id { get; set; }
 
         [Display(Description = "Unique identifier of a customer.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]

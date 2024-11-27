@@ -115,7 +115,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
         {
             learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
-            learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
+            learningProgressionPatchRequest.Id = learningProgressionGuid;
 
             if (!learningProgressionPatchRequest.LastModifiedDate.HasValue)
             {

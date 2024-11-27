@@ -15,6 +15,6 @@ namespace NCS.DSS.LearningProgression.Models
         DateTime? LastModifiedDate { get; set; }
         string LastModifiedTouchpointId { get; set; }
         LearningHours? LearningHours { get; set; }
-        Guid? LearningProgressionId { get; set; }
+        Guid? Id { get; set; }
     }
 }
