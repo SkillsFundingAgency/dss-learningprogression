@@ -7,11 +7,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 {
     public class LearningProgressionPostTriggerService : ILearningProgressionPostTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
         private readonly ILogger<LearningProgressionPostTriggerService> _logger;
 
-        public LearningProgressionPostTriggerService(IDocumentDBProvider documentDbProvider,
+        public LearningProgressionPostTriggerService(ICosmosDBProvider documentDbProvider,
              IServiceBusClient serviceBusClient, 
              ILogger<LearningProgressionPostTriggerService> logger)
         {
@@ -55,9 +55,9 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, correlationId);
         }
 
-        public bool DoesLearningProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesLearningProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
+            return await _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
         public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)

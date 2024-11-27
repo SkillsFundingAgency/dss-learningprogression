@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.PostLearningProgression.Function;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
@@ -128,7 +127,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(new Models.LearningProgression())).Returns(Task.FromResult(new Models.LearningProgression()));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(CustomerId);
@@ -148,7 +147,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult(learningProgression)); ;
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(CustomerId);
@@ -168,7 +167,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult<Models.LearningProgression>(null)); ;
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(CustomerId);
@@ -188,7 +187,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult(learningProgression)); ;
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
+            _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(CustomerId);

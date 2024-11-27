@@ -12,11 +12,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
     public class LearningProgressionPatchTriggerService : ILearningProgressionPatchTriggerService
     {
         private readonly IJsonHelper _jsonHelper;
-        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
         private readonly ILogger<LearningProgressionPatchTriggerService> _log;
 
-        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
+        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, ICosmosDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
         {
             _jsonHelper = jsonHelper;
             _documentDbProvider = documentDbProvider;
@@ -102,9 +102,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             await _serviceBusClient.SendPatchMessageAsync(learningProgression, customerId, reqUrl, correlationId);
         }
 
-        public bool DoesLearningProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesLearningProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
+            return await _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
         public async Task<bool> DoesCustomerExist(Guid customerId)

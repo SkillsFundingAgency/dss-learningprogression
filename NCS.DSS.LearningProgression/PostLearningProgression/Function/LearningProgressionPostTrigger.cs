@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
@@ -120,7 +119,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             _logger.LogInformation("Customer is not read-only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             
             _logger.LogInformation("Attempting to check if LearningProgression exists for customer. Customer GUID: {CustomerId}", customerGuid);
-            var doesLearningProgressionExist = _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);
+            var doesLearningProgressionExist = await _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);
             if (doesLearningProgressionExist)
             {
                 _logger.LogInformation("LearningProgression for customer already exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);

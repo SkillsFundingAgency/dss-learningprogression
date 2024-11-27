@@ -1,16 +1,25 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.LearningProgression.ReferenceData;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribute;
 
 namespace NCS.DSS.LearningProgression.Models
 {
     public class LearningProgression : ILearningProgression
     {
+        public LearningProgression()
+        {
+        }
+
+        public LearningProgression(Guid? customerId)
+        {
+            CustomerId = customerId;
+        }
+
         [Display(Description = "Unique identifier for a learning progression record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public Guid? LearningProgressionId { get; set; }
 
         [Display(Description = "Unique identifier of a customer.")]

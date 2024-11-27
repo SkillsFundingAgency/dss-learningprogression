@@ -5,9 +5,9 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Service
 {
     public class LearningProgressionsGetTriggerService : ILearningProgressionsGetTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _documentDbProvider;
 
-        public LearningProgressionsGetTriggerService(IDocumentDBProvider documentDbProvider)
+        public LearningProgressionsGetTriggerService(ICosmosDBProvider documentDbProvider)
         {
             _documentDbProvider = documentDbProvider;
         }

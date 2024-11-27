@@ -4,7 +4,7 @@
     {
         Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression);
         Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId);
-        bool DoesLearningProgressionExistForCustomer(Guid customerId);
+        Task<bool> DoesLearningProgressionExistForCustomer(Guid customerId);
         void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId);
     }
 }

@@ -4,17 +4,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Models;
 using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.Validators;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
-using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 {
@@ -149,7 +146,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
             _logger.LogInformation("Attempting to check if LearningProgression exists for customer. Customer GUID: {CustomerId}", customerGuid);
-            if (!_learningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(customerGuid))
+            if (!await _learningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(customerGuid))
             {
                 _logger.LogInformation("LearningProgression does not exist for customer. Customer GUID: {CustomerGuid}", customerGuid);
                 return new NoContentResult();
@@ -176,7 +173,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             try
             {
                 _logger.LogInformation("Attempting to deserialize {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
-                learningProgressionValidationObject = JsonConvert.DeserializeObject<LearningProgressionPatch>(patchedLearningProgressionAsJson);
+                learningProgressionValidationObject = JsonSerializer.Deserialize<LearningProgressionPatch>(patchedLearningProgressionAsJson);
             }
             catch (JsonException ex)
             {

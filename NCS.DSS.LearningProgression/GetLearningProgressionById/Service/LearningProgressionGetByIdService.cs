@@ -5,10 +5,10 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Service
 {
     public class LearningProgressionGetByIdService : ILearningProgressionGetByIdService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _documentDbProvider;
         readonly IServiceBusClient _serviceBusClient;
 
-        public LearningProgressionGetByIdService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public LearningProgressionGetByIdService(ICosmosDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Models;
-using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace NCS.DSS.LearningProgression.ServiceBus
 {
@@ -31,13 +31,17 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 TouchpointId = learningProgression.LastModifiedTouchpointId
             };
 
-            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+            var msg = new Message(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(messageModel)))
             {
                 ContentType = "application/json",
                 MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
             };
 
-            var messageModelSerialized = JsonConvert.SerializeObject(messageModel, Formatting.Indented);
+            var messageModelSerialized = JsonSerializer.Serialize(messageModel, new JsonSerializerOptions()
+            {
+                WriteIndented = true
+            });
+
             _logger.LogInformation(
                 "New Employment Progression record {MessageModel}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {correlationId}",
                 messageModelSerialized, learningProgression.LearningProgressionId, correlationId);
@@ -58,13 +62,16 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                 TouchpointId = learningProgression.LastModifiedTouchpointId
             };
 
-            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+            var msg = new Message(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(messageModel)))
             {
                 ContentType = "application/json",
                 MessageId = customerId + " " + DateTime.UtcNow
             };
 
-            var messageModelSerialized = JsonConvert.SerializeObject(messageModel, Formatting.Indented);
+            var messageModelSerialized = JsonSerializer.Serialize(messageModel, new JsonSerializerOptions()
+            {
+                WriteIndented = true
+            });
 
             _logger.LogInformation(
                 "Learning Progression record modification for [{customerId}] at {DateTime}. Model: {messageModelSerialized}. CorrelationId: {CorrelationId}",
