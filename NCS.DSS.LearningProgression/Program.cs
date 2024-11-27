@@ -6,6 +6,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.LearningProgression.Cosmos;
 using NCS.DSS.LearningProgression.Cosmos.Containers;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
@@ -16,6 +17,8 @@ using NCS.DSS.LearningProgression.PatchLearningProgression.Service;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
 using NCS.DSS.LearningProgression.ServiceBus;
 using NCS.DSS.LearningProgression.Validators;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NCS.DSS.LearningProgression
 {
@@ -57,7 +60,14 @@ namespace NCS.DSS.LearningProgression
                     services.AddSingleton(learningProgressionConfigurationSettings);
                     services.AddSingleton(s =>
                     {
-                        var options = new CosmosClientOptions() { ConnectionMode = ConnectionMode.Gateway };
+                        var options = new CosmosClientOptions()
+                        {
+                            ConnectionMode = ConnectionMode.Gateway,
+                            Serializer = new CosmosSystemTextJsonSerializer(new JsonSerializerOptions()
+                            {
+                                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                            })
+                        };
                         var cosmosClient = new CosmosClient(learningProgressionConfigurationSettings.CosmosDBConnectionString, options);
 
                         cosmosClient.GetContainer(
