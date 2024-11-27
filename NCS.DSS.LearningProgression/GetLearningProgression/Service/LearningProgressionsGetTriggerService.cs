@@ -1,5 +1,4 @@
 ﻿using NCS.DSS.LearningProgression.Cosmos.Provider;
-using NCS.DSS.LearningProgression.ServiceBus;
 
 namespace NCS.DSS.LearningProgression.GetLearningProgression.Service
 {

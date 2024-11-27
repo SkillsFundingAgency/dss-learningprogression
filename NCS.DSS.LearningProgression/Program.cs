@@ -90,6 +90,8 @@ namespace NCS.DSS.LearningProgression
                             learningProgressionConfigurationSettings.CustomerCollectionId
                         ));
                     });
+
+                    services.AddSingleton(s => new Azure.Messaging.ServiceBus.ServiceBusClient(learningProgressionConfigurationSettings.ServiceBusConnectionString));
                 })
                 .ConfigureLogging(logging =>
                 {

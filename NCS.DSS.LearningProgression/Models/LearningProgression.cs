@@ -71,7 +71,7 @@ namespace NCS.DSS.LearningProgression.Models
         public string LastModifiedTouchpointId { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string CreatedBy { get; set; }
     }
 }
