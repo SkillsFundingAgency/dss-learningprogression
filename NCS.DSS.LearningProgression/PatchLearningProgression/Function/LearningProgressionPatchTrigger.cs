@@ -169,7 +169,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             }
             _logger.LogInformation("Successfully updated LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
 
-            LearningProgressionPatch learningProgressionValidationObject;
+            LearningProgressionPatch? learningProgressionValidationObject;
             try
             {
                 _logger.LogInformation("Attempting to deserialize {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
@@ -206,10 +206,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             
             if (updatedLearningProgression != null)
             {
-                _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, updatedLearningProgression.Id.GetValueOrDefault(), correlationGuid);
+                _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, updatedLearningProgression.LearningProgressionId.GetValueOrDefault(), correlationGuid);
                 await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, apimURL, correlationGuid);
 
-                _logger.LogInformation("PATCH request successful. Learning Progression ID: {LearningProgressionId}", updatedLearningProgression.Id.GetValueOrDefault());
+                _logger.LogInformation("PATCH request successful. Learning Progression ID: {LearningProgressionId}", updatedLearningProgression.LearningProgressionId.GetValueOrDefault());
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPatchTrigger));
                 return new JsonResult(updatedLearningProgression, new JsonSerializerOptions())
                 {

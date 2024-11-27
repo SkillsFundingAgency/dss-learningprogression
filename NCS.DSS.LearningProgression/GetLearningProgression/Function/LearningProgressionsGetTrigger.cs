@@ -103,7 +103,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 
             if (learningProgressions.Count == 1)
             {
-                _logger.LogInformation("LearingProgressions successfully retrieved. Learning Progression ID: {LearningProgressionId}", learningProgressions.FirstOrDefault()!.Id);
+                _logger.LogInformation("LearningProgression successfully retrieved. Learning Progression ID: {LearningProgressionId}", learningProgressions.FirstOrDefault()!.LearningProgressionId);
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
                 return new JsonResult(learningProgressions[0], new JsonSerializerOptions())
                 {
@@ -111,9 +111,9 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
                 };
             }
 
-            var learningProgressionIds = learningProgressions.Select(lp => lp.Id).ToList();
+            var learningProgressionIds = learningProgressions.Select(lp => lp.LearningProgressionId).ToList();
 
-            _logger.LogInformation("LearingProgressions successfully retrieved. Learning Progression IDs: {LearningProgressionIds}", learningProgressionIds);
+            _logger.LogInformation("LearningProgressions successfully retrieved. Learning Progression IDs: {LearningProgressionIds}", learningProgressionIds);
             _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
             return new JsonResult(learningProgressions, new JsonSerializerOptions())
             {

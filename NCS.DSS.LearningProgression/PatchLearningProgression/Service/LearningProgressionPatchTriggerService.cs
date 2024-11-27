@@ -24,14 +24,14 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             _log = log;
         }
 
-        public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
+        public async Task<string?> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
             var learningProgressionAsString = await _documentDbProvider.GetLearningProgressionForCustomerToPatchAsync(customerId, learningProgressionId);
 
             return learningProgressionAsString;
         }
 
-        public string PatchLearningProgressionAsync(string learningProgressionAsJson, Models.LearningProgressionPatch learningProgressionPatch)
+        public string? PatchLearningProgressionAsync(string learningProgressionAsJson, LearningProgressionPatch learningProgressionPatch)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             }
         }
 
-        public async Task<Models.LearningProgression> UpdateCosmosAsync(string learningProgressionAsJson, Guid learningProgressionId)
+        public async Task<Models.LearningProgression?> UpdateCosmosAsync(string learningProgressionAsJson, Guid learningProgressionId)
         {
             if (string.IsNullOrEmpty(learningProgressionAsJson))
             {
@@ -90,7 +90,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             if (responseStatusCode == HttpStatusCode.OK)
             {
                 _log.LogInformation($"Successfully Updated in Cosmos DB. Response Code [{responseStatusCode}]");
-                return (dynamic)response.Resource;
+                return response?.Resource;
             }
 
             _log.LogWarning($"Failed to Update in Cosmos DB. Response Code [{responseStatusCode}]");
@@ -112,10 +112,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             return await _documentDbProvider.DoesCustomerResourceExist(customerId);
         }
 
-        public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
+        public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string? touchpointId)
         {
             learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
-            learningProgressionPatchRequest.Id = learningProgressionGuid;
+            learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;
 
             if (!learningProgressionPatchRequest.LastModifiedDate.HasValue)
             {

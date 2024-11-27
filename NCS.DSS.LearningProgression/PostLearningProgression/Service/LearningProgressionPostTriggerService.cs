@@ -20,7 +20,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             _logger = logger;
         }
 
-        public async Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
+        public async Task<Models.LearningProgression?> CreateLearningProgressionAsync(Models.LearningProgression? learningProgression)
         {
 
             if (learningProgression == null)
@@ -41,7 +41,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             if (response.StatusCode == HttpStatusCode.Created)
             {
                 _logger.LogInformation($"Successfully created LearningProgression in CosmosDB. Response code [{response.StatusCode}]");
-                return (dynamic)response.Resource;
+                return response.Resource;
             }
 
             _logger.LogWarning($"Unable to create LearningProgression in CosmosDB. Response code [{response.StatusCode}]");
@@ -58,9 +58,9 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
             return await _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
-        public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)
+        public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string? touchpointId)
         {
-            learningProgression.Id = Guid.NewGuid();
+            learningProgression.LearningProgressionId = Guid.NewGuid();
             learningProgression.CustomerId = customerGuid;
             learningProgression.LastModifiedTouchpointId = touchpointId;
             learningProgression.CreatedBy = touchpointId;

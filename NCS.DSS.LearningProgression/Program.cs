@@ -34,7 +34,7 @@ namespace NCS.DSS.LearningProgression
                 DatabaseId = Environment.GetEnvironmentVariable("DatabaseId") ?? throw new ArgumentNullException(),
                 CollectionId = Environment.GetEnvironmentVariable("CollectionId") ?? throw new ArgumentNullException(),
                 CustomerDatabaseId = Environment.GetEnvironmentVariable("CustomerDatabaseId") ?? throw new ArgumentNullException(),
-                CustomerCollectionId = Environment.GetEnvironmentVariable("CustomerCollectionId")?? throw new ArgumentNullException()
+                CustomerCollectionId = Environment.GetEnvironmentVariable("CustomerCollectionId") ?? throw new ArgumentNullException()
             };
 
             var host = new HostBuilder()
@@ -109,7 +109,7 @@ namespace NCS.DSS.LearningProgression
                     // For more information, see https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows#application-insights
                     logging.Services.Configure<LoggerFilterOptions>(options =>
                     {
-                        LoggerFilterRule defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                        LoggerFilterRule? defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
                             == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
                         if (defaultRule is not null)
                         {

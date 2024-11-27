@@ -21,7 +21,7 @@ namespace NCS.DSS.LearningProgression.Cosmos
         {
             if (stream.CanSeek && stream.Length == 0)
             {
-                return default;
+                return default!;
             }
 
             if (typeof(Stream).IsAssignableFrom(typeof(T)))
@@ -31,7 +31,7 @@ namespace NCS.DSS.LearningProgression.Cosmos
 
             using (stream)
             {
-                return (T) _systemTextJsonSerializer.Deserialize(stream, typeof(T), default);
+                return (T) _systemTextJsonSerializer.Deserialize(stream, typeof(T), default)!;
             }
         }
 

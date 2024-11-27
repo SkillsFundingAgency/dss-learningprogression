@@ -11,7 +11,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Service
             _documentDbProvider = documentDbProvider;
         }
 
-        public virtual async Task<Models.LearningProgression> GetLearningProgressionForCustomerAsync(Guid customerId, Guid progressionProgressionId)
+        public virtual async Task<Models.LearningProgression?> GetLearningProgressionForCustomerAsync(Guid customerId, Guid progressionProgressionId)
         {
             return await _documentDbProvider.GetLearningProgressionForCustomerAsync(customerId, progressionProgressionId);
         }

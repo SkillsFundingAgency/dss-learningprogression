@@ -2,6 +2,6 @@
 {
     public interface ILearningProgressionGetByIdService
     {
-        Task<Models.LearningProgression> GetLearningProgressionForCustomerAsync(Guid customerId, Guid progressionProgressionId);
+        Task<Models.LearningProgression?> GetLearningProgressionForCustomerAsync(Guid customerId, Guid progressionProgressionId);
     }
 }

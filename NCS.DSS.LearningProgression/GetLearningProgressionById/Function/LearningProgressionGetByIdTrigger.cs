@@ -104,7 +104,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 
             if (learningProgression != null)
             {
-                _logger.LogInformation("LearningProgression successfully retrieved. Learning Progression ID: {LearningProgressionId}", learningProgression.Id.GetValueOrDefault());
+                _logger.LogInformation("LearningProgression successfully retrieved. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId.GetValueOrDefault());
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionGetByIdTrigger));
 
                 return new JsonResult(learningProgression, new JsonSerializerOptions())

@@ -94,14 +94,14 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
             }
         }
 
-        public async Task<Models.LearningProgression> GetLearningProgressionForCustomerAsync(Guid customerId, Guid learningProgressionId)
+        public async Task<Models.LearningProgression?> GetLearningProgressionForCustomerAsync(Guid customerId, Guid learningProgressionId)
         {
             _logger.LogInformation("Retrieving LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             try
             {
                 var query = _learningProgressionContainer.GetItemLinqQueryable<Models.LearningProgression>()
-                    .Where(x => x.CustomerId == customerId && x.Id == learningProgressionId)
+                    .Where(x => x.CustomerId == customerId && x.LearningProgressionId == learningProgressionId)
                     .ToFeedIterator();
 
                 var response = await query.ReadNextAsync();
@@ -159,7 +159,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
         }
 
         //TODO: Update codebase to require learningProgression objects to avoid multiple deserializing and serializing
-        public async Task<ItemResponse<Models.LearningProgression>> UpdateLearningProgressionAsync(string learningProgressionJson, Guid learningProgressionId)
+        public async Task<ItemResponse<Models.LearningProgression>?> UpdateLearningProgressionAsync(string learningProgressionJson, Guid learningProgressionId)
         {
             _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
 
@@ -178,10 +178,10 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                     return null;
                 }
 
-                if (learningProgression.Id != learningProgressionId)
+                if (learningProgression.LearningProgressionId != learningProgressionId)
                 {
                     _logger.LogWarning("Mismatch between provided ID and document ID. Provided ID: {LearningProgressionId}, Document ID: {DocumentId}",
-                        learningProgressionId, learningProgression.Id);
+                        learningProgressionId, learningProgression.LearningProgressionId);
                     return null;
                 }
 
@@ -207,25 +207,25 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<ItemResponse<Models.LearningProgression>> UpdateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
-            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgression.Id);
+            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
 
             var response = await _learningProgressionContainer.ReplaceItemAsync(
                 learningProgression,
-                learningProgression.Id.ToString(),
+                learningProgression.LearningProgressionId.ToString(),
                 _partitionKey);
 
-            _logger.LogInformation("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgression.Id);
+            _logger.LogInformation("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
             return response;
         }
 
-        public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
+        public async Task<string?> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
             _logger.LogInformation("Attempting to retrieve LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             try
             {
                 var query = _learningProgressionContainer.GetItemLinqQueryable<Models.LearningProgression>()
-                    .Where(x => x.CustomerId == customerId && x.Id == learningProgressionId)
+                    .Where(x => x.CustomerId == customerId && x.LearningProgressionId == learningProgressionId)
                     .Take(1)
                     .ToFeedIterator();
 

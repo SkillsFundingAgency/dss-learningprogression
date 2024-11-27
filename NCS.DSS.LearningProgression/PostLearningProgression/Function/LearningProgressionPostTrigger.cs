@@ -162,19 +162,19 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
                 return new BadRequestObjectResult(customerGuid);
             }
 
-            _logger.LogInformation("Successfully created LearningProgression object. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.Id.GetValueOrDefault(), correlationGuid);
+            _logger.LogInformation("Successfully created LearningProgression object. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
             
-            _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.Id.GetValueOrDefault(), correlationGuid);
-            //await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, apimURL, correlationGuid);
+            _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
+            await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, apimURL, correlationGuid);
 
             if (learningProgression == null)
             {
-                _logger.LogWarning("POST request unsuccessful. Learning Progression ID: {LearningProgressionGuid}", learningProgressionResult.Id.GetValueOrDefault());
+                _logger.LogWarning("POST request unsuccessful. Learning Progression ID: {LearningProgressionGuid}", learningProgressionResult.LearningProgressionId.GetValueOrDefault());
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPostTrigger));
                 return new NoContentResult();
             }
 
-            _logger.LogInformation("POST request successful. Learning Progression ID: {LearningProgressionId}", learningProgression.Id.GetValueOrDefault());
+            _logger.LogInformation("POST request successful. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId.GetValueOrDefault());
             _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPostTrigger));
             return new JsonResult(learningProgression, new JsonSerializerOptions())
             {
