@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.GetLearningProgressionById.Service;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
@@ -42,7 +42,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.UnprocessableEntity, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
-        [Display(Name = "GETBYID", Description = "Ability to retrieve an individual learning progression for the given customer.")]
+        [Display(Name = "GET_BY_LEARNINGPROGRESSIONID", Description = "Ability to retrieve an individual learning progression for the given customer.")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, string customerId, string learningProgressionId)
@@ -65,26 +65,26 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogInformation("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
-                _logger.LogInformation("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogInformation("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
+                _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult(customerGuid);
             }
 
             if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
             {
-                _logger.LogInformation("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
+                _logger.LogWarning("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult(learnerProgressionGuid);
             }
 
@@ -93,7 +93,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new BadRequestResult();
             }
 

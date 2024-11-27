@@ -78,20 +78,20 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogInformation("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
-                _logger.LogInformation("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogInformation("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
+                _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult(customerGuid);
             }
 
@@ -100,7 +100,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             _logger.LogInformation("Attempting to check if customer exists. Customer GUID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new BadRequestResult();
             }
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
@@ -110,7 +110,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             if (isCustomerReadOnly)
             {
-                _logger.LogError("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogWarning("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new ObjectResult(customerGuid.ToString())
                 {
                     StatusCode = (int)HttpStatusCode.Forbidden
@@ -122,7 +122,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             var doesLearningProgressionExist = await _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);
             if (doesLearningProgressionExist)
             {
-                _logger.LogInformation("LearningProgression for customer already exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogWarning("LearningProgression for customer already exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new ConflictResult();
             }
 
@@ -149,7 +149,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             if (errors.Any())
             {
-                _logger.LogError("Failed to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
+                _logger.LogWarning("Failed to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
                 return new UnprocessableEntityObjectResult(errors);
             }
             _logger.LogInformation("Successfully validated {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
@@ -169,7 +169,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             if (learningProgression == null)
             {
-                _logger.LogError("POST request unsuccessful. Learning Progression ID: {LearningProgressionGuid}", learningProgressionResult.LearningProgressionId.GetValueOrDefault());
+                _logger.LogWarning("POST request unsuccessful. Learning Progression ID: {LearningProgressionGuid}", learningProgressionResult.LearningProgressionId.GetValueOrDefault());
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPostTrigger));
                 return new NoContentResult();
             }
