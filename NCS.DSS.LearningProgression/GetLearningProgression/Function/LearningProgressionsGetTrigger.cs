@@ -94,7 +94,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             _logger.LogInformation("Attempting to retrieve LearningProgressions for Customer. Customer GUID: {CustomerGuid}", customerGuid);
             var learningProgressions = await _learningProgressionsGetTriggerService.GetLearningProgressionsForCustomerAsync(customerGuid);
             
-            if (learningProgressions == null)
+            if (learningProgressions.Count == 0)
             {
                 _logger.LogInformation("LearningProgressions does not exist for Customer. Customer GUID: {CustomerGuid}", customerGuid);
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
