@@ -102,7 +102,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<LearningProgression.Models.LearningProgression>()));
+            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<Models.LearningProgression>(){new Models.LearningProgression()}));
 
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
