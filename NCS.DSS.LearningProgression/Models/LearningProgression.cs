@@ -1,7 +1,7 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.LearningProgression.ReferenceData;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribute;
 
 namespace NCS.DSS.LearningProgression.Models
@@ -19,7 +19,7 @@ namespace NCS.DSS.LearningProgression.Models
 
         [Display(Description = "Unique identifier for a learning progression record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
-        [JsonPropertyName("id")]
+        [JsonProperty(PropertyName = "id")]
         public Guid? LearningProgressionId { get; set; } = Guid.NewGuid();
 
         [Display(Description = "Unique identifier of a customer.")]
@@ -71,7 +71,7 @@ namespace NCS.DSS.LearningProgression.Models
         public string? LastModifiedTouchpointId { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public string? CreatedBy { get; set; }
     }
 }
