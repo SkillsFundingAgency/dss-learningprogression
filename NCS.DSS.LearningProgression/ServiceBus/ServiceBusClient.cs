@@ -20,7 +20,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
         public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId)
         {
             _logger.LogInformation(
-                "Starting {MethodName}. LearningProgressionId: {LearningProgressionId},=. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
+                "Starting {MethodName}. LearningProgressionId: {LearningProgressionId}. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
                 nameof(SendPostMessageAsync), learningProgression.LearningProgressionId, learningProgression.CustomerId, correlationId);
 
             try
@@ -69,7 +69,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
         public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId)
         {
             _logger.LogInformation(
-                "Starting {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId},.CorrelationId: {CorrelationId}",
+                "Starting {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
                 nameof(SendPatchMessageAsync), customerId, learningProgression.LearningProgressionId, correlationId);
 
             try
