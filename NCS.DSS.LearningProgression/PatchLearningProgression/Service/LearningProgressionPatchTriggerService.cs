@@ -24,14 +24,14 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             _log = log;
         }
 
-        public async Task<string?> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
+        public async Task<string> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
             var learningProgressionAsString = await _documentDbProvider.GetLearningProgressionForCustomerToPatchAsync(customerId, learningProgressionId);
 
-            return learningProgressionAsString;
+            return learningProgressionAsString!;
         }
 
-        public string? PatchLearningProgressionAsync(string learningProgressionAsJson, LearningProgressionPatch learningProgressionPatch)
+        public string PatchLearningProgressionAsync(string learningProgressionAsJson, LearningProgressionPatch learningProgressionPatch)
         {
             try
             {
@@ -66,12 +66,12 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
                 _log.LogInformation($"Successfully Fetched PATCH Json Object.");
 
-                return learningProgressionAsJsonObject.ToString();
+                return learningProgressionAsJsonObject.ToString()!;
             }
             catch (JsonReaderException ex)
             {
                 _log.LogWarning($"Failed to PATCH Json Object. Error: [{ex.Message}] and Stack Trace [{ex.StackTrace}]");
-                return null;
+                return null!;
             }
         }
 

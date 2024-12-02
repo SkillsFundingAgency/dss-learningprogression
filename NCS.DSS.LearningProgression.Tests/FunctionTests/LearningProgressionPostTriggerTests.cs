@@ -18,15 +18,15 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private const string CustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
         private const string InvalidCustomerId = "InvalidCustomerId";
 
-        private Mock<ILearningProgressionPostTriggerService> _learningProgressionPatchTriggerService;
-        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
-        private Mock<IResourceHelper> _resourceHelper;
-        private IValidate _validate;
-        private Mock<IDynamicHelper> _dynamicHelper;
-        private Mock<ILogger<LearningProgressionPostTrigger>> _logger;
+        private Mock<ILearningProgressionPostTriggerService> _learningProgressionPatchTriggerService = new();
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper = new();
+        private Mock<IResourceHelper> _resourceHelper = new();
+        private Mock<IDynamicHelper> _dynamicHelper = new();
+        private Mock<ILogger<LearningProgressionPostTrigger>> _logger = new();
 
-        private HttpRequest _request;
-        private LearningProgressionPostTrigger _function;
+        private IValidate _validate = null!;
+        private HttpRequest _request = null!;
+        private LearningProgressionPostTrigger _function = null!;
 
 
         [SetUp]
@@ -109,7 +109,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(new Models.LearningProgression())).Returns(Task.FromResult(new Models.LearningProgression()));
+            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(new Models.LearningProgression())).Returns(Task.FromResult(new Models.LearningProgression())!);
 
             // Act
             var response = await RunFunction(CustomerId);
@@ -124,7 +124,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(new Models.LearningProgression())).Returns(Task.FromResult(new Models.LearningProgression()));
+            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(new Models.LearningProgression())).Returns(Task.FromResult(new Models.LearningProgression())!);
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
@@ -144,7 +144,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             var learningProgression = new Models.LearningProgression();
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(learningProgression));
-            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult(learningProgression)); ;
+            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult(learningProgression)!);
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
@@ -164,7 +164,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             var learningProgression = new Models.LearningProgression() { CustomerId = new Guid(CustomerId), DateProgressionRecorded = DateTime.Now.AddMonths(-1), CurrentQualificationLevel = ReferenceData.QualificationLevel.Level3, DateQualificationLevelAchieved = DateTime.Now.AddMonths(-2), CurrentLearningStatus = ReferenceData.CurrentLearningStatus.NotKnown };
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(learningProgression));
-            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult<Models.LearningProgression>(null)); ;
+            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult<Models.LearningProgression>(null!)!);
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
@@ -184,7 +184,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             var learningProgression = new Models.LearningProgression() { CustomerId = new Guid(CustomerId), DateProgressionRecorded = DateTime.Now.AddMonths(-1), CurrentQualificationLevel = ReferenceData.QualificationLevel.Level3, DateQualificationLevelAchieved = DateTime.Now.AddMonths(-2), CurrentLearningStatus = ReferenceData.CurrentLearningStatus.NotKnown };
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.LearningProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(learningProgression));
-            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult(learningProgression)); ;
+            _learningProgressionPatchTriggerService.Setup(x => x.CreateLearningProgressionAsync(It.IsAny<Models.LearningProgression>())).Returns(Task.FromResult(learningProgression)!);
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _learningProgressionPatchTriggerService.Setup(x => x.DoesLearningProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
@@ -195,7 +195,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             //Assert
             Assert.That(response, Is.InstanceOf<JsonResult>());
-            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.Created));
+            Assert.That(responseResult!.StatusCode, Is.EqualTo((int)HttpStatusCode.Created));
         }
 
         private async Task<IActionResult> RunFunction(string customerId)

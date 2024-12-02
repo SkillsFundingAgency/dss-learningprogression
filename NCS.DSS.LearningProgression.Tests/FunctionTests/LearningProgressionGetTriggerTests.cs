@@ -17,14 +17,14 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
         private const string InvalidCustomerId = "2323232";
 
-        private Mock<ILearningProgressionsGetTriggerService> _learningProgressionGetByIdService;
-        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
-        private Mock<IResourceHelper> _resourceHelper;
-        private Mock<ILogger<LearningProgressionsGetTrigger>> _logger;
+        private Mock<ILearningProgressionsGetTriggerService> _learningProgressionGetByIdService = new();
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper = new();
+        private Mock<IResourceHelper> _resourceHelper = new();
+        private Mock<ILogger<LearningProgressionsGetTrigger>> _logger = new();
 
-        private HttpRequest _request;
-        private LearningProgressionsGetTrigger _function;
-        
+        private HttpRequest _request = null!;
+        private LearningProgressionsGetTrigger _function = null!;
+
         [SetUp]
         public void Setup()
         {
@@ -112,7 +112,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             //Assert
             Assert.That(response, Is.InstanceOf<JsonResult>());
-            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
+            Assert.That(responseResult!.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         private async Task<IActionResult> RunFunction(string customerId)
