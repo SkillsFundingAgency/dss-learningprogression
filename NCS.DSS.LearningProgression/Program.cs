@@ -98,8 +98,6 @@ namespace NCS.DSS.LearningProgression
                 })
                 .ConfigureLogging(logging =>
                 {
-                    // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
-                    // For more information, see https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows#application-insights
                     logging.Services.Configure<LoggerFilterOptions>(options =>
                     {
                         LoggerFilterRule? defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
