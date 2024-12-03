@@ -155,14 +155,14 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 
             var currentLearningProgressionAsJson = await _learningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(customerGuid, learningProgressionGuid);
 
-            if (currentLearningProgressionAsJson == null)
+            if (string.IsNullOrEmpty(currentLearningProgressionAsJson))
             {
                 return new NoContentResult();
             }
 
             _logger.LogInformation("Attempting to update LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
             var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
-            if (patchedLearningProgressionAsJson == null)
+            if (string.IsNullOrEmpty(currentLearningProgressionAsJson))
             {
                 _logger.LogInformation("Failed to update LearningProgression for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
                 return new NoContentResult();
@@ -194,7 +194,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             _logger.LogInformation("Attempting to validate {LearningProgressionValidationObject} object", nameof(learningProgressionValidationObject));
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             
-            if (errors != null && errors.Any())
+            if (errors.Any())
             {
                 _logger.LogWarning("Falied to validate {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
                 return new UnprocessableEntityObjectResult(errors);

@@ -28,7 +28,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         {
             var learningProgressionAsString = await _documentDbProvider.GetLearningProgressionForCustomerToPatchAsync(customerId, learningProgressionId);
 
-            return learningProgressionAsString!;
+            return learningProgressionAsString ?? string.Empty;
         }
 
         public string PatchLearningProgressionAsync(string learningProgressionAsJson, LearningProgressionPatch learningProgressionPatch)
@@ -66,7 +66,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
                 _log.LogInformation($"Successfully Fetched PATCH Json Object.");
 
-                return learningProgressionAsJsonObject.ToString()!;
+                return learningProgressionAsJsonObject.ToString() ?? string.Empty;
             }
             catch (JsonReaderException ex)
             {
