@@ -56,7 +56,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                   )]
-        public async Task<IActionResult> RunAsync(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPost, Route = RouteValue)] HttpRequest req,
             string customerId)
         {

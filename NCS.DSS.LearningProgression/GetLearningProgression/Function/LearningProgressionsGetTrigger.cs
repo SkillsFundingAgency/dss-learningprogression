@@ -42,7 +42,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.UnprocessableEntity, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "GET_BY_CUSTOMERID", Description = "Ability to return all learning progressions for the given customer.")]
-        public async Task<IActionResult> RunAsync(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, string customerId)
         {
