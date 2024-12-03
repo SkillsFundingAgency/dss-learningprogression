@@ -117,7 +117,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
         private async Task<IActionResult> RunFunction(string customerId)
         {
-            return await _function.Run(_request, customerId).ConfigureAwait(false);
+            return await _function.RunAsync(_request, customerId).ConfigureAwait(false);
         }
     }
 }
