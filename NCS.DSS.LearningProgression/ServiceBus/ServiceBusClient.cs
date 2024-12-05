@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NCS.DSS.LearningProgression.Models;
 using System.Text;
 using System.Text.Json;
@@ -11,10 +12,16 @@ namespace NCS.DSS.LearningProgression.ServiceBus
         private readonly ILogger<ServiceBusClient> _logger;
         private readonly ServiceBusSender _serviceBusSender;
 
-        public ServiceBusClient(Azure.Messaging.ServiceBus.ServiceBusClient serviceBusClient, LearningProgressionConfigurationSettings learningProgressionConfigurationSettings, ILogger<ServiceBusClient> logger)
+        public ServiceBusClient(Azure.Messaging.ServiceBus.ServiceBusClient serviceBusClient, IOptions<LearningProgressionConfigurationSettings> configOptions, ILogger<ServiceBusClient> logger)
         {
+            var config = configOptions.Value;
+            if (string.IsNullOrEmpty(config.QueueName))
+            {
+                throw new ArgumentNullException(nameof(config.QueueName), "QueueName cannot be null or empty.");
+            }
+
             _logger = logger;
-            _serviceBusSender = serviceBusClient.CreateSender(learningProgressionConfigurationSettings.QueueName);
+            _serviceBusSender = serviceBusClient.CreateSender(config.QueueName);
         }
 
         public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId)

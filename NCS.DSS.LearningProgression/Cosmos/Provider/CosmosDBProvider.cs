@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.LearningProgression.Cosmos.Containers;
+using Microsoft.Extensions.Options;
 using NCS.DSS.LearningProgression.Models;
 using System.Text.Json;
 
@@ -15,14 +15,19 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
         private readonly ILogger<CosmosDBProvider> _logger;
 
         public CosmosDBProvider(
-            ILearningProgressionContainer learningProgressionContainer,
-            ICustomerContainer customerContainer,
+            CosmosClient cosmosClient, 
+            IOptions<LearningProgressionConfigurationSettings> configOptions,
             ILogger<CosmosDBProvider> logger)
         {
-            _learningProgressionContainer = learningProgressionContainer.GetContainer();
-            _customerContainer = customerContainer.GetContainer();
+            var config = configOptions.Value;
+
+            _learningProgressionContainer = GetContainer(cosmosClient, config.DatabaseId, config.CollectionId);
+            _customerContainer = GetContainer(cosmosClient, config.CustomerDatabaseId, config.CustomerCollectionId);
             _logger = logger;
         }
+
+        private static Container GetContainer(CosmosClient cosmosClient, string databaseId, string collectionId) 
+            => cosmosClient.GetContainer(databaseId, collectionId);
 
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
         {

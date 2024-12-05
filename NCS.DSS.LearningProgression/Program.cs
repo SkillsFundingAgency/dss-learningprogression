@@ -3,10 +3,11 @@ using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.LearningProgression.Cosmos.Containers;
+using Microsoft.Extensions.Options;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Cosmos.Provider;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
@@ -23,21 +24,21 @@ namespace NCS.DSS.LearningProgression
     {
         private static async Task Main(string[] args)
         {
-            var learningProgressionConfigurationSettings = new LearningProgressionConfigurationSettings
-            {
-                CosmosDBConnectionString = Environment.GetEnvironmentVariable("CosmosDBConnectionString") ?? throw new ArgumentNullException(),
-                QueueName = Environment.GetEnvironmentVariable("QueueName") ?? throw new ArgumentNullException(),
-                ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString") ?? throw new ArgumentNullException(),
-                DatabaseId = Environment.GetEnvironmentVariable("DatabaseId") ?? throw new ArgumentNullException(),
-                CollectionId = Environment.GetEnvironmentVariable("CollectionId") ?? throw new ArgumentNullException(),
-                CustomerDatabaseId = Environment.GetEnvironmentVariable("CustomerDatabaseId") ?? throw new ArgumentNullException(),
-                CustomerCollectionId = Environment.GetEnvironmentVariable("CustomerCollectionId") ?? throw new ArgumentNullException()
-            };
-
             var host = new HostBuilder()
                 .ConfigureFunctionsWebApplication()
-                .ConfigureServices(services =>
+                .ConfigureAppConfiguration(configBuilder =>
                 {
+                    configBuilder.SetBasePath(Environment.CurrentDirectory)
+                        .AddJsonFile("local.settings.json", optional: true,
+                            reloadOnChange: false)
+                        .AddEnvironmentVariables();
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    var configuration = context.Configuration;
+                    services.AddOptions<LearningProgressionConfigurationSettings>()
+                        .Bind(configuration);
+
                     services.AddApplicationInsightsTelemetryWorkerService();
                     services.ConfigureFunctionsApplicationInsights();
                     services.AddLogging();
@@ -54,47 +55,22 @@ namespace NCS.DSS.LearningProgression
                     services.AddTransient<ILearningProgressionPatchTriggerService, LearningProgressionPatchTriggerService>();
                     services.AddTransient<ILearningProgressionPostTriggerService, LearningProgressionPostTriggerService>();
 
-                    services.AddSingleton(learningProgressionConfigurationSettings);
-                    services.AddSingleton(s =>
+                    services.AddSingleton(sp =>
                     {
+                        var settings = sp.GetRequiredService<IOptions<LearningProgressionConfigurationSettings>>().Value;
                         var options = new CosmosClientOptions()
                         {
                             ConnectionMode = ConnectionMode.Gateway
                         };
-                        var cosmosClient = new CosmosClient(learningProgressionConfigurationSettings.CosmosDBConnectionString, options);
 
-                        cosmosClient.GetContainer(
-                            learningProgressionConfigurationSettings.DatabaseId,
-                            learningProgressionConfigurationSettings.CollectionId
-                        );
-
-                        cosmosClient.GetContainer(
-                            learningProgressionConfigurationSettings.CustomerDatabaseId,
-                            learningProgressionConfigurationSettings.CustomerCollectionId
-                        );
-
-                        return cosmosClient;
+                        return new CosmosClient(settings.CosmosDBConnectionString, options);
                     });
 
-                    services.AddSingleton<ILearningProgressionContainer>(s =>
+                    services.AddSingleton(serviceProvider =>
                     {
-                        var cosmosClient = s.GetRequiredService<CosmosClient>();
-                        return new LearningProgressionContainer(cosmosClient.GetContainer(
-                            learningProgressionConfigurationSettings.DatabaseId,
-                            learningProgressionConfigurationSettings.CollectionId
-                        ));
+                        var settings = serviceProvider.GetRequiredService<IOptions<LearningProgressionConfigurationSettings>>().Value;
+                        return new Azure.Messaging.ServiceBus.ServiceBusClient(settings.ServiceBusConnectionString);
                     });
-
-                    services.AddSingleton<ICustomerContainer>(s =>
-                    {
-                        var cosmosClient = s.GetRequiredService<CosmosClient>();
-                        return new CustomerContainer(cosmosClient.GetContainer(
-                            learningProgressionConfigurationSettings.CustomerDatabaseId,
-                            learningProgressionConfigurationSettings.CustomerCollectionId
-                        ));
-                    });
-
-                    services.AddSingleton(s => new Azure.Messaging.ServiceBus.ServiceBusClient(learningProgressionConfigurationSettings.ServiceBusConnectionString));
                 })
                 .ConfigureLogging(logging =>
                 {
