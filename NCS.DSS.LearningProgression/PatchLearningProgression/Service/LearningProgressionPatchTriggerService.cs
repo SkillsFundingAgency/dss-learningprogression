@@ -64,13 +64,13 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
                 if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
 
-                _log.LogInformation($"Successfully Fetched PATCH Json Object.");
+                _log.LogInformation("Successfully fetched PATCH JSON object");
 
                 return learningProgressionAsJsonObject.ToString() ?? string.Empty;
             }
             catch (JsonReaderException ex)
             {
-                _log.LogWarning($"Failed to PATCH Json Object. Error: [{ex.Message}] and Stack Trace [{ex.StackTrace}]");
+                _log.LogError(ex, "Failed to PATCH JSON object. Exception: {ErrorMessage}", ex.Message);
                 return null!;
             }
         }
@@ -79,7 +79,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         {
             if (string.IsNullOrEmpty(learningProgressionAsJson))
             {
-                _log.LogWarning($"Failed to Update in Cosmos DB. Json Object Can not be Null or Empty.");
+                _log.LogWarning("Failed to update CosmosDB. {LearningProgressionAsJson} cannot be null or empty", nameof(learningProgressionAsJson));
                 return null;
             }
 
@@ -89,11 +89,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
             if (responseStatusCode == HttpStatusCode.OK)
             {
-                _log.LogInformation($"Successfully Updated in Cosmos DB. Response Code [{responseStatusCode}]");
+                _log.LogInformation("Successfully updated CosmosDB. Response code: {StatusCode}", responseStatusCode);
                 return response?.Resource;
             }
 
-            _log.LogWarning($"Failed to Update in Cosmos DB. Response Code [{responseStatusCode}]");
+            _log.LogWarning("Failed to update CosmosDB. Response code: {StatusCode}", responseStatusCode);
             return null;
         }
 
