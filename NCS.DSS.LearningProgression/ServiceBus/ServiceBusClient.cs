@@ -1,68 +1,125 @@
-﻿using DFC.Common.Standard.Logging;
-using Microsoft.Azure.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NCS.DSS.LearningProgression.Models;
-using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace NCS.DSS.LearningProgression.ServiceBus
 {
     public class ServiceBusClient : IServiceBusClient
     {
-        private readonly LearningProgressionConfigurationSettings _learningProgressionConfigurationSettings;
-        private readonly QueueClient _queueClient;
-        private readonly ILoggerHelper _loggerHelper = new LoggerHelper();
+        private readonly ILogger<ServiceBusClient> _logger;
+        private readonly ServiceBusSender _serviceBusSender;
 
-        public ServiceBusClient(LearningProgressionConfigurationSettings learnerProgressConfigurationSettings)
+        public ServiceBusClient(Azure.Messaging.ServiceBus.ServiceBusClient serviceBusClient, IOptions<LearningProgressionConfigurationSettings> configOptions, ILogger<ServiceBusClient> logger)
         {
-            _learningProgressionConfigurationSettings = learnerProgressConfigurationSettings;
-            _queueClient = new QueueClient(_learningProgressionConfigurationSettings.ServiceBusConnectionString, _learningProgressionConfigurationSettings.QueueName);
+            var config = configOptions.Value;
+            if (string.IsNullOrEmpty(config.QueueName))
+            {
+                throw new ArgumentNullException(nameof(config.QueueName), "QueueName cannot be null or empty.");
+            }
+
+            _logger = logger;
+            _serviceBusSender = serviceBusClient.CreateSender(config.QueueName);
         }
 
-        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId)
         {
-            var messageModel = new MessageModel()
-            {
-                TitleMessage = "New Learning Progression record {" + learningProgression.LearningProgressionId + "} added at " + DateTime.UtcNow,
-                CustomerGuid = learningProgression.CustomerId,
-                LastModifiedDate = learningProgression.LastModifiedDate,
-                URL = reqUrl + "/" + learningProgression.LearningProgressionId,
-                IsNewCustomer = false,
-                TouchpointId = learningProgression.LastModifiedTouchpointId
-            };
+            _logger.LogInformation(
+                "Starting {MethodName}. LearningProgressionId: {LearningProgressionId}. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
+                nameof(SendPostMessageAsync), learningProgression.LearningProgressionId, learningProgression.CustomerId, correlationId);
 
-            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+            try
             {
-                ContentType = "application/json",
-                MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
-            };
+                var messageModel = new MessageModel()
+                {
+                    TitleMessage = $"New Learning Progression record {learningProgression.LearningProgressionId} added at {DateTime.UtcNow}",
+                    CustomerGuid = learningProgression.CustomerId,
+                    LastModifiedDate = learningProgression.LastModifiedDate,
+                    URL = $"{reqUrl}/{learningProgression.LearningProgressionId}",
+                    IsNewCustomer = false,
+                    TouchpointId = learningProgression.LastModifiedTouchpointId
+                };
 
-            _loggerHelper.LogInformationObject(log, correlationId, string.Format("New Employment Progression record {0}", learningProgression.LearningProgressionId), messageModel);
-            await _queueClient.SendAsync(msg);
+                var msg = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(messageModel)))
+                {
+                    ContentType = "application/json",
+                    MessageId = $"{learningProgression.CustomerId} {DateTime.UtcNow}"
+                };
+
+                var messageModelSerialized = JsonSerializer.Serialize(messageModel, new JsonSerializerOptions()
+                {
+                    WriteIndented = true
+                });
+
+                _logger.LogInformation(
+                    "New Employment Progression record serialized: {MessageModel}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
+                    messageModelSerialized, learningProgression.LearningProgressionId, correlationId);
+
+                await _serviceBusSender.SendMessageAsync(msg);
+
+                _logger.LogInformation(
+                    "Successfully completed {MethodName}. LearningProgressionId: {LearningProgressionId}. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
+                    nameof(SendPostMessageAsync), learningProgression.LearningProgressionId, learningProgression.CustomerId, correlationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred in {MethodName}. LearningProgressionId: {LearningProgressionId}. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
+                    nameof(SendPostMessageAsync), learningProgression.LearningProgressionId, learningProgression.CustomerId, correlationId);
+                throw;
+            }
         }
 
-        public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId)
         {
+            _logger.LogInformation(
+                "Starting {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
+                nameof(SendPatchMessageAsync), customerId, learningProgression.LearningProgressionId, correlationId);
 
-            var messageModel = new MessageModel
+            try
             {
-                TitleMessage = "Learning Progression record modification for {" + customerId + "} at " + DateTime.UtcNow,
-                CustomerGuid = customerId,
-                LastModifiedDate = learningProgression.LastModifiedDate,
-                URL = reqUrl,
-                IsNewCustomer = false,
-                TouchpointId = learningProgression.LastModifiedTouchpointId
-            };
+                var messageModel = new MessageModel
+                {
+                    TitleMessage = $"Learning Progression record modification for {customerId} at {DateTime.UtcNow}",
+                    CustomerGuid = customerId,
+                    LastModifiedDate = learningProgression.LastModifiedDate,
+                    URL = reqUrl,
+                    IsNewCustomer = false,
+                    TouchpointId = learningProgression.LastModifiedTouchpointId
+                };
 
-            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+                var msg = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(messageModel)))
+                {
+                    ContentType = "application/json",
+                    MessageId = $"{customerId} {DateTime.UtcNow}"
+                };
+
+                var messageModelSerialized = JsonSerializer.Serialize(messageModel, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+                _logger.LogInformation(
+                    "Learning Progression record modification serialized. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}, Model: {MessageModelSerialized}",
+                    customerId, learningProgression.LearningProgressionId, correlationId, messageModelSerialized);
+
+                await _serviceBusSender.SendMessageAsync(msg);
+
+                _logger.LogInformation(
+                    "Successfully completed {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
+                    nameof(SendPatchMessageAsync), customerId, learningProgression.LearningProgressionId, correlationId);
+            }
+            catch (Exception ex)
             {
-                ContentType = "application/json",
-                MessageId = customerId + " " + DateTime.UtcNow
-            };
-
-            _loggerHelper.LogInformationObject(log, correlationId, "Learning Progression record modification for {" + customerId + "} at " + DateTime.UtcNow, messageModel);
-
-            await _queueClient.SendAsync(msg);
+                _logger.LogError(
+                    ex,
+                    "An error occurred in {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
+                    nameof(SendPatchMessageAsync), customerId, learningProgression.LearningProgressionId, correlationId);
+                throw;
+            }
         }
     }
 }

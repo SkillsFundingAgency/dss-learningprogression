@@ -1,8 +1,7 @@
-﻿using DFC.JSON.Standard.Attributes;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.LearningProgression.ReferenceData;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NCS.DSS.LearningProgression.Models
 {
@@ -10,7 +9,7 @@ namespace NCS.DSS.LearningProgression.Models
     {
         [Display(Description = "Unique identifier for a learning progression record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public Guid? LearningProgressionId { get; set; }
 
         [Display(Description = "Unique identifier of a customer.")]
@@ -45,7 +44,7 @@ namespace NCS.DSS.LearningProgression.Models
         public DateTime? DateQualificationLevelAchieved { get; set; }
 
         [StringLength(8, MinimumLength = 8)]
-        public string LastLearningProvidersUKPRN { get; set; }
+        public string? LastLearningProvidersUKPRN { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time of last modification.")]
@@ -55,10 +54,10 @@ namespace NCS.DSS.LearningProgression.Models
         [StringLength(10, MinimumLength = 10)]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "0000000001")]
-        public string LastModifiedTouchpointId { get; set; }
+        public string? LastModifiedTouchpointId { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
-        [JsonIgnoreOnSerialize]
-        public string CreatedBy { get; set; }
+        [JsonIgnore]
+        public string? CreatedBy { get; set; }
     }
 }

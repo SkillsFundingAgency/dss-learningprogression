@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.GetLearningProgression.Function;
 using NCS.DSS.LearningProgression.GetLearningProgression.Service;
 using NUnit.Framework;
@@ -14,14 +14,16 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
     [TestFixture]
     public class LearningProgressionGetTriggerTests
     {
-        private Mock<ILogger<LearningProgressionsGetTrigger>> _logger;
-        private HttpRequest _request;
-        private Mock<IResourceHelper> _resourceHelper;
-        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
-        private Mock<ILearningProgressionsGetTriggerService> _learningProgressionGetByIdService;
-        private LearningProgressionsGetTrigger _function;
         private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
         private const string InvalidCustomerId = "2323232";
+
+        private Mock<ILearningProgressionsGetTriggerService> _learningProgressionGetByIdService = new();
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper = new();
+        private Mock<IResourceHelper> _resourceHelper = new();
+        private Mock<ILogger<LearningProgressionsGetTrigger>> _logger = new();
+
+        private HttpRequest _request = null!;
+        private LearningProgressionsGetTrigger _function = null!;
 
         [SetUp]
         public void Setup()
@@ -30,9 +32,10 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             _learningProgressionGetByIdService = new Mock<ILearningProgressionsGetTriggerService>();
             _resourceHelper = new Mock<IResourceHelper>();
             _logger = new Mock<ILogger<LearningProgressionsGetTrigger>>();
+
             _function = new LearningProgressionsGetTrigger(
-                _httpRequestMessageHelper.Object,
                 _learningProgressionGetByIdService.Object,
+                _httpRequestMessageHelper.Object,
                 _resourceHelper.Object,
                 _logger.Object);
 
@@ -99,7 +102,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
-            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<LearningProgression.Models.LearningProgression>()));
+            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<Models.LearningProgression>(){new Models.LearningProgression()}));
 
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
@@ -109,7 +112,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
             //Assert
             Assert.That(response, Is.InstanceOf<JsonResult>());
-            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
+            Assert.That(responseResult!.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         private async Task<IActionResult> RunFunction(string customerId)

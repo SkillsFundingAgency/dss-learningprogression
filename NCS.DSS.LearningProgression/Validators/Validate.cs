@@ -18,11 +18,6 @@ namespace NCS.DSS.LearningProgression.Validators
 
         private void ValidateLearningProgressionRules(ILearningProgression learningProgressionResource, List<ValidationResult> results)
         {
-            if (learningProgressionResource == null)
-            {
-                return;
-            }
-
             if (!learningProgressionResource.CustomerId.HasValue)
             {
                 results.Add(new ValidationResult("CustomerId is mandatory.", new[] { "CustomerId" }));
