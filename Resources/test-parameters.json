@@ -46,6 +46,9 @@
         },
         "workspaceResourceGroup": {
             "value": "aResourceGroup"
+        },
+        "appInsightsInstrumentationKey": {
+            "value": "anInstrumentationKey"
         }
     }
 }
