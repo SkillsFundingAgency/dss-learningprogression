@@ -49,6 +49,9 @@
         },
         "appInsightsInstrumentationKey": {
             "value": "anInstrumentationKey"
+        },
+        "keyVaultName": {
+          "value": "aKeyVault"
         }
     }
 }
