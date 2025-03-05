@@ -58,7 +58,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]

@@ -1,7 +1,9 @@
+using Azure.Core;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.LearningProgression.Constants;
@@ -34,8 +36,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
         }
 
         [Function(FunctionName)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression found.", ShowSchema = true)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression found.", ShowSchema = true)]       
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
@@ -65,20 +66,20 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             if (string.IsNullOrEmpty(touchpointId))
             {
                 _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
                 _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Unable to locate 'apimURL' in request header.Correlation GUID: { correlationGuid }");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
-                return new BadRequestObjectResult(customerGuid);
+                return new BadRequestObjectResult($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
@@ -87,7 +88,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
                 _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
@@ -98,7 +99,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             {
                 _logger.LogInformation("LearningProgressions does not exist for Customer. Customer GUID: {CustomerGuid}", customerGuid);
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
-                return new NoContentResult();
+                return new BadRequestObjectResult($"LearningProgressions does not exist for Customer. Customer GUID: {customerGuid}");
             }
 
             if (learningProgressions.Count == 1)

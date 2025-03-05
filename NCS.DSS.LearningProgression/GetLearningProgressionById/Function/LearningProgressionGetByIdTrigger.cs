@@ -36,7 +36,6 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 
         [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression found.", ShowSchema = true)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
@@ -66,26 +65,26 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             if (string.IsNullOrEmpty(touchpointId))
             {
                 _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
                 _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Unable to locate 'apimURL' in request header. Correlation GUID: {correlationGuid}");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
-                return new BadRequestObjectResult(customerGuid);
+                return new BadRequestObjectResult($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             if (!Guid.TryParse(learningProgressionId, out var learnerProgressionGuid))
             {
                 _logger.LogWarning("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
-                return new BadRequestObjectResult(learnerProgressionGuid);
+                return new BadRequestObjectResult($"Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
@@ -94,7 +93,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
                 _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
@@ -115,7 +114,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgressionById.Function
 
             _logger.LogInformation("LearningProgression does not exist for Customer. Customer GUID: {CustomerGuid}", customerGuid);
             _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionGetByIdTrigger));
-            return new NoContentResult();
+            return new BadRequestObjectResult($"LearningProgression does not exist for Customer. Customer GUID: {customerGuid}");
         }
     }
 }
