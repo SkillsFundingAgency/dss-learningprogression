@@ -45,6 +45,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression created.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.NotFound, Description = "Request returns no data.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.UnprocessableEntity, Description = "Learning progression validation error(s).", ShowSchema = false)]
@@ -100,7 +101,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
                 _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new BadRequestObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
+                return new NotFoundObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
@@ -110,7 +111,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (isCustomerReadOnly)
             {
                 _logger.LogWarning("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new ObjectResult(customerGuid.ToString())
+                return new ObjectResult($"Customer is read-only. Operation is forbidden. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}")
                 {
                     StatusCode = (int)HttpStatusCode.Forbidden
                 };
@@ -122,7 +123,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (doesLearningProgressionExist)
             {
                 _logger.LogWarning("LearningProgression for customer already exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new ConflictResult();
+                return new ConflictObjectResult($"LearningProgression for customer already exists. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
@@ -137,7 +138,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to parse LearningProgression from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", correlationGuid, ex.Message);
-                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
+                return new UnprocessableEntityObjectResult($"Unable to parse LearningProgression from request body. Correlation GUID: {correlationGuid}. Exception: {_dynamicHelper.ExcludeProperty(ex, PropertyToExclude)}");
             }
             _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
@@ -149,7 +150,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (errors.Any())
             {
                 _logger.LogWarning("Failed to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult($"Failed to validate {nameof(LearningProgression)} object. Correlation GUID: {correlationGuid}. Validation Errors : {errors}");
             }
             _logger.LogInformation("Successfully validated {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
 
@@ -158,7 +159,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (learningProgressionResult == null)
             {
                 _logger.LogInformation("Failed to create LearningProgression object. Customer GUID: {CustomerGuid}.  Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new BadRequestObjectResult($"Failed to create LearningProgression object. Customer GUID: {customerGuid}.  Correlation GUID: {correlationGuid}");
+                return new NotFoundObjectResult($"Failed to create LearningProgression object. Customer GUID: {customerGuid}.  Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Successfully created LearningProgression object. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
@@ -170,7 +171,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             {
                 _logger.LogWarning("POST request unsuccessful. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault());
                 _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPostTrigger));
-                return new BadRequestObjectResult($"POST request unsuccessful.Customer GUID: {customerGuid}. Learning Progression ID: {learningProgressionResult.LearningProgressionId.GetValueOrDefault()}");
+                return new NotFoundObjectResult($"POST request unsuccessful.Customer GUID: {customerGuid}. Learning Progression ID: {learningProgressionResult.LearningProgressionId.GetValueOrDefault()}");
             }
 
             _logger.LogInformation("POST request successful. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId.GetValueOrDefault());

@@ -89,7 +89,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnNotFound()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -100,11 +100,11 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public async Task Get_RequestContainsNoErrors_ReturnBadRequest()
+        public async Task Get_RequestContainsNoErrors_ReturnNotFound()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -115,7 +115,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<ConflictResult>());
+            Assert.That(response, Is.InstanceOf<ConflictObjectResult>());
         }
 
         [Test]
@@ -157,7 +157,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Get_UnableToCreateLearningProgression_ReturnBadRequest()
+        public async Task Get_UnableToCreateLearningProgression_ReturnNotFound()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -173,7 +173,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(CustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
