@@ -112,9 +112,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to parse {LearningProgressionPatch} from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", nameof(learningProgressionPatchRequest), correlationGuid, ex.Message);
+                _logger.LogError("Unable to parse {LearningProgressionPatch} from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}. StackTrace: {StackTrace}", nameof(learningProgressionPatchRequest), correlationGuid,ex.Message, _dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
 
-                return new UnprocessableEntityObjectResult($"Unable to parse { nameof(learningProgressionPatchRequest)} from request body. Correlation GUID: {correlationGuid}. Exception: {_dynamicHelper.ExcludeProperty(ex, PropertyToExclude)}");
+                return new UnprocessableEntityObjectResult($"Unable to parse { nameof(learningProgressionPatchRequest)} from request body. Correlation GUID: {correlationGuid}. Exception: {ex.Message}");
             }
             _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
@@ -179,13 +179,13 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "An error occured when attempting to deserialize {PatchedLearningProgressionAsJson} validation object. Error message: {ErrorMessage}. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), ex.Message, customerGuid, learningProgressionGuid);
-                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
+                return new UnprocessableEntityObjectResult($"An error occured when attempting to deserialize {nameof(patchedLearningProgressionAsJson)} validation object. Error message: {ex.Message}. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}");
             }
 
             if (learningProgressionValidationObject == null)
             {
                 _logger.LogWarning("Deserializing {PatchedLearningProgressionAsJson} validation object has returned NULL. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
-                return new UnprocessableEntityObjectResult(req);
+                return new UnprocessableEntityObjectResult($"Deserializing {nameof(patchedLearningProgressionAsJson)} validation object has returned NULL. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}. Request : {req}");
             }
 
             _logger.LogInformation("Successfully deserialized {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
