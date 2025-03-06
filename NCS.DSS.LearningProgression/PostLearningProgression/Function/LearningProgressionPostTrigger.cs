@@ -138,7 +138,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to parse LearningProgression from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", correlationGuid, ex.Message);
-                return new UnprocessableEntityObjectResult($"Unable to parse LearningProgression from request body. Correlation GUID: {correlationGuid}. Exception: {_dynamicHelper.ExcludeProperty(ex, PropertyToExclude)}");
+                return new UnprocessableEntityObjectResult($"Unable to parse LearningProgression from request body. Correlation GUID: {correlationGuid}. Exception: {ex.Message}");
             }
             _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
