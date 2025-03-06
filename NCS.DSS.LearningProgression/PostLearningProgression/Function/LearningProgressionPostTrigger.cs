@@ -150,7 +150,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (errors.Any())
             {
                 _logger.LogWarning("Failed to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
-                return new UnprocessableEntityObjectResult($"Failed to validate {nameof(LearningProgression)} object. Correlation GUID: {correlationGuid}. Validation Errors : {errors}");
+                return new UnprocessableEntityObjectResult($"Failed to validate {nameof(LearningProgression)} object. Correlation GUID: {correlationGuid}. Validation Errors : {string.Join(';',errors)}");
             }
             _logger.LogInformation("Successfully validated {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
 
