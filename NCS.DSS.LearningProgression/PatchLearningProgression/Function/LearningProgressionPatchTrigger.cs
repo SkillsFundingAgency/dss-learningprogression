@@ -45,8 +45,8 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 
         [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Learning progression created.", ShowSchema = true)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer Resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.NotFound, Description = "Customer resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.UnprocessableEntity, Description = "Learning progression validation error(s).", ShowSchema = false)]
@@ -80,26 +80,26 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             if (string.IsNullOrEmpty(touchpointId))
             {
                 _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
                 _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
-                return new BadRequestResult();
+                return new BadRequestObjectResult($"Unable to locate 'apimURL' in request header. Correlation GUID: {correlationGuid}");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
-                return new BadRequestObjectResult(customerGuid);
+                return new BadRequestObjectResult($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             if (!Guid.TryParse(learningProgressionId, out var learningProgressionGuid))
             {
                 _logger.LogWarning("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
-                return new BadRequestObjectResult(learningProgressionGuid);
+                return new BadRequestObjectResult($"Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
@@ -112,15 +112,16 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to parse {LearningProgressionPatch} from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", nameof(learningProgressionPatchRequest), correlationGuid, ex.Message);
-                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
+                _logger.LogError("Unable to parse {LearningProgressionPatch} from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}. StackTrace: {StackTrace}", nameof(learningProgressionPatchRequest), correlationGuid,ex.Message, _dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
+
+                return new UnprocessableEntityObjectResult($"Unable to parse { nameof(learningProgressionPatchRequest)} from request body. Correlation GUID: {correlationGuid}. Exception: {ex.Message}");
             }
             _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
             if (learningProgressionPatchRequest == null)
             {
                 _logger.LogInformation("{LearningProgressionPatch} object is NULL. Correlation GUID: {CorrelationGuid}", nameof(learningProgressionPatchRequest), correlationGuid);
-                return new NoContentResult();
+                return new NotFoundObjectResult($"{nameof(learningProgressionPatchRequest)} object is NULL. Correlation GUID: {correlationGuid}");
             }
 
             _learningProgressionPatchTriggerService.SetIds(learningProgressionPatchRequest, customerGuid, touchpointId);
@@ -130,7 +131,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             {
                 _logger.LogWarning("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 
-                return new ObjectResult(customerGuid.ToString())
+                return new ObjectResult($"Customer is read-only. Operation is forbidden. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}")
                 {
                     StatusCode = (int)HttpStatusCode.Forbidden
                 };
@@ -141,7 +142,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
                 _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
-                return new BadRequestResult();
+                return new NotFoundObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
             _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
@@ -149,7 +150,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             if (!await _learningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(customerGuid))
             {
                 _logger.LogInformation("LearningProgression does not exist for customer. Customer GUID: {CustomerGuid}", customerGuid);
-                return new NoContentResult();
+                return new NotFoundObjectResult($"LearningProgression does not exist for customer. Customer GUID: {customerGuid}");
             }
             _logger.LogInformation("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
@@ -157,7 +158,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 
             if (string.IsNullOrEmpty(currentLearningProgressionAsJson))
             {
-                return new NoContentResult();
+                return new NotFoundObjectResult($"Failed to retrieve LearningProgression Json document. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Attempting to update LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
@@ -165,7 +166,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             if (string.IsNullOrEmpty(currentLearningProgressionAsJson))
             {
                 _logger.LogInformation("Failed to update LearningProgression for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
-                return new NoContentResult();
+                return new BadRequestObjectResult($"Failed to update LearningProgression for customer. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}");
             }
             _logger.LogInformation("Successfully updated LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
 
@@ -178,13 +179,13 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "An error occured when attempting to deserialize {PatchedLearningProgressionAsJson} validation object. Error message: {ErrorMessage}. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), ex.Message, customerGuid, learningProgressionGuid);
-                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
+                return new UnprocessableEntityObjectResult($"An error occured when attempting to deserialize {nameof(patchedLearningProgressionAsJson)} validation object. Error message: {ex.Message}. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}");
             }
 
             if (learningProgressionValidationObject == null)
             {
                 _logger.LogWarning("Deserializing {PatchedLearningProgressionAsJson} validation object has returned NULL. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
-                return new UnprocessableEntityObjectResult(req);
+                return new UnprocessableEntityObjectResult($"Deserializing {nameof(patchedLearningProgressionAsJson)} validation object has returned NULL. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}. Request : {req}");
             }
 
             _logger.LogInformation("Successfully deserialized {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
@@ -217,9 +218,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 };
             }
 
-            _logger.LogWarning("PATCH request unsuccessful. Learning Progression GUID: {LearningProgressionGuid}", learningProgressionGuid);
+            _logger.LogWarning("PATCH request unsuccessful.Customer GUID: {CustomerGuid} and Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
             _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPatchTrigger));
-            return new NoContentResult();
+            return new NotFoundObjectResult($"PATCH request unsuccessful. Customer GUID: {customerGuid} and Learning Progression GUID: {learningProgressionGuid}");
         }
     }
 }
