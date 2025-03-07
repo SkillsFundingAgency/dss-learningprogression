@@ -92,7 +92,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
-                return new BadRequestObjectResult(customerGuid);
+                return new BadRequestObjectResult($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
