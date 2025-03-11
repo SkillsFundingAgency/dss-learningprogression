@@ -8,7 +8,7 @@
         "cosmosDbDatabaseId": {
             "value": "learningprogressions"
         },
-        "cosmosDbEndpoint": {
+        "CosmosDbEndpoint": {
             "value": "https://dss-foo-shared-cdb.documents.azure.com:443"
         },
         "cosmosDbKey": {
