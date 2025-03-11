@@ -1,3 +1,4 @@
+using Azure.Identity;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
@@ -57,13 +58,14 @@ namespace NCS.DSS.LearningProgression
 
                     services.AddSingleton(sp =>
                     {
-                        var settings = sp.GetRequiredService<IOptions<LearningProgressionConfigurationSettings>>().Value;
-                        var options = new CosmosClientOptions()
+                        var cosmosDbEndpoint = configuration["CosmosDbEndpoint"];
+                        if (string.IsNullOrEmpty(cosmosDbEndpoint))
                         {
-                            ConnectionMode = ConnectionMode.Gateway
-                        };
+                            throw new InvalidOperationException("CosmosDbEndpoint is not configured.");
+                        }
 
-                        return new CosmosClient(settings.CosmosDBConnectionString, options);
+                        var options = new CosmosClientOptions() { ConnectionMode = ConnectionMode.Gateway };
+                        return new CosmosClient(cosmosDbEndpoint, new DefaultAzureCredential(), options);
                     });
 
                     services.AddSingleton(serviceProvider =>
