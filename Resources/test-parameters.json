@@ -46,6 +46,12 @@
         },
         "workspaceResourceGroup": {
             "value": "aResourceGroup"
+        },
+        "appInsightsInstrumentationKey": {
+            "value": "anInstrumentationKey"
+        },
+        "keyVaultName": {
+          "value": "aKeyVault"
         }
     }
 }
