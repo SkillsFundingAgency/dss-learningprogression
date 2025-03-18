@@ -196,7 +196,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             
             if (errors.Any())
             {
-                _logger.LogWarning("Failed to validate {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
+                _logger.LogWarning("Falied to validate {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
                 return new UnprocessableEntityObjectResult(errors);
             }
             _logger.LogInformation("Successfully validated {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
