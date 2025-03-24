@@ -1,11 +1,9 @@
-using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.LearningProgression.Constants;
 using NCS.DSS.LearningProgression.Cosmos.Helper;
 using NCS.DSS.LearningProgression.PostLearningProgression.Service;
@@ -19,32 +17,29 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
     public class LearningProgressionPostTrigger
     {
         private const string RouteValue = "customers/{customerId}/LearningProgressions";
-        private const string FunctionName = "Post";
-        private readonly IHttpRequestHelper _httpRequestHelper;
+        private const string FunctionName = "POST";
+
         private readonly ILearningProgressionPostTriggerService _learningProgressionPostTriggerService;
+        private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IResourceHelper _resourceHelper;
-        private readonly ILogger<LearningProgressionPostTrigger> _logger;
-        private Models.LearningProgression _learningProgression;
         private readonly IValidate _validate;
         private readonly IDynamicHelper _dynamicHelper;
+        private readonly ILogger<LearningProgressionPostTrigger> _logger;
         private static readonly string[] PropertyToExclude = { "TargetSite" };
 
-        public LearningProgressionPostTrigger(
-
+        public LearningProgressionPostTrigger(ILearningProgressionPostTriggerService learningProgressionPostTriggerService,
             IHttpRequestHelper httpRequestHelper,
-            ILearningProgressionPostTriggerService learningProgressionPostTriggerService,
             IResourceHelper resourceHelper,
             IValidate validate,
-            ILogger<LearningProgressionPostTrigger> logger,
-            IDynamicHelper dynamicHelper
-            )
+            IDynamicHelper dynamicHelper,
+            ILogger<LearningProgressionPostTrigger> logger)
         {
-            _httpRequestHelper = httpRequestHelper;
             _learningProgressionPostTriggerService = learningProgressionPostTriggerService;
+            _httpRequestHelper = httpRequestHelper;
             _resourceHelper = resourceHelper;
             _validate = validate;
-            _logger = logger;
             _dynamicHelper = dynamicHelper;
+            _logger = logger;
         }
 
         [Function(FunctionName)]
@@ -53,107 +48,135 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this learning progression.", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)422, Description = "Learning progression validation error(s).", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.UnprocessableEntity, Description = "Learning progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.LearningProgression), (int)HttpStatusCode.OK)]
-        [Display(Name = "Post", Description = "Ability to create a new learning progression for a customer. <br>" +
+        [Display(Name = "POST", Description = "Ability to create a new learning progression for a customer. <br>" +
                                               "<br> <b>Validation Rules:</b> <br>" +
                                               "<br><b>LearningHours:</b> A valid LearningHours contained in the enum. If CurrentLearningStatus = 'in learning' then this must be a valid LearningHours reference data item<br>" +
                                               "<br><b>DateLearningStarted:</b> If CurrentLearningStatus = 'In learning' then this must be a valid date, ISO8601:2004 <= datetime.now  <br>" +
                                               "<br><b>DateQualificationLevelAchieved:</b> If CurrentQualificationLevel < 99 then this must be a valid date, ISO8601:2004 <= datetime.now <br>"
                                                   )]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPost, Route = RouteValue)] HttpRequest req, string customerId)
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPost, Route = RouteValue)] HttpRequest req,
+            string customerId)
         {
-            _logger.LogInformation("Started Updating Learning Progressions for Customer ID [{0}]", customerId);
+            _logger.LogInformation("Function {FunctionName} has been invoked", nameof(LearningProgressionPostTrigger));
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-            var guidHelper = new GuidHelper();
-            var correlationGuid = guidHelper.ValidateAndGetGuid(correlationId);
+
+            if (string.IsNullOrEmpty(correlationId))
+            {
+                _logger.LogInformation("Unable to locate 'DssCorrelationId' in request header");
+            }
+
+            if (!Guid.TryParse(correlationId, out var correlationGuid))
+            {
+                _logger.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
+                correlationGuid = Guid.NewGuid();
+            }
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogWarning("CorrelationId: {0} Unable to locate 'TouchpointId' in request header.", correlationGuid);
+                _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
-                _logger.LogWarning("CorrelationId: {0} Unable to locate 'apimurl' in request header", correlationGuid);
+                _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogWarning("CorrelationId: {0} Unable to parse 'customerId' to a Guid: {1}", correlationGuid, customerId);
+                _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult(customerGuid);
             }
 
+            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
+            
+            _logger.LogInformation("Attempting to check if customer exists. Customer GUID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _logger.LogWarning("CorrelationId: {0} Bad request", correlationGuid);
+                _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new BadRequestResult();
             }
+            _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
+            _logger.LogInformation("Attempting to check if customer is read only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             var isCustomerReadOnly = await _resourceHelper.IsCustomerReadOnly(customerGuid);
 
             if (isCustomerReadOnly)
             {
-                _logger.LogWarning("CorrelationId: {0} Customer is readonly with customerId: {1}", correlationGuid, customerId);
+                _logger.LogWarning("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new ObjectResult(customerGuid.ToString())
                 {
                     StatusCode = (int)HttpStatusCode.Forbidden
                 };
             }
-
-            var doesLearningProgressionExist = _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);
+            _logger.LogInformation("Customer is not read-only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            
+            _logger.LogInformation("Attempting to check if LearningProgression exists for customer. Customer GUID: {CustomerId}", customerGuid);
+            var doesLearningProgressionExist = await _learningProgressionPostTriggerService.DoesLearningProgressionExistForCustomer(customerGuid);
             if (doesLearningProgressionExist)
             {
-                _logger.LogWarning("CorrelationId: {0} Learning progression details already exists for customerId: {1}", correlationGuid, customerId);
+                _logger.LogWarning("LearningProgression for customer already exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new ConflictResult();
             }
 
-            _logger.LogInformation("CorrelationId: {0} Attempt to get resource from body of the request correlationId: {1}", correlationGuid, correlationGuid);
+            _logger.LogInformation("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            
+            Models.LearningProgression learningProgression;
 
             try
             {
-                _learningProgression = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgression>(req);
+                _logger.LogInformation("Attempting to retrieve resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                learningProgression = await _httpRequestHelper.GetResourceFromRequest<Models.LearningProgression>(req);
             }
             catch (Exception ex)
             {
-                _logger.LogError("CorrelationId: {0} Unable to retrieve body from req - {1}", correlationGuid, ex);
+                _logger.LogError(ex, "Unable to parse LearningProgression from request body. Correlation GUID: {CorrelationGuid}. Exception: {ExceptionMessage}", correlationGuid, ex.Message);
                 return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
+            _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
-            _learningProgressionPostTriggerService.SetIds(_learningProgression, customerGuid, touchpointId);
+            _learningProgressionPostTriggerService.SetIds(learningProgression, customerGuid, touchpointId);
 
-            var errors = _validate.ValidateResource(_learningProgression);
+            _logger.LogInformation("Attempting to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
+            var errors = _validate.ValidateResource(learningProgression);
 
             if (errors.Any())
             {
-                _logger.LogWarning("CorrelationId: {0} Validation errors. List of Errors [{2}]", correlationGuid, string.Join(';', errors));
+                _logger.LogWarning("Failed to validate {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
                 return new UnprocessableEntityObjectResult(errors);
             }
+            _logger.LogInformation("Successfully validated {LearningProgression} object. Correlation GUID: {CorrelationGuid}", nameof(learningProgression), correlationGuid);
 
-            var learningProgressionResult = await _learningProgressionPostTriggerService.CreateLearningProgressionAsync(_learningProgression);
+            _logger.LogInformation("Attempting to create LearningProgression object. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            var learningProgressionResult = await _learningProgressionPostTriggerService.CreateLearningProgressionAsync(learningProgression);
             if (learningProgressionResult == null)
             {
-                _logger.LogWarning("CorrelationId: {0} Unable to create learning progression for customerId {1}", correlationGuid, customerGuid);
+                _logger.LogInformation("Failed to create LearningProgression object. Customer GUID: {CustomerGuid}.  Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new BadRequestObjectResult(customerGuid);
             }
 
-            _logger.LogWarning("CorrelationId: {0} Sending newly created learning Progression to service bus for customerId: {1}", correlationGuid, customerGuid);
-            await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(_learningProgression, apimURL, correlationGuid, _logger);
+            _logger.LogInformation("Successfully created LearningProgression object. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
+            
+            _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault(), correlationGuid);
+            await _learningProgressionPostTriggerService.SendToServiceBusQueueAsync(learningProgression, apimURL, correlationGuid);
 
-            if (_learningProgression == null)
+            if (learningProgression == null)
             {
-                _logger.LogWarning("CorrelationId: {0} Response Code [No Content]", correlationGuid);
+                _logger.LogWarning("POST request unsuccessful. Learning Progression ID: {LearningProgressionGuid}", learningProgressionResult.LearningProgressionId.GetValueOrDefault());
+                _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPostTrigger));
                 return new NoContentResult();
             }
 
-            _logger.LogInformation("CorrelationId: {0} Response Code [Created]", correlationGuid);
-
-            return new JsonResult(_learningProgression, new JsonSerializerOptions())
+            _logger.LogInformation("POST request successful. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId.GetValueOrDefault());
+            _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPostTrigger));
+            return new JsonResult(learningProgression, new JsonSerializerOptions())
             {
                 StatusCode = (int)HttpStatusCode.Created
             };
