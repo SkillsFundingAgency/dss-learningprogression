@@ -25,7 +25,8 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
 
         private HttpRequest _request = null!;
         private LearningProgressionGetByIdTrigger _function = null!;
-
+        private Models.LearningProgression? _learningProgression = null;
+        
         [SetUp]
         public void Setup()
         {
@@ -49,7 +50,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -62,7 +63,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -81,7 +82,7 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnNotFound()
         {
             // arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -93,7 +94,23 @@ namespace NCS.DSS.LearningProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
+        }
+
+        [Test]
+        public async Task Get_RequestContainsNoResults_ReturnNotFound()
+        {
+            // arrange
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _learningProgressionGetByIdService.Setup(x => x.GetLearningProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(_learningProgression)!);
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+
+            // Act
+            var response = await RunFunction(ValidCustomerId, ValidLearningProgressionId);
+            
+            //Assert
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
