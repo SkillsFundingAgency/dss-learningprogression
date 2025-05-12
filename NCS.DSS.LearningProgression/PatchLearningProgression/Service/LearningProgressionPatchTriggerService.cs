@@ -12,11 +12,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
     public class LearningProgressionPatchTriggerService : ILearningProgressionPatchTriggerService
     {
         private readonly IJsonHelper _jsonHelper;
-        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
         private readonly ILogger<LearningProgressionPatchTriggerService> _log;
 
-        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
+        public LearningProgressionPatchTriggerService(IJsonHelper jsonHelper, ICosmosDBProvider documentDbProvider, IServiceBusClient serviceBusClient, ILogger<LearningProgressionPatchTriggerService> log)
         {
             _jsonHelper = jsonHelper;
             _documentDbProvider = documentDbProvider;
@@ -28,10 +28,10 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         {
             var learningProgressionAsString = await _documentDbProvider.GetLearningProgressionForCustomerToPatchAsync(customerId, learningProgressionId);
 
-            return learningProgressionAsString;
+            return learningProgressionAsString ?? string.Empty;
         }
 
-        public string PatchLearningProgressionAsync(string learningProgressionAsJson, Models.LearningProgressionPatch learningProgressionPatch)
+        public string PatchLearningProgressionAsync(string learningProgressionAsJson, LearningProgressionPatch learningProgressionPatch)
         {
             try
             {
@@ -64,22 +64,22 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
                 if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
 
-                _log.LogInformation($"Successfully Fetched PATCH Json Object.");
+                _log.LogInformation("Successfully fetched PATCH JSON object");
 
-                return learningProgressionAsJsonObject.ToString();
+                return learningProgressionAsJsonObject.ToString() ?? string.Empty;
             }
             catch (JsonReaderException ex)
             {
-                _log.LogWarning($"Failed to PATCH Json Object. Error: [{ex.Message}] and Stack Trace [{ex.StackTrace}]");
-                return null;
+                _log.LogError(ex, "Failed to PATCH JSON object. Exception: {ErrorMessage}", ex.Message);
+                return null!;
             }
         }
 
-        public async Task<Models.LearningProgression> UpdateCosmosAsync(string learningProgressionAsJson, Guid learningProgressionId)
+        public async Task<Models.LearningProgression?> UpdateCosmosAsync(string learningProgressionAsJson, Guid learningProgressionId)
         {
             if (string.IsNullOrEmpty(learningProgressionAsJson))
             {
-                _log.LogWarning($"Failed to Update in Cosmos DB. Json Object Can not be Null or Empty.");
+                _log.LogWarning("Failed to update CosmosDB. {LearningProgressionAsJson} cannot be null or empty", nameof(learningProgressionAsJson));
                 return null;
             }
 
@@ -89,22 +89,22 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
             if (responseStatusCode == HttpStatusCode.OK)
             {
-                _log.LogInformation($"Successfully Updated in Cosmos DB. Response Code [{responseStatusCode}]");
-                return (dynamic)response.Resource;
+                _log.LogInformation("Successfully updated CosmosDB. Response code: {StatusCode}", responseStatusCode);
+                return response?.Resource;
             }
 
-            _log.LogWarning($"Failed to Update in Cosmos DB. Response Code [{responseStatusCode}]");
+            _log.LogWarning("Failed to update CosmosDB. Response code: {StatusCode}", responseStatusCode);
             return null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId)
         {
-            await _serviceBusClient.SendPatchMessageAsync(learningProgression, customerId, reqUrl, correlationId, log);
+            await _serviceBusClient.SendPatchMessageAsync(learningProgression, customerId, reqUrl, correlationId);
         }
 
-        public bool DoesLearningProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesLearningProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
+            return await _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
         public async Task<bool> DoesCustomerExist(Guid customerId)
@@ -112,7 +112,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
             return await _documentDbProvider.DoesCustomerResourceExist(customerId);
         }
 
-        public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string touchpointId)
+        public void SetIds(LearningProgressionPatch learningProgressionPatchRequest, Guid learningProgressionGuid, string? touchpointId)
         {
             learningProgressionPatchRequest.LastModifiedTouchpointId = touchpointId;
             learningProgressionPatchRequest.LearningProgressionId = learningProgressionGuid;

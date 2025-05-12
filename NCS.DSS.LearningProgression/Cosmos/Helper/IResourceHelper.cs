@@ -1,4 +1,4 @@
-﻿namespace NCS.DSS.Contact.Cosmos.Helper
+﻿namespace NCS.DSS.LearningProgression.Cosmos.Helper
 {
     public interface IResourceHelper
     {

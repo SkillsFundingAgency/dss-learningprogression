@@ -7,30 +7,29 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 {
     public class LearningProgressionPostTriggerService : ILearningProgressionPostTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
-        private readonly ILogger<LearningProgressionPostTriggerService> _log;
+        private readonly ILogger<LearningProgressionPostTriggerService> _logger;
 
-        public LearningProgressionPostTriggerService(IDocumentDBProvider documentDbProvider,
-             IServiceBusClient serviceBusClient, ILogger<LearningProgressionPostTriggerService> log)
+        public LearningProgressionPostTriggerService(ICosmosDBProvider documentDbProvider,
+             IServiceBusClient serviceBusClient, 
+             ILogger<LearningProgressionPostTriggerService> logger)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
-            _log = log;
+            _logger = logger;
         }
 
-        public async Task<Models.LearningProgression> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
+        public async Task<Models.LearningProgression?> CreateLearningProgressionAsync(Models.LearningProgression? learningProgression)
         {
 
             if (learningProgression == null)
             {
-                _log.LogWarning($"Unable to Create Learning Progression. Invalid or NULL Object.");
+                _logger.LogWarning("Unable to create LearningProgression. {LearningProgression} is null or empty", learningProgression);
                 return null;
             }
 
-            _log.LogInformation($"Started Creating Learning Progression for [{learningProgression.CustomerId}]");
-
-            learningProgression.LearningProgressionId = Guid.NewGuid();
+            _logger.LogInformation("Started creating LearningProgression for Customer ID: {CustomerId}", learningProgression.CustomerId);
 
             if (!learningProgression.LastModifiedDate.HasValue)
             {
@@ -41,25 +40,25 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                _log.LogInformation($"Successfully Created Learning Progression in Cosmos DB. Response Code [{response.StatusCode}]");
-                return (dynamic)response.Resource;
+                _logger.LogInformation("Successfully created LearningProgression in CosmosDB. Response code: {StatusCode}", response.StatusCode);
+                return response.Resource;
             }
 
-            _log.LogWarning($"Unable to Create Learning Progression in Cosmos DB. Response Code [{response.StatusCode}]");
+            _logger.LogWarning("Failed to create LearningProgression in CosmosDB. Response code: {StatusCode}", response.StatusCode);
             return null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendToServiceBusQueueAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId)
         {
-            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, correlationId, log);
+            await _serviceBusClient.SendPostMessageAsync(learningProgression, reqUrl, correlationId);
         }
 
-        public bool DoesLearningProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesLearningProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
+            return await _documentDbProvider.DoesLearningProgressionExistForCustomer(customerId);
         }
 
-        public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string touchpointId)
+        public void SetIds(Models.LearningProgression learningProgression, Guid customerGuid, string? touchpointId)
         {
             learningProgression.LearningProgressionId = Guid.NewGuid();
             learningProgression.CustomerId = customerGuid;
