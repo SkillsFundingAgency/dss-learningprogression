@@ -164,7 +164,7 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Function
 
             if (learningProgression == null)
             {
-                _logger.LogInformation("POST request unsuccessful. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault());
+                _logger.LogTrace("POST request unsuccessful. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionGuid}", customerGuid, learningProgressionResult.LearningProgressionId.GetValueOrDefault());
                 return new NotFoundObjectResult($"POST request unsuccessful.Customer GUID: {customerGuid}. Learning Progression ID: {learningProgressionResult.LearningProgressionId.GetValueOrDefault()}");
             }
 
