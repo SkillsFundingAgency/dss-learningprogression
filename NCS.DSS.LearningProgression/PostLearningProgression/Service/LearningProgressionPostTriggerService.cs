@@ -25,11 +25,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             if (learningProgression == null)
             {
-                _logger.LogWarning("Unable to create LearningProgression. {LearningProgression} is null or empty", learningProgression);
+                _logger.LogInformation("Unable to create LearningProgression. {LearningProgression} is null or empty", learningProgression);
                 return null;
             }
 
-            _logger.LogInformation("Started creating LearningProgression for Customer ID: {CustomerId}", learningProgression.CustomerId);
+            _logger.LogTrace("Started creating LearningProgression for Customer ID: {CustomerId}", learningProgression.CustomerId);
 
             if (!learningProgression.LastModifiedDate.HasValue)
             {
@@ -40,11 +40,11 @@ namespace NCS.DSS.LearningProgression.PostLearningProgression.Service
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
-                _logger.LogInformation("Successfully created LearningProgression in CosmosDB. Response code: {StatusCode}", response.StatusCode);
+                _logger.LogTrace("Successfully created LearningProgression in CosmosDB. Response code: {StatusCode}", response.StatusCode);
                 return response.Resource;
             }
 
-            _logger.LogWarning("Failed to create LearningProgression in CosmosDB. Response code: {StatusCode}", response.StatusCode);
+            _logger.LogInformation("Failed to create LearningProgression in CosmosDB. Response code: {StatusCode}", response.StatusCode);
             return null;
         }
 
