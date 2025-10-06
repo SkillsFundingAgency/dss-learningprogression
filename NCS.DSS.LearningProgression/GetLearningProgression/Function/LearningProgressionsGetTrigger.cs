@@ -54,7 +54,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 
             if (!Guid.TryParse(correlationId, out var correlationGuid))
             {
-                _logger.LogTrace("Unable to parse 'DssCorrelationId' to a Guid");
+                _logger.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
                 correlationGuid = Guid.NewGuid();
             }
 
@@ -93,7 +93,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             
             if (learningProgressions.Count == 0)
             {
-                _logger.LogTrace("LearningProgressions does not exist for Customer. Customer GUID: {CustomerGuid}", customerGuid);
+                _logger.LogInformation("LearningProgressions does not exist for Customer. Customer GUID: {CustomerGuid}", customerGuid);
                 return new NotFoundObjectResult($"LearningProgressions does not exist for Customer. Customer GUID: {customerGuid}");
             }
 

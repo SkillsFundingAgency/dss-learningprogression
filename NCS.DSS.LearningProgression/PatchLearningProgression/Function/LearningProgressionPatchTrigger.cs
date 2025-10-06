@@ -67,7 +67,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 
             if (!Guid.TryParse(correlationId, out var correlationGuid))
             {
-                _logger.LogTrace("Unable to parse 'DssCorrelationId' to a Guid");
+                _logger.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
                 correlationGuid = Guid.NewGuid();
             }
             
