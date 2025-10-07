@@ -26,7 +26,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
 
         public async Task SendPostMessageAsync(Models.LearningProgression learningProgression, string reqUrl, Guid correlationId)
         {
-            _logger.LogInformation(
+            _logger.LogTrace(
                 "Starting {MethodName}. LearningProgressionId: {LearningProgressionId}. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
                 nameof(SendPostMessageAsync), learningProgression.LearningProgressionId, learningProgression.CustomerId, correlationId);
 
@@ -53,13 +53,13 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                     WriteIndented = true
                 });
 
-                _logger.LogInformation(
+                _logger.LogTrace(
                     "New Employment Progression record serialized: {MessageModel}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
                     messageModelSerialized, learningProgression.LearningProgressionId, correlationId);
 
                 await _serviceBusSender.SendMessageAsync(msg);
 
-                _logger.LogInformation(
+                _logger.LogTrace(
                     "Successfully completed {MethodName}. LearningProgressionId: {LearningProgressionId}. CustomerId: {CustomerId}. CorrelationId: {CorrelationId}",
                     nameof(SendPostMessageAsync), learningProgression.LearningProgressionId, learningProgression.CustomerId, correlationId);
             }
@@ -75,7 +75,7 @@ namespace NCS.DSS.LearningProgression.ServiceBus
 
         public async Task SendPatchMessageAsync(Models.LearningProgression learningProgression, Guid customerId, string reqUrl, Guid correlationId)
         {
-            _logger.LogInformation(
+            _logger.LogTrace(
                 "Starting {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
                 nameof(SendPatchMessageAsync), customerId, learningProgression.LearningProgressionId, correlationId);
 
@@ -102,13 +102,13 @@ namespace NCS.DSS.LearningProgression.ServiceBus
                     WriteIndented = true
                 });
 
-                _logger.LogInformation(
+                _logger.LogTrace(
                     "Learning Progression record modification serialized. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}, Model: {MessageModelSerialized}",
                     customerId, learningProgression.LearningProgressionId, correlationId, messageModelSerialized);
 
                 await _serviceBusSender.SendMessageAsync(msg);
 
-                _logger.LogInformation(
+                _logger.LogTrace(
                     "Successfully completed {MethodName}. CustomerId: {CustomerId}. LearningProgressionId: {LearningProgressionId}. CorrelationId: {CorrelationId}",
                     nameof(SendPatchMessageAsync), customerId, learningProgression.LearningProgressionId, correlationId);
             }

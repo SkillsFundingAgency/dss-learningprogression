@@ -53,7 +53,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<bool> DoesCustomerHaveATerminationDate(Guid customerId)
         {
-            _logger.LogInformation("Checking for termination date. Customer ID: {CustomerId}", customerId);
+            _logger.LogTrace("Checking for termination date. Customer ID: {CustomerId}", customerId);
 
             try
             {
@@ -64,13 +64,13 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                 var dateOfTermination = response.Resource?.DateOfTermination;
                 var hasTerminationDate = dateOfTermination != null;
 
-                _logger.LogInformation("Termination date check completed. CustomerId: {CustomerId}. HasTerminationDate: {HasTerminationDate}", customerId, hasTerminationDate);
+                _logger.LogTrace("Termination date check completed. CustomerId: {CustomerId}. HasTerminationDate: {HasTerminationDate}", customerId, hasTerminationDate);
                 return hasTerminationDate;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 // If a 404 occurs, the resource does not exist
-                _logger.LogInformation("Customer does not exist. Customer ID: {CustomerId}", customerId);
+                _logger.LogTrace("Customer does not exist. Customer ID: {CustomerId}", customerId);
                 return false;
             }
             catch (Exception ex)
@@ -101,7 +101,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<Models.LearningProgression?> GetLearningProgressionForCustomerAsync(Guid customerId, Guid learningProgressionId)
         {
-            _logger.LogInformation("Retrieving LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+            _logger.LogTrace("Retrieving LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             try
             {
@@ -112,11 +112,11 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                 var response = await query.ReadNextAsync();
                 if (response.Any())
                 {
-                    _logger.LogInformation("Successfully retrieved LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                    _logger.LogTrace("Successfully retrieved LearningProgression. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                     return response.FirstOrDefault();
                 }
 
-                _logger.LogWarning("No LearningProgression found. Customer ID: {CustomerId}, Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                _logger.LogInformation("No LearningProgression found. Customer ID: {CustomerId}, Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                 return null;
             }
             catch (Exception ex)
@@ -141,7 +141,7 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                     learningProgressions.AddRange(response);
                 }
 
-                _logger.LogInformation("Found {Count} LearningProgression(s). Customer ID: {CustomerId}", learningProgressions.Count, customerId);
+                _logger.LogTrace("Found {Count} LearningProgression(s). Customer ID: {CustomerId}", learningProgressions.Count, customerId);
                 return learningProgressions;
             }
             catch (Exception ex)
@@ -153,24 +153,24 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<ItemResponse<Models.LearningProgression>> CreateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
-            _logger.LogInformation("Creating LearningProgression. Customer ID: {CustomerId}", learningProgression.CustomerId);
+            _logger.LogTrace("Creating LearningProgression. Customer ID: {CustomerId}", learningProgression.CustomerId);
 
             var response = await _learningProgressionContainer.CreateItemAsync(
                 learningProgression,
                 _partitionKey);
 
-            _logger.LogInformation("Finished creating LearningProgression. Customer ID: {CustomerId}", learningProgression.CustomerId);
+            _logger.LogTrace("Finished creating LearningProgression. Customer ID: {CustomerId}", learningProgression.CustomerId);
             return response;
         }
 
         //TODO: Update codebase to require learningProgression objects to avoid multiple deserializing and serializing
         public async Task<ItemResponse<Models.LearningProgression>?> UpdateLearningProgressionAsync(string learningProgressionJson, Guid learningProgressionId)
         {
-            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
+            _logger.LogTrace("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
 
             if (string.IsNullOrEmpty(learningProgressionJson))
             {
-                _logger.LogWarning("NULL or empty JSON provided for {FunctionName}. Learning Progression ID: {LearningProgressionId}", nameof(UpdateLearningProgressionAsync), learningProgressionId);
+                _logger.LogInformation("NULL or empty JSON provided for {FunctionName}. Learning Progression ID: {LearningProgressionId}", nameof(UpdateLearningProgressionAsync), learningProgressionId);
                 return null;
             }
 
@@ -179,13 +179,13 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                 var learningProgression = JsonSerializer.Deserialize<Models.LearningProgression>(learningProgressionJson);
                 if (learningProgression == null)
                 {
-                    _logger.LogWarning("Deserialization failed for LearningProgression JSON. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
+                    _logger.LogInformation("Deserialization failed for LearningProgression JSON. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
                     return null;
                 }
 
                 if (learningProgression.LearningProgressionId != learningProgressionId)
                 {
-                    _logger.LogWarning("Mismatch between provided ID and document ID. Provided ID: {LearningProgressionId}, Document ID: {DocumentId}",
+                    _logger.LogInformation("Mismatch between provided ID and document ID. Provided ID: {LearningProgressionId}, Document ID: {DocumentId}",
                         learningProgressionId, learningProgression.LearningProgressionId);
                     return null;
                 }
@@ -194,13 +194,13 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
                     learningProgressionId.ToString(),
                     _partitionKey);
 
-                _logger.LogInformation("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
+                _logger.LogTrace("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
                 return response;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 // If a 404 occurs, the resource does not exist
-                _logger.LogWarning("LearningProgression not found during update. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
+                _logger.LogInformation("LearningProgression not found during update. Learning Progression ID: {LearningProgressionId}", learningProgressionId);
                 return null;
             }
             catch (Exception ex)
@@ -212,20 +212,20 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
         public async Task<ItemResponse<Models.LearningProgression>> UpdateLearningProgressionAsync(Models.LearningProgression learningProgression)
         {
-            _logger.LogInformation("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
+            _logger.LogTrace("Updating LearningProgression. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
 
             var response = await _learningProgressionContainer.ReplaceItemAsync(
                 learningProgression,
                 learningProgression.LearningProgressionId.ToString(),
                 _partitionKey);
 
-            _logger.LogInformation("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
+            _logger.LogTrace("LearningProgression updated successfully. Learning Progression ID: {LearningProgressionId}", learningProgression.LearningProgressionId);
             return response;
         }
 
         public async Task<string?> GetLearningProgressionForCustomerToPatchAsync(Guid customerId, Guid learningProgressionId)
         {
-            _logger.LogInformation("Attempting to retrieve LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+            _logger.LogTrace("Attempting to retrieve LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
 
             try
             {
@@ -239,11 +239,11 @@ namespace NCS.DSS.LearningProgression.Cosmos.Provider
 
                 if (learningProgression != null)
                 {
-                    _logger.LogInformation("Retrieved LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                    _logger.LogTrace("Retrieved LearningProgression for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                     return JsonSerializer.Serialize(learningProgression);
                 }
 
-                _logger.LogWarning("No LearningProgression available for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
+                _logger.LogInformation("No LearningProgression available for PATCH request. Customer ID: {CustomerId}. Learning Progression ID: {LearningProgressionId}", customerId, learningProgressionId);
                 return null;
             }
             catch (Exception ex)

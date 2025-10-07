@@ -70,12 +70,12 @@ namespace NCS.DSS.LearningProgression
 
                         if (!string.IsNullOrWhiteSpace(endpoint))
                         {
-                            logger.LogInformation("Using DefaultAzureCredential for Cosmos DB (managed identity)");
+                            logger.LogTrace("Using DefaultAzureCredential for Cosmos DB (managed identity)");
                             return new CosmosClient(endpoint, new DefaultAzureCredential(), options);
                         }
                         else if (!string.IsNullOrWhiteSpace(connectionString))
                         {
-                            logger.LogInformation("No managed identity found: using Cosmos DB connection string (local development)");
+                            logger.LogTrace("No managed identity found: using Cosmos DB connection string (local development)");
                             return new CosmosClient(connectionString, options);
                         }
                         else
@@ -96,6 +96,7 @@ namespace NCS.DSS.LearningProgression
                     {
                         LoggerFilterRule? defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
                             == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+                        options.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
                         if (defaultRule is not null)
                         {
                             options.Rules.Remove(defaultRule);
