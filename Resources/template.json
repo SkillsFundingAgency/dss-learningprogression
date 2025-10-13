@@ -17,35 +17,12 @@
         "functionAppNames": {
             "type": "array"
         },
-        "serviceBusConnectionString": {
-            "type": "securestring"
-        },
         "serviceBusQueueName": {
-            "type": "string"
-        },
-        "sharedAppServicePlanName": {
-            "type": "string"
-        },
-        "sharedAppServicePlanResourceGroup": {
-            "type": "string"
-        },
-        "storageAccountName": {
-            "type": "string"
-        },
-        "storageAccountKey": {
-            "type": "string"
-        },
-        "templateBaseUrl": {
-            "type": "string"
-        },
-        "workspaceName": {
-            "type": "string"
-        },
-        "workspaceResourceGroup": {
             "type": "string"
         },
         "appInsightsInstrumentationKey": {
             "type": "string"
+
         },
         "keyVaultName": {
         "type": "string"
@@ -69,7 +46,7 @@
                 "CustomerDatabaseId": "customers",
                 "LeaseCollectionName": "learningprogression-lease",
                 "LeaseCollectionPrefix": "learningprogressionChangeFeedPrefix",
-                "ServiceBusConnectionString": "[parameters('serviceBusConnectionString')]",
+                "ServiceBusConnectionString": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=ServiceBusConnectionString )', parameters('keyVaultName'))]",
                 "ChangeFeedQueueName": "dss.changefeedqueue",
                 "QueueName": "[parameters('serviceBusQueueName')]",
                 "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]"
