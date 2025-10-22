@@ -46,7 +46,7 @@
                 "CustomerDatabaseId": "customers",
                 "LeaseCollectionName": "learningprogression-lease",
                 "LeaseCollectionPrefix": "learningprogressionChangeFeedPrefix",
-                "ServiceBusConnectionString": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=ServiceBusConnectionString )', parameters('keyVaultName'))]",
+                "ServiceBusConnectionString": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=ServiceBusConnectionString)', parameters('keyVaultName'))]",
                 "ChangeFeedQueueName": "dss.changefeedqueue",
                 "QueueName": "[parameters('serviceBusQueueName')]",
                 "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]"
