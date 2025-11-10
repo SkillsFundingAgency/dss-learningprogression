@@ -64,7 +64,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
                 if (!string.IsNullOrEmpty(learningProgressionPatch.LastModifiedTouchpointId))
                     _jsonHelper.UpdatePropertyValue(learningProgressionAsJsonObject["LastModifiedTouchpointId"], learningProgressionPatch.LastModifiedTouchpointId);
 
-                _log.LogInformation("Successfully fetched PATCH JSON object");
+                _log.LogTrace("Successfully fetched PATCH JSON object");
 
                 return learningProgressionAsJsonObject.ToString() ?? string.Empty;
             }
@@ -79,7 +79,7 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
         {
             if (string.IsNullOrEmpty(learningProgressionAsJson))
             {
-                _log.LogWarning("Failed to update CosmosDB. {LearningProgressionAsJson} cannot be null or empty", nameof(learningProgressionAsJson));
+                _log.LogInformation("Failed to update CosmosDB. {LearningProgressionAsJson} cannot be null or empty", nameof(learningProgressionAsJson));
                 return null;
             }
 
@@ -89,11 +89,11 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Service
 
             if (responseStatusCode == HttpStatusCode.OK)
             {
-                _log.LogInformation("Successfully updated CosmosDB. Response code: {StatusCode}", responseStatusCode);
+                _log.LogTrace("Successfully updated CosmosDB. Response code: {StatusCode}", responseStatusCode);
                 return response?.Resource;
             }
 
-            _log.LogWarning("Failed to update CosmosDB. Response code: {StatusCode}", responseStatusCode);
+            _log.LogInformation("Failed to update CosmosDB. Response code: {StatusCode}", responseStatusCode);
             return null;
         }
 

@@ -48,14 +48,9 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodGet, Route = RouteValue)]
             HttpRequest req, string customerId)
         {
-            _logger.LogInformation("Function {FunctionName} has been invoked", nameof(LearningProgressionsGetTrigger));
+            _logger.LogTrace("Function {FunctionName} has been invoked", nameof(LearningProgressionsGetTrigger));
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
-            if (string.IsNullOrEmpty(correlationId))
-            {
-                _logger.LogInformation("Unable to locate 'DssCorrelationId' in request header");
-            }
 
             if (!Guid.TryParse(correlationId, out var correlationGuid))
             {
@@ -66,47 +61,45 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogInformation("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestObjectResult($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
-                _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogInformation("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestObjectResult($"Unable to locate 'apimURL' in request header.Correlation GUID: { correlationGuid }");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
+                _logger.LogInformation("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
-            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
+            _logger.LogTrace("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
 
-            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("Attempting to see if customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new NotFoundObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
-            _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
-            _logger.LogInformation("Attempting to retrieve LearningProgressions for Customer. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogTrace("Attempting to retrieve LearningProgressions for Customer. Customer GUID: {CustomerGuid}", customerGuid);
             var learningProgressions = await _learningProgressionsGetTriggerService.GetLearningProgressionsForCustomerAsync(customerGuid);
             
             if (learningProgressions.Count == 0)
             {
                 _logger.LogInformation("LearningProgressions does not exist for Customer. Customer GUID: {CustomerGuid}", customerGuid);
-                _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
                 return new NotFoundObjectResult($"LearningProgressions does not exist for Customer. Customer GUID: {customerGuid}");
             }
 
             if (learningProgressions.Count == 1)
             {
-                _logger.LogInformation("LearningProgression successfully retrieved. Learning Progression ID: {LearningProgressionId}", learningProgressions.FirstOrDefault()!.LearningProgressionId);
-                _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
+                _logger.LogTrace("LearningProgression successfully retrieved. Learning Progression ID: {LearningProgressionId}", learningProgressions.FirstOrDefault()!.LearningProgressionId);
                 return new JsonResult(learningProgressions[0], new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.OK
@@ -115,8 +108,7 @@ namespace NCS.DSS.LearningProgression.GetLearningProgression.Function
 
             var learningProgressionIds = learningProgressions.Select(lp => lp.LearningProgressionId).ToList();
 
-            _logger.LogInformation("LearningProgressions successfully retrieved. Learning Progression IDs: {LearningProgressionIds}", learningProgressionIds);
-            _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionsGetTrigger));
+            _logger.LogTrace("LearningProgressions successfully retrieved. Learning Progression IDs: {LearningProgressionIds}", learningProgressionIds);
             return new JsonResult(learningProgressions, new JsonSerializerOptions())
             {
                 StatusCode = (int)HttpStatusCode.OK

@@ -61,14 +61,9 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, Constant.MethodPatch, Route = RouteValue)] HttpRequest req,
             string customerId, string learningProgressionId)
         {
-            _logger.LogInformation("Function {FunctionName} has been invoked", nameof(LearningProgressionPatchTrigger));
+            _logger.LogTrace("Function {FunctionName} has been invoked", nameof(LearningProgressionPatchTrigger));
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
-            if (string.IsNullOrEmpty(correlationId))
-            {
-                _logger.LogInformation("Unable to locate 'DssCorrelationId' in request header");
-            }
 
             if (!Guid.TryParse(correlationId, out var correlationGuid))
             {
@@ -79,35 +74,35 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogWarning("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogInformation("Unable to locate 'TouchpointId' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestObjectResult($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
             }
 
             var apimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimURL))
             {
-                _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogInformation("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestObjectResult($"Unable to locate 'apimURL' in request header. Correlation GUID: {correlationGuid}");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogWarning("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
+                _logger.LogInformation("Unable to parse 'customerId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
             if (!Guid.TryParse(learningProgressionId, out var learningProgressionGuid))
             {
-                _logger.LogWarning("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
+                _logger.LogInformation("Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerId, correlationGuid);
                 return new BadRequestObjectResult($"Unable to parse 'learnerProgressionId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
             }
 
-            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
+            _logger.LogTrace("Header validation has succeeded. Touchpoint ID: {TouchpointId}. Correlation GUID: {CorrelationGuid}", touchpointId, correlationGuid);
             
             LearningProgressionPatch learningProgressionPatchRequest;
             try
             {
-                _logger.LogInformation("Attempting to retrieve resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
+                _logger.LogTrace("Attempting to retrieve resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 learningProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<LearningProgressionPatch>(req);
             }
             catch (Exception ex)
@@ -116,43 +111,43 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
 
                 return new UnprocessableEntityObjectResult($"Unable to parse { nameof(learningProgressionPatchRequest)} from request body. Correlation GUID: {correlationGuid}. Exception: {ex.Message}");
             }
-            _logger.LogInformation("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
+            _logger.LogTrace("Retrieved resource from request body. Correlation GUID: {CorrelationGuid}", correlationGuid);
 
             if (learningProgressionPatchRequest == null)
             {
-                _logger.LogInformation("{LearningProgressionPatch} object is NULL. Correlation GUID: {CorrelationGuid}", nameof(learningProgressionPatchRequest), correlationGuid);
+                _logger.LogTrace("{LearningProgressionPatch} object is NULL. Correlation GUID: {CorrelationGuid}", nameof(learningProgressionPatchRequest), correlationGuid);
                 return new NotFoundObjectResult($"{nameof(learningProgressionPatchRequest)} object is NULL. Correlation GUID: {correlationGuid}");
             }
 
             _learningProgressionPatchTriggerService.SetIds(learningProgressionPatchRequest, customerGuid, touchpointId);
 
-            _logger.LogInformation("Attempting to check if customer is read only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("Attempting to check if customer is read only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
-                _logger.LogWarning("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogInformation("Customer is read-only. Operation is forbidden. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 
                 return new ObjectResult($"Customer is read-only. Operation is forbidden. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}")
                 {
                     StatusCode = (int)HttpStatusCode.Forbidden
                 };
             }
-            _logger.LogInformation("Customer is not read-only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("Customer is not read-only. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
-            _logger.LogInformation("Attempting to check if customer exists. Customer GUID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("Attempting to check if customer exists. Customer GUID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _logger.LogWarning("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+                _logger.LogInformation("Customer does not exist. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
                 return new NotFoundObjectResult($"Customer does not exist. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
-            _logger.LogInformation("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("Customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
-            _logger.LogInformation("Attempting to check if LearningProgression exists for customer. Customer GUID: {CustomerId}", customerGuid);
+            _logger.LogTrace("Attempting to check if LearningProgression exists for customer. Customer GUID: {CustomerId}", customerGuid);
             if (!await _learningProgressionPatchTriggerService.DoesLearningProgressionExistForCustomer(customerGuid))
             {
                 _logger.LogInformation("LearningProgression does not exist for customer. Customer GUID: {CustomerGuid}", customerGuid);
                 return new NotFoundObjectResult($"LearningProgression does not exist for customer. Customer GUID: {customerGuid}");
             }
-            _logger.LogInformation("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
+            _logger.LogTrace("LearningProgression for customer exists. Customer GUID: {CustomerGuid}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
 
             var currentLearningProgressionAsJson = await _learningProgressionPatchTriggerService.GetLearningProgressionForCustomerToPatchAsync(customerGuid, learningProgressionGuid);
 
@@ -161,19 +156,19 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 return new NotFoundObjectResult($"Failed to retrieve LearningProgression Json document. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             }
 
-            _logger.LogInformation("Attempting to update LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
+            _logger.LogTrace("Attempting to update LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
             var patchedLearningProgressionAsJson = _learningProgressionPatchTriggerService.PatchLearningProgressionAsync(currentLearningProgressionAsJson, learningProgressionPatchRequest);
             if (string.IsNullOrEmpty(currentLearningProgressionAsJson))
             {
                 _logger.LogInformation("Failed to update LearningProgression for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
                 return new BadRequestObjectResult($"Failed to update LearningProgression for customer. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}");
             }
-            _logger.LogInformation("Successfully updated LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
+            _logger.LogTrace("Successfully updated LearningProgression object for customer. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
 
             LearningProgressionPatch? learningProgressionValidationObject;
             try
             {
-                _logger.LogInformation("Attempting to deserialize {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
+                _logger.LogTrace("Attempting to deserialize {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
                 learningProgressionValidationObject = JsonSerializer.Deserialize<LearningProgressionPatch>(patchedLearningProgressionAsJson);
             }
             catch (JsonException ex)
@@ -188,38 +183,36 @@ namespace NCS.DSS.LearningProgression.PatchLearningProgression.Function
                 return new UnprocessableEntityObjectResult($"Deserializing {nameof(patchedLearningProgressionAsJson)} validation object has returned NULL. Customer GUID: {customerGuid}. Learning Progression GUID: {learningProgressionGuid}. Request : {req}");
             }
 
-            _logger.LogInformation("Successfully deserialized {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
+            _logger.LogTrace("Successfully deserialized {PatchedLearningProgressionAsJson} validation object. Customer GUID: {CustomerGuid}. Learning Progression GUID: {LearningProgressionGuid}", nameof(patchedLearningProgressionAsJson), customerGuid, learningProgressionGuid);
 
             learningProgressionValidationObject.LastModifiedTouchpointId = touchpointId;
 
-            _logger.LogInformation("Attempting to validate {LearningProgressionValidationObject} object", nameof(learningProgressionValidationObject));
+            _logger.LogTrace("Attempting to validate {LearningProgressionValidationObject} object", nameof(learningProgressionValidationObject));
             var errors = _validate.ValidateResource(learningProgressionValidationObject);
             
             if (errors.Any())
             {
-                _logger.LogWarning("Failed to validate {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
+                _logger.LogInformation("Failed to validate {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
                 return new UnprocessableEntityObjectResult(errors);
             }
-            _logger.LogInformation("Successfully validated {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
+            _logger.LogTrace("Successfully validated {LearningProgressionValidationObject}", nameof(learningProgressionValidationObject));
 
-            _logger.LogInformation("Attempting to PATCH a LearningProgression. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogTrace("Attempting to PATCH a LearningProgression. Customer GUID: {CustomerGuid}", customerGuid);
             var updatedLearningProgression = await _learningProgressionPatchTriggerService.UpdateCosmosAsync(patchedLearningProgressionAsJson, learningProgressionGuid);
             
             if (updatedLearningProgression != null)
             {
-                _logger.LogInformation("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, updatedLearningProgression.LearningProgressionId.GetValueOrDefault(), correlationGuid);
+                _logger.LogTrace("Sending newly created LearningProgression to service bus. Customer GUID: {CustomerGuid}. Learning Progression ID: {LearningProgressionId}. Correlation GUID: {CorrelationGuid}", customerGuid, updatedLearningProgression.LearningProgressionId.GetValueOrDefault(), correlationGuid);
                 await _learningProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedLearningProgression, customerGuid, apimURL, correlationGuid);
 
-                _logger.LogInformation("PATCH request successful. Learning Progression ID: {LearningProgressionId}", updatedLearningProgression.LearningProgressionId.GetValueOrDefault());
-                _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPatchTrigger));
+                _logger.LogTrace("PATCH request successful. Learning Progression ID: {LearningProgressionId}", updatedLearningProgression.LearningProgressionId.GetValueOrDefault());
                 return new JsonResult(updatedLearningProgression, new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.OK
                 };
             }
 
-            _logger.LogWarning("PATCH request unsuccessful.Customer GUID: {CustomerGuid} and Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
-            _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(LearningProgressionPatchTrigger));
+            _logger.LogInformation("PATCH request unsuccessful.Customer GUID: {CustomerGuid} and Learning Progression GUID: {LearningProgressionGuid}", customerGuid, learningProgressionGuid);
             return new NotFoundObjectResult($"PATCH request unsuccessful. Customer GUID: {customerGuid} and Learning Progression GUID: {learningProgressionGuid}");
         }
     }
